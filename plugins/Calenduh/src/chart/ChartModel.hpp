@@ -28,10 +28,11 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
+#include <QTimeZone>
 #include <QVector>
 #include <optional>
 
-namespace Calenduh {
+namespace calenduh {
 
 //! The four Sun-altitude thresholds of the chart, from the brightest to the darkest band.
 enum class Threshold { Sunset = 0, Civil = 1, Nautical = 2, Astronomical = 3 };
@@ -72,8 +73,8 @@ struct NightRow
 	std::optional<double> dusk[ThresholdCount];
 	std::optional<double> dawn[ThresholdCount];
 
-	SunExtreme sunLowest;         //!< lowest Sun altitude, noon to noon
-	SunExtreme sunHighest;        //!< highest Sun altitude, noon to noon
+	SunExtreme sunLowest;         //!< lowest Sun altitude, culmination to culmination
+	SunExtreme sunHighest;        //!< highest Sun altitude, culmination to culmination
 
 	double moonIllumination = 0.; //!< 0..1 at local midnight (CAL-P-04)
 	bool moonWaning = false;
@@ -123,6 +124,18 @@ struct ChartModel
 QDateTime jdToDateTime(double jd);
 double dateTimeToJd(const QDateTime& dateTime);
 
-} // namespace Calenduh
+//! JD of a local clock time (minutes after midnight) on @p date in @p timeZone.
+//! A time in a daylight-saving gap maps to a valid instant next to the gap;
+//! an ambiguous time (clock set back) maps to one of its two instants.
+double localClockToJd(const QDate& date, int minutes, const QTimeZone& timeZone);
+
+//! JD of a local clock time on the night of @p evening: a time before noon is on the
+//! next morning, a time from noon is on the evening date.
+double nightClockToJd(const QDate& evening, int minutes, const QTimeZone& timeZone);
+
+//! Local clock time of @p jd, in minutes after midnight (with fraction).
+double localClockMinutes(double jd, const QTimeZone& timeZone);
+
+} // namespace calenduh
 
 #endif // CALENDUH_CHARTMODEL_HPP

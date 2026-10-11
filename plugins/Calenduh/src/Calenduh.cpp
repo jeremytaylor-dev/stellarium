@@ -27,6 +27,13 @@
 #include "CalenduhDialog.hpp"
 #endif
 
+#include "EphemerisSampler.hpp"
+#include "ChartSettings.hpp"
+
+#include <QCoreApplication>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QPixmap>
 #include <QTimer>
 #include <QElapsedTimer>
@@ -90,15 +97,91 @@ void Calenduh::init()
 
 	if (qEnvironmentVariableIntValue("CALENDUH_BENCHMARK") == 1)
 		QTimer::singleShot(5000, this, &Calenduh::runUpdateBenchmark);
+	if (qEnvironmentVariableIsSet("CALENDUH_SAMPLE"))
+		QTimer::singleShot(3000, this, &Calenduh::runSamplerCheck);
+}
+
+void Calenduh::runSamplerCheck()
+{
+	const QStringList paths = qEnvironmentVariable("CALENDUH_SAMPLE").split(';');
+	if (paths.size() != 2)
+	{
+		qWarning() << "[Calenduh] CALENDUH_SAMPLE must be <fixture.json>;<output.json>";
+		return;
+	}
+	QFile in(paths.at(0));
+	if (!in.open(QIODevice::ReadOnly))
+	{
+		qWarning() << "[Calenduh] cannot read" << paths.at(0);
+		return;
+	}
+	const QByteArray json = in.readAll();
+	calenduh::ChartModel fixture;
+	QString error;
+	if (!fixture.fromJson(json, &error) || fixture.rows.isEmpty())
+	{
+		qWarning() << "[Calenduh] invalid fixture:" << error;
+		return;
+	}
+	const QJsonObject root = QJsonDocument::fromJson(json).object();
+
+	calenduh::ChartSettings settings;
+	settings.location = fixture.location;
+	settings.firstEvening = fixture.rows.first().eveningDate;
+	settings.lastEvening = fixture.rows.last().eveningDate;
+	settings.stars = fixture.stars;
+	const QTime start = QTime::fromString(root.value("windowStart").toString(), "HH:mm");
+	const QTime end = QTime::fromString(root.value("windowEnd").toString(), "HH:mm");
+	settings.autoWindow = !(start.isValid() && end.isValid());
+	settings.windowStartClock = start.hour() * 60 + start.minute();
+	settings.windowEndClock = end.hour() * 60 + end.minute();
+	const QJsonObject panelSettings = root.value("panel").toObject().value("settings").toObject();
+	if (!panelSettings.isEmpty())
+		settings.panel = calenduh::PanelSettings::fromJson(panelSettings).value_or(calenduh::PanelSettings());
+
+	QElapsedTimer timer;
+	timer.start();
+	calenduh::EphemerisSampler sampler(settings);
+	if (!sampler.prepare(&error))
+	{
+		qWarning() << "[Calenduh] sampler failed:" << error;
+		return;
+	}
+	for (int i = 0; i < sampler.nightCount(); ++i)
+		sampler.computeNight(i);
+	const qint64 elapsed = timer.elapsed();
+
+	// Also report the automatic window (CAL-L-07) for comparison with the fixture's window.
+	calenduh::ChartSettings autoSettings = settings;
+	autoSettings.autoWindow = true;
+	autoSettings.panel.enabled = false;
+	calenduh::EphemerisSampler autoSampler(autoSettings);
+	QString autoWindow;
+	if (autoSampler.prepare())
+	{
+		const QTimeZone tz(settings.location.timeZone.toUtf8());
+		const auto& r = autoSampler.model().rows.first();
+		autoWindow = calenduh::jdToDateTime(r.windowStart).toTimeZone(tz).toString("HH:mm") + "-"
+			     + calenduh::jdToDateTime(r.windowEnd).toTimeZone(tz).toString("HH:mm");
+	}
+
+	QFile out(paths.at(1));
+	if (out.open(QIODevice::WriteOnly | QIODevice::Truncate))
+		out.write(sampler.model().toJson());
+	qInfo().noquote() << QString("[Calenduh] sampler check: %1 nights in %2 ms; automatic window %3; unresolved: %4; written %5")
+			     .arg(sampler.nightCount()).arg(elapsed).arg(autoWindow, sampler.unresolvedNames().join(", "), paths.at(1));
+
+	if (qEnvironmentVariableIntValue("CALENDUH_SAMPLE_QUIT") == 1)
+		QTimer::singleShot(0, qApp, &QCoreApplication::quit);
 }
 
 void Calenduh::runUpdateBenchmark()
 {
 	StelCore* core = StelApp::getInstance().getCore();
-	const double jd0 = core->getJD();
-	const double rate0 = core->getTimeRate();
+	// Restore as Planet::getRTSTime() does: the JD and wall-clock time of the last
+	// time sync, so that a running clock continues as if it had not been touched.
+	const double jd0 = core->getJDOfLastJDUpdate();
 	const qint64 millis0 = core->getMilliSecondsOfLastJDUpdate();
-	core->setTimeRate(0.);
 
 	const double step = 5. / 1440.; // 5 minutes, as for the Moon sampling
 	const int warmUp = 20;
@@ -117,7 +200,6 @@ void Calenduh::runUpdateBenchmark()
 
 	core->setJD(jd0);
 	core->setMilliSecondsOfLastJDUpdate(millis0);
-	core->setTimeRate(rate0);
 	core->update(0.);
 
 	std::sort(ms.begin(), ms.end());

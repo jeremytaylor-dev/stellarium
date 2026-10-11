@@ -23,7 +23,7 @@
 #include <QColor>
 #include <QString>
 
-namespace Calenduh {
+namespace calenduh {
 
 //! Colours, line weights and text of the chart. Lengths are in points (1/72 inch).
 //! Defaults are the values accepted in requirements.html.
@@ -61,6 +61,6 @@ struct ChartStyle
 	QColor phaseOutline    { 0x80, 0x80, 0x80 };
 };
 
-} // namespace Calenduh
+} // namespace calenduh
 
 #endif // CALENDUH_CHARTSTYLE_HPP

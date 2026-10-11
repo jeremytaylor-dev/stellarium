@@ -24,7 +24,7 @@
 #include <QPdfWriter>
 #include <QSvgGenerator>
 
-namespace Calenduh {
+namespace calenduh {
 
 namespace {
 constexpr int DOTS_PER_METRE_72DPI = 2835; // ChartRenderer works at 72 dpi (1 unit = 1 point)
@@ -91,4 +91,4 @@ bool ChartExporter::writePdf(const ChartModel& model, const ChartStyle& style, c
 	return painter.end();
 }
 
-} // namespace Calenduh
+} // namespace calenduh

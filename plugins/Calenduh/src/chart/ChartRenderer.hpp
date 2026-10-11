@@ -31,7 +31,7 @@
 
 class QPainter;
 
-namespace Calenduh {
+namespace calenduh {
 
 //! Draws a ChartModel with QPainter (architecture section 6). No Stellarium dependency.
 //! Units: one painter unit is one point, and the paint device must have a logical
@@ -103,6 +103,6 @@ private:
 	QString titleText() const;
 };
 
-} // namespace Calenduh
+} // namespace calenduh
 
 #endif // CALENDUH_CHARTRENDERER_HPP

@@ -28,7 +28,7 @@
 #include <QPageSize>
 #include <QSizeF>
 
-namespace Calenduh {
+namespace calenduh {
 
 //! Writes the chart to PDF, SVG and PNG (CAL-I-05). Sizes are in points.
 class ChartExporter
@@ -49,6 +49,6 @@ public:
 			     QPageLayout::Orientation orientation = QPageLayout::Landscape);
 };
 
-} // namespace Calenduh
+} // namespace calenduh
 
 #endif // CALENDUH_CHARTEXPORTER_HPP
