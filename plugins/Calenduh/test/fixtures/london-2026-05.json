@@ -9531,7 +9531,7 @@
  ],
  "panel": {
   "title": "Astrophotography",
-  "summary": "astronomical dusk to astronomical dawn, 3:00+ above 30\u00b0",
+  "summary": "astronomical dusk to astronomical dawn, above 30\u00b0 for minimum 3:00",
   "targets": [
    "M81",
    "M51",
