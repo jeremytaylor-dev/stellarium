@@ -601,18 +601,39 @@ void ChartRenderer::drawPanel(QPainter& painter)
 		painter.restore();
 	}
 
-	// Heading level with the chart title (CAL-G-11, CAL-G-17).
+	// Heading level with the chart title (CAL-G-11, CAL-G-17). A line starts at the panel's
+	// left edge. A longer line moves left, up to the end of the chart title; if it is still
+	// too long, its font gets smaller (to 70 %), and then the text is elided.
+	QFont chartTitleFont = font;
+	chartTitleFont.setPointSizeF(1.3 * em);
+	chartTitleFont.setBold(true);
+	const double chartTitleEnd = chart.center().x() + 0.5 * QFontMetricsF(chartTitleFont).horizontalAdvance(titleText());
+	const double headingLeft = std::min(panelArea.left(), std::max(chart.left(), chartTitleEnd + em));
+	const double headingRight = panelArea.right();
+	const auto drawHeadingLine = [&](QFont lineFont, const QString& text, double baseline) {
+		const double width = headingRight - headingLeft;
+		const double advance = QFontMetricsF(lineFont).horizontalAdvance(text);
+		if (advance > width)
+		{
+			const double size = lineFont.pointSizeF();
+			lineFont.setPointSizeF(std::max(0.7 * size, size * width / advance));
+		}
+		const QFontMetricsF lineMetrics(lineFont);
+		const QString shown = lineMetrics.elidedText(text, Qt::ElideRight, width);
+		const double x = std::max(headingLeft, std::min(panelArea.left(), headingRight - lineMetrics.horizontalAdvance(shown)));
+		painter.setFont(lineFont);
+		painter.drawText(QPointF(x, baseline), shown);
+	};
+	painter.setPen(style.textColor);
+	const double headingTop = chart.top() - 1.6 * em - 2.4 * em;
 	QFont titleFont = font;
 	titleFont.setPointSizeF(1.0 * em);
 	titleFont.setBold(true);
-	painter.setFont(titleFont);
-	painter.setPen(style.textColor);
-	const double headingTop = chart.top() - 1.6 * em - 2.4 * em;
-	painter.drawText(QPointF(panelArea.left(), headingTop + 1.1 * em), panel.title);
+	drawHeadingLine(titleFont, panel.title, headingTop + 1.1 * em);
 	QFont summaryFont = font;
 	summaryFont.setPointSizeF(0.7 * em);
+	drawHeadingLine(summaryFont, panel.summary, headingTop + 2.1 * em);
 	painter.setFont(summaryFont);
-	painter.drawText(QPointF(panelArea.left(), headingTop + 2.1 * em), panel.summary);
 
 	if (anyShaded)
 		painter.drawText(QPointF(panelArea.left(), chart.bottom() + 0.45 * em + QFontMetricsF(summaryFont).ascent()),
