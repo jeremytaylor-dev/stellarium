@@ -642,9 +642,10 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	// Labels: black, overlaid on the line, reading upwards, near the top of each span,
 	// not cut off at the end of a short span (CAL-G-13). A label that would extend past the
 	// page margin sits above its span instead, if it fits there clear of the panel top and
-	// of the previous span of the same target. Otherwise it moves up along its own line
-	// until it ends at the margin; a name longer than the panel then gets a smaller font
-	// (to 70 %) and is then shortened.
+	// of the previous line of the same target. Otherwise it moves up along its own line
+	// until it ends at the margin; if it would then reach the previous line, it gets a
+	// smaller font (to 70 %) and is then shortened. Where two labels of one target would
+	// then overlap (or come closer than 0.2 em), only the lower one is drawn.
 	QFont font = painter.font();
 	font.setPointSizeF(0.8 * em);
 	const QFontMetricsF fm(font, painter.device());
@@ -658,9 +659,9 @@ void ChartRenderer::drawPanel(QPainter& painter)
 		bool drawn;
 	};
 	QVector<Label> labels;
-	// Lowest point drawn in each column. The spans are in column order, then row order, so
-	// this is the previous span of the same target.
-	QVector<double> usedBottom(panel.targets.size(), panelArea.top());
+	// Bottom of the previous line in each column. The spans are in column order, then row
+	// order, so this is the previous span of the same target.
+	QVector<double> lineAbove(panel.targets.size(), panelArea.top());
 	for (const Span& s : spans)
 	{
 		QString name = panel.targets.at(s.target);
@@ -672,8 +673,8 @@ void ChartRenderer::drawPanel(QPainter& painter)
 		if (anchor.y() > labelLimit)
 		{
 			const double above = lineTop - 0.2 * em;
-			const double space = labelLimit - panelArea.top() - em;
-			if (above - length >= usedBottom.at(s.target) + em)
+			const double space = labelLimit - lineAbove.at(s.target) - em;
+			if (above - length >= lineAbove.at(s.target) + em)
 				anchor.setY(above);
 			else
 			{
@@ -685,7 +686,9 @@ void ChartRenderer::drawPanel(QPainter& painter)
 				}
 			}
 		}
-		usedBottom[s.target] = std::max(lineBottom, anchor.y());
+		lineAbove[s.target] = lineBottom;
+		if (name.isEmpty())
+			continue;
 		const double top = anchor.y() - QFontMetricsF(labelFont, painter.device()).horizontalAdvance(name);
 		labels.append({ s.target, name, labelFont, anchor, top, true });
 	}
