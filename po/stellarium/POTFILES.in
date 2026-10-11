@@ -274,6 +274,13 @@ plugins/Calendars/src/VietnameseCalendar.cpp
 plugins/Calendars/src/ZoroastrianCalendar.cpp
 plugins/Calendars/src/gui/CalendarsDialog.cpp
 plugins/Calendars/src/ui_calendarsDialog.h
+plugins/Calenduh/src/Calenduh.cpp
+plugins/Calenduh/src/ChartJob.cpp
+plugins/Calenduh/src/EphemerisSampler.cpp
+plugins/Calenduh/src/chart/ChartSettings.cpp
+plugins/Calenduh/src/gui/CalenduhDialog.cpp
+plugins/Calenduh/src/gui/SettingsEditor.cpp
+plugins/Calenduh/src/ui_calenduhDialog.h
 plugins/OnlineQueries/src/HipOnlineQuery.cpp
 plugins/OnlineQueries/src/OnlineQueries.cpp
 plugins/OnlineQueries/src/gui/OnlineQueriesDialog.cpp
