@@ -32,6 +32,21 @@ namespace calenduh {
 
 namespace {
 
+//! @p font, made smaller in 5 % steps down to @p minFactor of its size until @p text is
+//! not wider than @p width.
+QFont fittedFont(QFont font, const QString& text, double width, QPaintDevice* device, double minFactor)
+{
+	const double size = font.pointSizeF();
+	for (int step = 1; QFontMetricsF(font, device).horizontalAdvance(text) > width; ++step)
+	{
+		const double factor = 1. - 0.05 * step;
+		if (factor < minFactor - 1e-9)
+			break;
+		font.setPointSizeF(factor * size);
+	}
+	return font;
+}
+
 //! Transit times of a star move earlier by (1 solar day - 1 sidereal day) per day.
 constexpr double STAR_DRIFT_MINUTES_PER_DAY = -3.9333;
 constexpr double SIDEREAL_DAY = 0.99726957; //!< days
@@ -66,7 +81,7 @@ void ChartRenderer::render(QPainter& painter, const QRectF& page)
 {
 	if (model.rows.isEmpty())
 		return;
-	layout(page);
+	layout(page, painter);
 
 	painter.save();
 	painter.setRenderHint(QPainter::Antialiasing, true);
@@ -90,7 +105,22 @@ void ChartRenderer::render(QPainter& painter, const QRectF& page)
 	painter.restore();
 }
 
-void ChartRenderer::layout(const QRectF& page)
+QFont ChartRenderer::panelTitleFont(QFont base) const
+{
+	base.setPointSizeF(1.0 * em);
+	base.setBold(true);
+	return base;
+}
+
+QFont ChartRenderer::panelSummaryFont(QFont base) const
+{
+	base.setPointSizeF(0.7 * em);
+	base.setBold(false);
+	base.setItalic(false);
+	return base;
+}
+
+void ChartRenderer::layout(const QRectF& page, const QPainter& painter)
 {
 	const int rowCount = model.rows.size();
 	const double margin = 0.03 * std::min(page.width(), page.height());
@@ -103,7 +133,20 @@ void ChartRenderer::layout(const QRectF& page)
 	const double rightReserve = 2.6 * em;
 	// CAL-G-17: the panel is directly right of the chart; the chart's morning dates sit between them.
 	columnWidth = style.panelColumnFactor * em;
-	const double panelWidth = model.panel ? model.panel->targets.size() * columnWidth + em : 0.;
+	double panelWidth = 0.;
+	if (model.panel)
+	{
+		// At least as wide as the heading and the shade note (CAL-G-11, CAL-G-16), but not
+		// more than 35 % of the page for them.
+		const TargetPanel& panel = *model.panel;
+		const QFontMetricsF titleMetrics(panelTitleFont(painter.font()), painter.device());
+		const QFontMetricsF summaryMetrics(panelSummaryFont(painter.font()), painter.device());
+		double textWidth = std::max(titleMetrics.horizontalAdvance(panel.title),
+					    summaryMetrics.horizontalAdvance(panel.summary));
+		if (std::any_of(model.rows.cbegin(), model.rows.cend(), [](const NightRow& r) { return !r.hasPeriod(); }))
+			textWidth = std::max(textWidth, summaryMetrics.horizontalAdvance(style.panelShadeNote));
+		panelWidth = std::max(panel.targets.size() * columnWidth + em, std::min(textWidth + 0.2 * em, 0.35 * page.width()));
+	}
 	chart = QRectF(page.left() + margin + leftReserve,
 		       page.top() + margin + titleHeight + hourLabelHeight,
 		       page.width() - 2. * margin - leftReserve - rightReserve - panelWidth,
@@ -351,7 +394,7 @@ void ChartRenderer::drawStarLabels(QPainter& painter, const QVector<StarLabel>& 
 	font.setPointSizeF(std::min(0.8 * em, 0.9 * rowHeight));
 	font.setItalic(true);
 	painter.setFont(font);
-	const QFontMetricsF fm(font);
+	const QFontMetricsF fm(font, painter.device());
 
 	// CAL-S-06: one label per segment, near its top, on the left side of the line.
 	// The text reads upwards (first letter lowest), with its baseline along the line.
@@ -488,15 +531,19 @@ void ChartRenderer::drawLabels(QPainter& painter)
 	QFont titleFont = painter.font();
 	titleFont.setPointSizeF(1.3 * em);
 	titleFont.setBold(true);
-	painter.setFont(titleFont);
+	// A title wider than the chart gets a smaller font (to 70 %) and is then shortened.
 	const QRectF titleRect(chart.left(), chart.top() - 1.6 * em - 2.4 * em, chart.width(), 2.4 * em);
-	painter.drawText(titleRect, Qt::AlignHCenter | Qt::AlignVCenter, titleText());
+	const QString title = titleText();
+	titleFont = fittedFont(titleFont, title, titleRect.width(), painter.device(), 0.7);
+	painter.setFont(titleFont);
+	painter.drawText(titleRect, Qt::AlignHCenter | Qt::AlignVCenter,
+			 QFontMetricsF(titleFont, painter.device()).elidedText(title, Qt::ElideRight, titleRect.width()));
 
 	QFont font = painter.font();
 	font.setBold(false);
 	font.setPointSizeF(0.85 * em);
 	painter.setFont(font);
-	const QFontMetricsF fm(font);
+	const QFontMetricsF fm(font, painter.device());
 
 	// CAL-L-03: hour labels at the top and the bottom.
 	const int firstHour = (windowStartClock + 59) / 60 * 60;
@@ -513,7 +560,7 @@ void ChartRenderer::drawLabels(QPainter& painter)
 	QFont dateFont = font;
 	dateFont.setPointSizeF(std::min(0.85 * em, 0.75 * rowHeight));
 	painter.setFont(dateFont);
-	const QFontMetricsF dfm(dateFont);
+	const QFontMetricsF dfm(dateFont, painter.device());
 	for (int row = 0; row < model.rows.size(); ++row)
 	{
 		const QDate evening = model.rows.at(row).eveningDate;
@@ -588,12 +635,15 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	QFont font = painter.font();
 	font.setPointSizeF(0.8 * em);
 	painter.setFont(font);
-	const QFontMetricsF fm(font);
+	const QFontMetricsF fm(font, painter.device());
 	painter.setPen(style.panelTextColor);
+	double noteLeft = panelArea.left();  // right of the labels that extend below the panel
 	for (const Span& s : spans)
 	{
 		const QString& name = panel.targets.at(s.target);
 		const QPointF anchor(columnX(s.target), rowTop(s.first) + 0.15 * rowHeight + 0.2 * em + fm.horizontalAdvance(name));
+		if (anchor.y() > chart.bottom())
+			noteLeft = std::max(noteLeft, anchor.x() + 0.5 * (fm.ascent() + fm.descent()) + 0.3 * em);
 		painter.save();
 		painter.translate(anchor);
 		painter.rotate(-90.);
@@ -601,22 +651,28 @@ void ChartRenderer::drawPanel(QPainter& painter)
 		painter.restore();
 	}
 
-	// Heading level with the chart title (CAL-G-11, CAL-G-17).
-	QFont titleFont = font;
-	titleFont.setPointSizeF(1.0 * em);
-	titleFont.setBold(true);
-	painter.setFont(titleFont);
+	// Heading above the panel, level with the chart title (CAL-G-11, CAL-G-17). layout() makes
+	// the panel wide enough for it where it can; text that is still too wide gets a smaller
+	// font (to 70 %) and is then shortened.
 	painter.setPen(style.textColor);
+	QPaintDevice* device = painter.device();
+	const auto drawLine = [&](const QFont& lineFont, const QString& text, double left, double baseline) {
+		const double width = panelArea.right() - left;
+		const QFont fitted = fittedFont(lineFont, text, width, device, 0.7);
+		painter.setFont(fitted);
+		const QFontMetricsF metrics(fitted, device);
+		painter.drawText(QPointF(left, baseline), metrics.elidedText(text, Qt::ElideRight, width));
+	};
 	const double headingTop = chart.top() - 1.6 * em - 2.4 * em;
-	painter.drawText(QPointF(panelArea.left(), headingTop + 1.1 * em), panel.title);
-	QFont summaryFont = font;
-	summaryFont.setPointSizeF(0.7 * em);
-	painter.setFont(summaryFont);
-	painter.drawText(QPointF(panelArea.left(), headingTop + 2.1 * em), panel.summary);
+	const QFont titleFont = panelTitleFont(font);
+	const QFont summaryFont = panelSummaryFont(font);
+	drawLine(titleFont, panel.title, panelArea.left(), headingTop + 1.1 * em);
+	drawLine(summaryFont, panel.summary, panelArea.left(), headingTop + 2.1 * em);
 
-	if (anyShaded)
-		painter.drawText(QPointF(panelArea.left(), chart.bottom() + 0.45 * em + QFontMetricsF(summaryFont).ascent()),
-				 style.panelShadeNote);
+	// CAL-G-16: the note goes right of target labels that extend below the panel (CAL-G-13).
+	if (anyShaded && noteLeft < panelArea.right())
+		drawLine(summaryFont, style.panelShadeNote, noteLeft,
+			 chart.bottom() + 0.45 * em + QFontMetricsF(summaryFont, device).ascent());
 	painter.restore();
 }
 

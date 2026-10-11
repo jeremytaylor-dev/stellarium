@@ -23,6 +23,7 @@
 #include "ChartModel.hpp"
 #include "ChartStyle.hpp"
 
+#include <QFont>
 #include <QPainterPath>
 #include <QPointF>
 #include <QRectF>
@@ -65,7 +66,9 @@ private:
 	int windowStartClock = 0;   //!< minutes after local midnight
 	int windowMinutes = 0;      //!< clock length of the time window
 
-	void layout(const QRectF& page);
+	void layout(const QRectF& page, const QPainter& painter);
+	QFont panelTitleFont(QFont base) const;    //!< target panel title, 1.0 em bold
+	QFont panelSummaryFont(QFont base) const;  //!< panel summary and shade note, 0.7 em
 
 	// Coordinates.
 	int utcOffsetSeconds(double jd) const;
