@@ -206,6 +206,13 @@ bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* 
 	return true;
 }
 
+void Calenduh::deinit()
+{
+#ifndef NO_GUI
+	dialog->flushSettings();
+#endif
+}
+
 void Calenduh::runSamplerCheck()
 {
 	const QStringList paths = qEnvironmentVariable("CALENDUH_SAMPLE").split(';');

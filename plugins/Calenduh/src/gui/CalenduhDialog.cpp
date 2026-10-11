@@ -112,13 +112,19 @@ void CalenduhDialog::generate()
 	Calenduh* plugin = GETSTELMODULE(Calenduh);
 	calenduh::ChartSettings settings;
 	QString error;
-	if (!plugin->resolveChartSettings(settings, &error) || !job->start(settings, &error))
+	if (!plugin->resolveChartSettings(settings, &error))
 	{
 		jobFailed(error);
 		return;
 	}
-	// resolveChartSettings() can save the last Earth location; show it in the editor.
+	// resolveChartSettings() can save the last Earth location; show it in the editor,
+	// so that a later save of the editor's copy keeps it.
 	editor->setSettings(plugin->getUserSettings());
+	if (!job->start(settings, &error))
+	{
+		jobFailed(error);
+		return;
+	}
 	jobStyle = plugin->getUserSettings().style;
 	jobPage = plugin->getUserSettings().exportOptions.pagePoints();
 	setStatus([]() { return q_("Calculating..."); });

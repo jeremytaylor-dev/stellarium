@@ -22,6 +22,7 @@
 #include "StelApp.hpp"
 #include "StelCore.hpp"
 #include "StelLocationMgr.hpp"
+#include "StelMainView.hpp"
 #include "StelModuleMgr.hpp"
 #include "StelObjectMgr.hpp"
 #include "StelTranslator.hpp"
@@ -230,6 +231,7 @@ QWidget* SettingsEditor::buildLocationPage()
 	locationForm->addRow(label(N_("Elevation")), elevation);
 	timeZone = new QComboBox();
 	timeZone->setEditable(true);
+	timeZone->setInsertPolicy(QComboBox::NoInsert);
 	{
 		QStringList zones;
 		for (const QByteArray& id : QTimeZone::availableTimeZoneIds())
@@ -273,7 +275,7 @@ QWidget* SettingsEditor::buildLocationPage()
 	layout->addStretch(1);
 
 	connect(followLocation, &QCheckBox::toggled, this, &SettingsEditor::onChanged);
-	connect(locationName, &QLineEdit::editingFinished, this, &SettingsEditor::onChanged);
+	connect(locationName, &QLineEdit::textEdited, this, &SettingsEditor::onChanged);
 	connect(latitude, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
 	connect(longitude, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
 	connect(elevation, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
@@ -437,7 +439,7 @@ QWidget* SettingsEditor::buildPanelPage()
 
 	connect(panelEnabled, &QCheckBox::toggled, this, &SettingsEditor::onChanged);
 	connect(panelPreset, &QComboBox::activated, this, &SettingsEditor::applyPreset);
-	connect(panelTitle, &QLineEdit::editingFinished, this, &SettingsEditor::onChanged);
+	connect(panelTitle, &QLineEdit::textEdited, this, &SettingsEditor::onChanged);
 	connect(minAltitude, &QSpinBox::valueChanged, this, &SettingsEditor::onChanged);
 	connect(minDuration, &QTimeEdit::timeChanged, this, &SettingsEditor::onChanged);
 	return page;
@@ -810,7 +812,7 @@ QColor SettingsEditor::colorOf(const QToolButton* button) const
 
 void SettingsEditor::chooseColor(QToolButton* button)
 {
-	const QColor color = QColorDialog::getColor(colorOf(button), button->window());
+	const QColor color = QColorDialog::getColor(colorOf(button), &StelMainView::getInstance());
 	if (!color.isValid())
 		return;
 	setColorButton(button, color);

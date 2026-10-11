@@ -51,6 +51,8 @@ public slots:
 	//! Development check: show the window, wait for the chart, save an image of
 	//! the window to @p pngPath, and quit Stellarium if @p quit.
 	void runDialogCheck(const QString& pngPath, bool quit);
+	//! Save settings edits that wait for the pause timer (at quit).
+	void flushSettings() { saveSettingsNow(); }
 
 protected:
 	void createDialogContent() override;

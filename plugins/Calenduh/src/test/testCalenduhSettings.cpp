@@ -176,7 +176,7 @@ private slots:
 		QCOMPARE(r.chart.panel.minDurationHours, d.chart.panel.minDurationHours);
 	}
 
-	void invalidTimeZoneIsNotSaved()
+	void unknownTimeZoneIsKept()
 	{
 		{
 			QSettings conf(iniPath("badzone"), QSettings::IniFormat);
@@ -190,7 +190,9 @@ private slots:
 		QSettings conf(iniPath("badzone"), QSettings::IniFormat);
 		UserSettings r;
 		r.load(conf);
-		QVERIFY(!r.hasSavedLocation);
+		QVERIFY(r.hasSavedLocation);
+		QCOMPARE(r.chart.location.timeZone, QString("Foo/Bar"));
+		QVERIFY(!isValidTimeZone(r.chart.location.timeZone));
 		QCOMPARE(r.chart.panel.end.kind, UserSettings().chart.panel.end.kind);
 	}
 
