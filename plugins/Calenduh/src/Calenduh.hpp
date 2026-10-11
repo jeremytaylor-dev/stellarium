@@ -22,6 +22,7 @@
 
 #include "StelModule.hpp"
 #include "StelPluginInterface.hpp"
+#include "UserSettings.hpp"
 
 #include <QObject>
 
@@ -56,6 +57,20 @@ public:
 	void init() override;
 	bool configureGui(bool show) override;
 
+	//! The saved user settings (CAL-I-08).
+	const calenduh::UserSettings& getUserSettings() const { return userSettings; }
+	//! Replace the user settings and save them in config.ini.
+	void setUserSettings(const calenduh::UserSettings& settings);
+
+	//! The inputs of the next chart: the user settings with the location and the
+	//! dates resolved (CAL-L-06, CAL-L-09, CAL-I-09). Returns false and sets
+	//! @p error if no Earth location is available; the user must then select one.
+	bool resolveChartSettings(calenduh::ChartSettings& settings, QString* error = nullptr) const;
+
+	//! Stellarium's current location as a chart location. Returns false if the
+	//! observer is not on Earth or the time zone cannot be used.
+	static bool stellariumLocation(calenduh::ChartLocation& location);
+
 private slots:
 	//! Development diagnostic: time StelCore::setJD() + update(0) over many steps
 	//! and write the statistics to the log. Runs at start-up only if the
@@ -70,6 +85,8 @@ private slots:
 	void runSamplerCheck();
 
 private:
+	calenduh::UserSettings userSettings;
+
 #ifndef NO_GUI
 	CalenduhDialog* dialog;
 	StelButton* toolbarButton;

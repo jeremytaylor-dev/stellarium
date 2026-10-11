@@ -19,7 +19,9 @@
 
 #include "StelApp.hpp"
 #include "StelCore.hpp"
+#include "StelLocation.hpp"
 #include "StelTranslator.hpp"
+#include "StelUtils.hpp"
 #include "Calenduh.hpp"
 #ifndef NO_GUI
 #include "StelGui.hpp"
@@ -35,9 +37,12 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPixmap>
+#include <QSettings>
+#include <QTimeZone>
 #include <QTimer>
 #include <QElapsedTimer>
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 
 StelModule* CalenduhStelPluginInterface::getStelModule() const
@@ -79,6 +84,9 @@ Calenduh::~Calenduh()
 
 void Calenduh::init()
 {
+	if (QSettings* conf = StelApp::getInstance().getSettings())
+		userSettings.load(*conf);
+
 #ifndef NO_GUI
 	addAction("actionShow_Calenduh_dialog", N_("Calenduh"), N_("Show observation planning calendar"), dialog, "visible");
 
@@ -99,6 +107,76 @@ void Calenduh::init()
 		QTimer::singleShot(5000, this, &Calenduh::runUpdateBenchmark);
 	if (qEnvironmentVariableIsSet("CALENDUH_SAMPLE"))
 		QTimer::singleShot(3000, this, &Calenduh::runSamplerCheck);
+}
+
+void Calenduh::setUserSettings(const calenduh::UserSettings& settings)
+{
+	userSettings = settings;
+	if (QSettings* conf = StelApp::getInstance().getSettings())
+	{
+		userSettings.save(*conf);
+		conf->sync();
+	}
+}
+
+bool Calenduh::stellariumLocation(calenduh::ChartLocation& location)
+{
+	const StelCore* core = StelApp::getInstance().getCore();
+	const StelLocation& loc = core->getCurrentLocation();
+	if (loc.planetName != "Earth")
+		return false;
+
+	// Stellarium's time zone may differ from the location's (user setting).
+	QString tz = core->getCurrentTimeZone();
+	if (tz.isEmpty())
+		tz = loc.ianaTimeZone;
+	if (tz == "system_default")
+		tz = QString::fromUtf8(QTimeZone::systemTimeZoneId());
+	else if (tz == "LMST" || tz == "LTST")
+	{
+		// Local mean solar time: a fixed offset from the longitude, to the minute.
+		const int minutes = static_cast<int>(std::lround(loc.getLongitude(true) * 4.));
+		tz = QString("UTC%1%2:%3").arg(minutes < 0 ? '-' : '+')
+			.arg(std::abs(minutes) / 60, 2, 10, QChar('0')).arg(std::abs(minutes) % 60, 2, 10, QChar('0'));
+	}
+	if (!QTimeZone(tz.toUtf8()).isValid())
+		return false;
+
+	location.name = loc.name;
+	location.latitude = loc.getLatitude(true);
+	location.longitude = loc.getLongitude(true);
+	location.elevation = loc.altitude;
+	location.timeZone = tz;
+	return true;
+}
+
+bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* error) const
+{
+	settings = userSettings.chart;
+
+	// CAL-L-09, CAL-I-09
+	calenduh::ChartLocation current;
+	const bool onEarth = stellariumLocation(current);
+	if (userSettings.followStellariumLocation && onEarth)
+		settings.location = current;
+	else if (!userSettings.hasSavedLocation)
+	{
+		if (error)
+			*error = q_("Stellarium's observer is not on Earth. Select a chart location.");
+		return false;
+	}
+
+	// CAL-L-06: the calendar month of Stellarium's current date (local time).
+	if (userSettings.currentMonth || !settings.firstEvening.isValid() || !settings.lastEvening.isValid())
+	{
+		const StelCore* core = StelApp::getInstance().getCore();
+		const double jd = core->getJD();
+		int year, month, day;
+		StelUtils::getDateFromJulianDay(jd + core->getUTCOffset(jd) / 24., &year, &month, &day);
+		settings.firstEvening = QDate(year, month, 1);
+		settings.lastEvening = settings.firstEvening.addMonths(1).addDays(-1);
+	}
+	return true;
 }
 
 void Calenduh::runSamplerCheck()
