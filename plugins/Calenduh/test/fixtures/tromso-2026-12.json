@@ -37,20 +37,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461376.05295189,
-    "civilDawn": 2461376.828201359,
-    "nauticalDusk": 2461376.1176502905,
-    "nauticalDawn": 2461376.7628671383,
-    "astronomicalDusk": 2461376.16984856,
-    "astronomicalDawn": 2461376.7104312996
+    "civilDusk": 2461376.0529521476,
+    "civilDawn": 2461376.828201104,
+    "nauticalDusk": 2461376.1176503664,
+    "nauticalDawn": 2461376.762866971,
+    "astronomicalDusk": 2461376.169848568,
+    "astronomicalDawn": 2461376.710431381
    },
    "sunLowest": {
     "jd": 2461376.4399793223,
-    "alt": -42.2629099948053
+    "alt": -42.262909995349034
    },
    "sunHighest": {
-    "jd": 2461375.9583333335,
-    "alt": -1.6153264996596874
+    "jd": 2461375.939696135,
+    "alt": -1.485807624102716
    },
    "windowStart": 2461376.0416666665,
    "windowEnd": 2461376.875,
@@ -577,8 +577,8 @@
     "Sadalmelik": 2461376.173066585
    },
    "panel": {
-    "periodStart": 2461376.1176502905,
-    "periodEnd": 2461376.221816957,
+    "periodStart": 2461376.1176503664,
+    "periodEnd": 2461376.221817033,
     "qualifies": [
      true,
      true,
@@ -598,20 +598,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461377.051293262,
-    "civilDawn": 2461377.8303543534,
-    "nauticalDusk": 2461377.1165885846,
-    "nauticalDawn": 2461377.764430782,
+    "civilDusk": 2461377.051293113,
+    "civilDawn": 2461377.8303542435,
+    "nauticalDusk": 2461377.1165885,
+    "nauticalDawn": 2461377.7644307,
     "astronomicalDusk": 2461377.168968688,
-    "astronomicalDawn": 2461377.7118199775
+    "astronomicalDawn": 2461377.7118200245
    },
    "sunLowest": {
-    "jd": 2461377.440239158,
-    "alt": -42.40991237346219
+    "jd": 2461377.4402391575,
+    "alt": -42.409912373489824
    },
    "sunHighest": {
-    "jd": 2461376.9583333335,
-    "alt": -1.7620038981378896
+    "jd": 2461376.939959556,
+    "alt": -1.6363278779644135
    },
    "windowStart": 2461377.0416666665,
    "windowEnd": 2461377.875,
@@ -1046,8 +1046,8 @@
     "Sadalmelik": 2461377.170335996
    },
    "panel": {
-    "periodStart": 2461377.1165885846,
-    "periodEnd": 2461377.220755251,
+    "periodStart": 2461377.1165885,
+    "periodEnd": 2461377.2207551664,
     "qualifies": [
      true,
      true,
@@ -1067,20 +1067,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461378.0497025494,
-    "civilDawn": 2461378.8324499847,
+    "civilDusk": 2461378.049702557,
+    "civilDawn": 2461378.832450078,
     "nauticalDusk": 2461378.1155895484,
-    "nauticalDawn": 2461378.7659446024,
-    "astronomicalDusk": 2461378.1681480887,
-    "astronomicalDawn": 2461378.7131631817
+    "nauticalDawn": 2461378.765944753,
+    "astronomicalDusk": 2461378.168148095,
+    "astronomicalDawn": 2461378.7131632436
    },
    "sunLowest": {
-    "jd": 2461378.4405062287,
-    "alt": -42.54983158675088
+    "jd": 2461378.440506229,
+    "alt": -42.54983158688069
    },
    "sunHighest": {
-    "jd": 2461377.9583333335,
-    "alt": -1.9016027949382828
+    "jd": 2461377.940230405,
+    "alt": -1.779803363749672
    },
    "windowStart": 2461378.0416666665,
    "windowEnd": 2461378.875,
@@ -1440,20 +1440,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461379.0481839157,
-    "civilDawn": 2461379.8344839974,
-    "nauticalDusk": 2461379.1146549326,
-    "nauticalDawn": 2461379.7674069637,
-    "astronomicalDusk": 2461379.167387289,
-    "astronomicalDawn": 2461379.7144597964
+    "civilDusk": 2461379.0481843515,
+    "civilDawn": 2461379.8344836356,
+    "nauticalDusk": 2461379.1146548293,
+    "nauticalDawn": 2461379.767407121,
+    "astronomicalDusk": 2461379.167387211,
+    "astronomicalDawn": 2461379.7144597955
    },
    "sunLowest": {
-    "jd": 2461379.440780243,
-    "alt": -42.6825931707658
+    "jd": 2461379.4407802424,
+    "alt": -42.68259317104993
    },
    "sunHighest": {
-    "jd": 2461378.9583333335,
-    "alt": -2.0340549870564586
+    "jd": 2461378.940508395,
+    "alt": -1.9161577399458172
    },
    "windowStart": 2461379.0416666665,
    "windowEnd": 2461379.875,
@@ -1684,8 +1684,8 @@
     "Sadalmelik": 2461379.1648748163
    },
    "panel": {
-    "periodStart": 2461379.1146549326,
-    "periodEnd": 2461379.218821599,
+    "periodStart": 2461379.1146548293,
+    "periodEnd": 2461379.218821496,
     "qualifies": [
      true,
      true,
@@ -1705,20 +1705,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461380.0467408034,
-    "civilDawn": 2461380.8364519156,
-    "nauticalDusk": 2461380.113785516,
-    "nauticalDawn": 2461380.7688159193,
-    "astronomicalDusk": 2461380.166686794,
-    "astronomicalDawn": 2461380.715708651
+    "civilDusk": 2461380.0467407308,
+    "civilDawn": 2461380.8364518834,
+    "nauticalDusk": 2461380.1137855975,
+    "nauticalDawn": 2461380.768815847,
+    "astronomicalDusk": 2461380.1666867435,
+    "astronomicalDawn": 2461380.715708656
    },
    "sunLowest": {
     "jd": 2461380.4410608825,
-    "alt": -42.80812632083336
+    "alt": -42.80812632081766
    },
    "sunHighest": {
-    "jd": 2461379.9583333335,
-    "alt": -2.1592960589317003
+    "jd": 2461379.9407932176,
+    "alt": -2.0453183826207217
    },
    "windowStart": 2461380.0416666665,
    "windowEnd": 2461380.875,
@@ -1746,8 +1746,8 @@
     "Sadalmelik": 2461380.1621442246
    },
    "panel": {
-    "periodStart": 2461380.113785516,
-    "periodEnd": 2461380.2179521825,
+    "periodStart": 2461380.1137855975,
+    "periodEnd": 2461380.217952264,
     "qualifies": [
      true,
      true,
@@ -1767,20 +1767,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461381.045376859,
-    "civilDawn": 2461381.8383490276,
-    "nauticalDusk": 2461381.112982574,
-    "nauticalDawn": 2461381.770169613,
-    "astronomicalDusk": 2461381.1660470837,
-    "astronomicalDawn": 2461381.716908584
+    "civilDusk": 2461381.045377074,
+    "civilDawn": 2461381.838349121,
+    "nauticalDusk": 2461381.1129825413,
+    "nauticalDawn": 2461381.770169802,
+    "astronomicalDusk": 2461381.1660470706,
+    "astronomicalDawn": 2461381.7169085415
    },
    "sunLowest": {
-    "jd": 2461381.4413478193,
-    "alt": -42.926363787735035
+    "jd": 2461381.441347819,
+    "alt": -42.92636378829419
    },
    "sunHighest": {
-    "jd": 2461380.9583333335,
-    "alt": -2.277265214261913
+    "jd": 2461380.9410845474,
+    "alt": -2.1672162731891778
    },
    "windowStart": 2461381.0416666665,
    "windowEnd": 2461381.875,
@@ -1808,8 +1808,8 @@
     "Sadalmelik": 2461381.1594136306
    },
    "panel": {
-    "periodStart": 2461381.112982574,
-    "periodEnd": 2461381.2171492404,
+    "periodStart": 2461381.1129825413,
+    "periodEnd": 2461381.217149208,
     "qualifies": [
      true,
      true,
@@ -1829,20 +1829,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461382.04409595,
-    "civilDawn": 2461382.8401710154,
-    "nauticalDusk": 2461382.1122473213,
-    "nauticalDawn": 2461382.771466412,
-    "astronomicalDusk": 2461382.165468619,
-    "astronomicalDawn": 2461382.7180584306
+    "civilDusk": 2461382.0440962194,
+    "civilDawn": 2461382.8401709897,
+    "nauticalDusk": 2461382.112247508,
+    "nauticalDawn": 2461382.771466374,
+    "astronomicalDusk": 2461382.1654686015,
+    "astronomicalDawn": 2461382.718058458
    },
    "sunLowest": {
-    "jd": 2461382.441640707,
-    "alt": -43.03724181132477
+    "jd": 2461382.4416407067,
+    "alt": -43.03724181133906
    },
    "sunHighest": {
-    "jd": 2461381.9583333335,
-    "alt": -2.387905128039257
+    "jd": 2461381.9413820435,
+    "alt": -2.2817859103004086
    },
    "windowStart": 2461382.0416666665,
    "windowEnd": 2461382.875,
@@ -1870,8 +1870,8 @@
     "Sadalmelik": 2461382.156683036
    },
    "panel": {
-    "periodStart": 2461382.1122473213,
-    "periodEnd": 2461382.216413988,
+    "periodStart": 2461382.112247508,
+    "periodEnd": 2461382.2164141745,
     "qualifies": [
      true,
      true,
@@ -1891,20 +1891,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461383.0429021893,
-    "civilDawn": 2461383.841913475,
-    "nauticalDusk": 2461383.1115807854,
-    "nauticalDawn": 2461383.7727045966,
-    "astronomicalDusk": 2461383.164951842,
-    "astronomicalDawn": 2461383.719157379
+    "civilDusk": 2461383.042902116,
+    "civilDawn": 2461383.8419131315,
+    "nauticalDusk": 2461383.111580762,
+    "nauticalDawn": 2461383.7727045943,
+    "astronomicalDusk": 2461383.1649518455,
+    "astronomicalDawn": 2461383.7191573475
    },
    "sunLowest": {
     "jd": 2461383.441939188,
-    "alt": -43.1407000852983
+    "alt": -43.14070008553563
    },
    "sunHighest": {
-    "jd": 2461383.9418616844,
-    "alt": -2.488689386868988
+    "jd": 2461382.941685353,
+    "alt": -2.3889652580996574
    },
    "windowStart": 2461383.0416666665,
    "windowEnd": 2461383.875,
@@ -1932,8 +1932,8 @@
     "Sadalmelik": 2461383.153952441
    },
    "panel": {
-    "periodStart": 2461383.1115807854,
-    "periodEnd": 2461383.215747452,
+    "periodStart": 2461383.111580762,
+    "periodEnd": 2461383.2157474286,
     "qualifies": [
      true,
      true,
@@ -1953,20 +1953,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461384.0417991425,
-    "civilDawn": 2461384.843571173,
-    "nauticalDusk": 2461384.1109839897,
-    "nauticalDawn": 2461384.7738822927,
-    "astronomicalDusk": 2461384.1644971776,
-    "astronomicalDawn": 2461384.7202039952
+    "civilDusk": 2461384.0417990037,
+    "civilDawn": 2461384.8435710156,
+    "nauticalDusk": 2461384.110983946,
+    "nauticalDawn": 2461384.773882302,
+    "astronomicalDusk": 2461384.1644971333,
+    "astronomicalDawn": 2461384.720204044
    },
    "sunLowest": {
-    "jd": 2461384.4422428953,
-    "alt": -43.23668179293213
+    "jd": 2461384.442242895,
+    "alt": -43.23668179305381
    },
    "sunHighest": {
-    "jd": 2461384.9421858187,
-    "alt": -2.580916920453332
+    "jd": 2461383.941994109,
+    "alt": -2.4886957453567806
    },
    "windowStart": 2461384.0416666665,
    "windowEnd": 2461384.875,
@@ -1994,8 +1994,8 @@
     "Sadalmelik": 2461384.1512218458
    },
    "panel": {
-    "periodStart": 2461384.1109839897,
-    "periodEnd": 2461384.215150656,
+    "periodStart": 2461384.110983946,
+    "periodEnd": 2461384.2151506124,
     "qualifies": [
      true,
      true,
@@ -2015,20 +2015,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461385.0407907036,
-    "civilDawn": 2461385.845139445,
-    "nauticalDusk": 2461385.1104578413,
-    "nauticalDawn": 2461385.7749977135,
-    "astronomicalDusk": 2461385.1641047616,
-    "astronomicalDawn": 2461385.721197544
+    "civilDusk": 2461385.040790738,
+    "civilDawn": 2461385.8451399314,
+    "nauticalDusk": 2461385.110457842,
+    "nauticalDawn": 2461385.774997914,
+    "astronomicalDusk": 2461385.164104766,
+    "astronomicalDawn": 2461385.7211975153
    },
    "sunLowest": {
     "jd": 2461385.4425514503,
-    "alt": -43.325133690367316
+    "alt": -43.32513369044945
    },
    "sunHighest": {
-    "jd": 2461385.9425147288,
-    "alt": -2.6655890651080743
+    "jd": 2461384.942307938,
+    "alt": -2.5809223245381068
    },
    "windowStart": 2461385.0416666665,
    "windowEnd": 2461385.875,
@@ -2056,8 +2056,8 @@
     "Sadalmelik": 2461385.1484912527
    },
    "panel": {
-    "periodStart": 2461385.1104578413,
-    "periodEnd": 2461385.214624508,
+    "periodStart": 2461385.110457842,
+    "periodEnd": 2461385.2146245083,
     "qualifies": [
      true,
      true,
@@ -2077,20 +2077,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461386.0398808075,
-    "civilDawn": 2461386.846614739,
-    "nauticalDusk": 2461386.1100029144,
-    "nauticalDawn": 2461386.776049996,
-    "astronomicalDusk": 2461386.1637750566,
-    "astronomicalDawn": 2461386.7221367396
+    "civilDusk": 2461386.0398813398,
+    "civilDawn": 2461386.846614982,
+    "nauticalDusk": 2461386.1100030947,
+    "nauticalDawn": 2461386.7760499394,
+    "astronomicalDusk": 2461386.1637750166,
+    "astronomicalDawn": 2461386.7221367434
    },
    "sunLowest": {
-    "jd": 2461386.442864473,
-    "alt": -43.40600624642645
+    "jd": 2461386.442864472,
+    "alt": -43.40600624667252
    },
    "sunHighest": {
-    "jd": 2461386.94284802,
-    "alt": -2.742658204757462
+    "jd": 2461385.9426264563,
+    "alt": -2.6655935859620907
    },
    "windowStart": 2461386.0416666665,
    "windowEnd": 2461386.875,
@@ -2118,8 +2118,8 @@
     "Sadalmelik": 2461386.145760662
    },
    "panel": {
-    "periodStart": 2461386.1100029144,
-    "periodEnd": 2461386.214169581,
+    "periodStart": 2461386.1100030947,
+    "periodEnd": 2461386.214169761,
     "qualifies": [
      true,
      true,
@@ -2139,20 +2139,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461387.03907346,
-    "civilDawn": 2461387.8479917273,
-    "nauticalDusk": 2461387.1096205493,
-    "nauticalDawn": 2461387.777036764,
-    "astronomicalDusk": 2461387.16350813,
-    "astronomicalDawn": 2461387.7230208176
+    "civilDusk": 2461387.0390733727,
+    "civilDawn": 2461387.847991819,
+    "nauticalDusk": 2461387.109620606,
+    "nauticalDawn": 2461387.77703691,
+    "astronomicalDusk": 2461387.163508129,
+    "astronomicalDawn": 2461387.723020787
    },
    "sunLowest": {
-    "jd": 2461387.4431815688,
-    "alt": -43.47925381517072
+    "jd": 2461387.443181569,
+    "alt": -43.479253815224794
    },
    "sunHighest": {
-    "jd": 2461387.943185289,
-    "alt": -2.81208069938795
+    "jd": 2461386.942949275,
+    "alt": -2.7426619159651646
    },
    "windowStart": 2461387.0416666665,
    "windowEnd": 2461387.875,
@@ -2180,8 +2180,8 @@
     "Sadalmelik": 2461387.143030073
    },
    "panel": {
-    "periodStart": 2461387.1096205493,
-    "periodEnd": 2461387.2137872158,
+    "periodStart": 2461387.109620606,
+    "periodEnd": 2461387.2137872726,
     "qualifies": [
      true,
      true,
@@ -2201,20 +2201,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461388.0383719527,
-    "civilDawn": 2461388.849266386,
-    "nauticalDusk": 2461388.1093109394,
-    "nauticalDawn": 2461388.777957331,
-    "astronomicalDusk": 2461388.163304346,
-    "astronomicalDawn": 2461388.7238488155
+    "civilDusk": 2461388.0383721665,
+    "civilDawn": 2461388.849266624,
+    "nauticalDusk": 2461388.1093111634,
+    "nauticalDawn": 2461388.777957386,
+    "astronomicalDusk": 2461388.1633043187,
+    "astronomicalDawn": 2461388.723848816
    },
    "sunLowest": {
-    "jd": 2461388.44350235,
-    "alt": -43.54483481482056
+    "jd": 2461388.4435023493,
+    "alt": -43.54483481518649
    },
    "sunHighest": {
-    "jd": 2461388.9435261353,
-    "alt": -2.873817062030075
+    "jd": 2461387.943276,
+    "alt": -2.812083676485779
    },
    "windowStart": 2461388.0416666665,
    "windowEnd": 2461388.875,
@@ -2397,8 +2397,8 @@
     "Sadalmelik": 2461388.1402994874
    },
    "panel": {
-    "periodStart": 2461388.1093109394,
-    "periodEnd": 2461388.213477606,
+    "periodStart": 2461388.1093111634,
+    "periodEnd": 2461388.21347783,
     "qualifies": [
      true,
      true,
@@ -2418,20 +2418,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461389.037779681,
-    "civilDawn": 2461389.850435321,
-    "nauticalDusk": 2461389.10907521,
-    "nauticalDawn": 2461389.778809998,
-    "astronomicalDusk": 2461389.1631637253,
-    "astronomicalDawn": 2461389.724619789
+    "civilDusk": 2461389.0377796683,
+    "civilDawn": 2461389.850435335,
+    "nauticalDusk": 2461389.1090751183,
+    "nauticalDawn": 2461389.7788099563,
+    "astronomicalDusk": 2461389.16316372,
+    "astronomicalDawn": 2461389.724619769
    },
    "sunLowest": {
     "jd": 2461389.443826419,
-    "alt": -43.60271190258803
+    "alt": -43.602711902597996
    },
    "sunHighest": {
-    "jd": 2461389.9438701505,
-    "alt": -2.927832124507827
+    "jd": 2461388.9436062356,
+    "alt": -2.873819382418046
    },
    "windowStart": 2461389.0416666665,
    "windowEnd": 2461389.875,
@@ -2726,8 +2726,8 @@
     "Sadalmelik": 2461389.1375689064
    },
    "panel": {
-    "periodStart": 2461389.10907521,
-    "periodEnd": 2461389.2132418766,
+    "periodStart": 2461389.1090751183,
+    "periodEnd": 2461389.213241785,
     "qualifies": [
      true,
      true,
@@ -2747,20 +2747,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461390.0373001364,
-    "civilDawn": 2461390.8514936827,
-    "nauticalDusk": 2461390.1089133443,
-    "nauticalDawn": 2461390.779593546,
-    "astronomicalDusk": 2461390.1630862695,
-    "astronomicalDawn": 2461390.72533294
+    "civilDusk": 2461390.037300058,
+    "civilDawn": 2461390.851493958,
+    "nauticalDusk": 2461390.108913234,
+    "nauticalDawn": 2461390.7795933695,
+    "astronomicalDusk": 2461390.163086215,
+    "astronomicalDawn": 2461390.7253328897
    },
    "sunLowest": {
-    "jd": 2461390.4441533815,
-    "alt": -43.652852131798966
+    "jd": 2461390.444153381,
+    "alt": -43.65285213222897
    },
    "sunHighest": {
-    "jd": 2461390.9442169284,
-    "alt": -2.9740951989732993
+    "jd": 2461389.943939583,
+    "alt": -2.9278338673418953
    },
    "windowStart": 2461390.0416666665,
    "windowEnd": 2461390.875,
@@ -3150,8 +3150,8 @@
     "Sadalmelik": 2461390.134838329
    },
    "panel": {
-    "periodStart": 2461390.1089133443,
-    "periodEnd": 2461390.213080011,
+    "periodStart": 2461390.108913234,
+    "periodEnd": 2461390.2130799005,
     "qualifies": [
      true,
      true,
@@ -3171,20 +3171,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461391.036936034,
-    "civilDawn": 2461391.8524393397,
-    "nauticalDusk": 2461391.1088260063,
-    "nauticalDawn": 2461391.780306939,
-    "astronomicalDusk": 2461391.163072114,
-    "astronomicalDawn": 2461391.7259875103
+    "civilDusk": 2461391.036935837,
+    "civilDawn": 2461391.8524392587,
+    "nauticalDusk": 2461391.1088261004,
+    "nauticalDawn": 2461391.780306959,
+    "astronomicalDusk": 2461391.1630721632,
+    "astronomicalDawn": 2461391.7259874917
    },
    "sunLowest": {
     "jd": 2461391.4444828397,
-    "alt": -43.6952271231504
+    "alt": -43.695227123141734
    },
    "sunHighest": {
-    "jd": 2461391.9445660613,
-    "alt": -3.012580252916702
+    "jd": 2461390.9442756423,
+    "alt": -2.974096444837706
    },
    "windowStart": 2461391.0416666665,
    "windowEnd": 2461391.875,
@@ -3662,8 +3662,8 @@
     "Sadalmelik": 2461391.132107756
    },
    "panel": {
-    "periodStart": 2461391.1088260063,
-    "periodEnd": 2461391.212992673,
+    "periodStart": 2461391.1088261004,
+    "periodEnd": 2461391.212992767,
     "qualifies": [
      true,
      true,
@@ -3683,20 +3683,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461392.0366897536,
-    "civilDawn": 2461392.853268477,
-    "nauticalDusk": 2461392.108813556,
-    "nauticalDawn": 2461392.780949205,
-    "astronomicalDusk": 2461392.163121215,
-    "astronomicalDawn": 2461392.7265827893
+    "civilDusk": 2461392.036689497,
+    "civilDawn": 2461392.853268027,
+    "nauticalDusk": 2461392.1088135373,
+    "nauticalDawn": 2461392.7809490394,
+    "astronomicalDusk": 2461392.1631211434,
+    "astronomicalDawn": 2461392.726582802
    },
    "sunLowest": {
-    "jd": 2461392.4448144017,
-    "alt": -43.72981324897181
+    "jd": 2461392.444814401,
+    "alt": -43.729813249453656
    },
    "sunHighest": {
-    "jd": 2461392.9449171475,
-    "alt": -3.043266119499514
+    "jd": 2461391.9446140155,
+    "alt": -3.012581083778415
    },
    "windowStart": 2461392.0416666665,
    "windowEnd": 2461392.875,
@@ -4266,8 +4266,8 @@
     "Sadalmelik": 2461392.1293771868
    },
    "panel": {
-    "periodStart": 2461392.108813556,
-    "periodEnd": 2461392.2129802224,
+    "periodStart": 2461392.1088135373,
+    "periodEnd": 2461392.212980204,
     "qualifies": [
      true,
      true,
@@ -4287,20 +4287,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461393.0365632465,
-    "civilDawn": 2461393.8539791196,
-    "nauticalDusk": 2461393.108876175,
-    "nauticalDawn": 2461393.7815194344,
-    "astronomicalDusk": 2461393.1632334418,
-    "astronomicalDawn": 2461393.727118114
+    "civilDusk": 2461393.0365635194,
+    "civilDawn": 2461393.85397924,
+    "nauticalDusk": 2461393.1088763135,
+    "nauticalDawn": 2461393.7815193804,
+    "astronomicalDusk": 2461393.1632333873,
+    "astronomicalDawn": 2461393.7271181215
    },
    "sunLowest": {
-    "jd": 2461393.4451476773,
-    "alt": -43.756591868012634
+    "jd": 2461393.445147677,
+    "alt": -43.7565918680119
    },
    "sunHighest": {
-    "jd": 2461393.945269787,
-    "alt": -3.0661367327414997
+    "jd": 2461392.9449543077,
+    "alt": -3.043266618287386
    },
    "windowStart": 2461393.0416666665,
    "windowEnd": 2461393.875,
@@ -4970,8 +4970,8 @@
     "Sadalmelik": 2461393.1266466198
    },
    "panel": {
-    "periodStart": 2461393.108876175,
-    "periodEnd": 2461393.2130428413,
+    "periodStart": 2461393.1088763135,
+    "periodEnd": 2461393.21304298,
     "qualifies": [
      true,
      true,
@@ -4991,20 +4991,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461394.0365586015,
-    "civilDawn": 2461394.854569403,
-    "nauticalDusk": 2461394.1090139975,
-    "nauticalDawn": 2461394.782016787,
-    "astronomicalDusk": 2461394.163408546,
-    "astronomicalDawn": 2461394.727593126
+    "civilDusk": 2461394.03655859,
+    "civilDawn": 2461394.85456903,
+    "nauticalDusk": 2461394.109013796,
+    "nauticalDawn": 2461394.782016943,
+    "astronomicalDusk": 2461394.1634086343,
+    "astronomicalDawn": 2461394.7275930843
    },
    "sunLowest": {
     "jd": 2461394.4454822857,
-    "alt": -43.77554953950986
+    "alt": -43.77554953996713
    },
    "sunHighest": {
-    "jd": 2461394.945623594,
-    "alt": -3.08118129902233
+    "jd": 2461393.94529613,
+    "alt": -3.0661369833551797
    },
    "windowStart": 2461394.0416666665,
    "windowEnd": 2461394.875,
@@ -5816,8 +5816,8 @@
     "Sadalmelik": 2461394.123916055
    },
    "panel": {
-    "periodStart": 2461394.1090139975,
-    "periodEnd": 2461394.213180664,
+    "periodStart": 2461394.109013796,
+    "periodEnd": 2461394.2131804624,
     "qualifies": [
      true,
      true,
@@ -5837,20 +5837,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461395.0366769573,
-    "civilDawn": 2461395.855037575,
-    "nauticalDusk": 2461395.109226534,
-    "nauticalDawn": 2461395.782441069,
-    "astronomicalDusk": 2461395.163646476,
-    "astronomicalDawn": 2461395.7280071545
+    "civilDusk": 2461395.036677204,
+    "civilDawn": 2461395.8550373055,
+    "nauticalDusk": 2461395.1092264885,
+    "nauticalDawn": 2461395.7824411094,
+    "astronomicalDusk": 2461395.163646514,
+    "astronomicalDawn": 2461395.728007132
    },
    "sunLowest": {
     "jd": 2461395.445817857,
-    "alt": -43.78667809919051
+    "alt": -43.786678099192386
    },
    "sunHighest": {
-    "jd": 2461395.945978188,
-    "alt": -3.088394195636964
+    "jd": 2461394.945639103,
+    "alt": -3.081181385836241
    },
    "windowStart": 2461395.0416666665,
    "windowEnd": 2461395.875,
@@ -6848,8 +6848,8 @@
     "Sadalmelik": 2461395.121185492
    },
    "panel": {
-    "periodStart": 2461395.109226534,
-    "periodEnd": 2461395.2133932007,
+    "periodStart": 2461395.1092264885,
+    "periodEnd": 2461395.213393155,
     "qualifies": [
      true,
      true,
@@ -6869,20 +6869,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461396.0369186033,
-    "civilDawn": 2461396.8553831745,
-    "nauticalDusk": 2461396.1095141415,
-    "nauticalDawn": 2461396.782791435,
-    "astronomicalDusk": 2461396.1639469704,
-    "astronomicalDawn": 2461396.728359809
+    "civilDusk": 2461396.0369187184,
+    "civilDawn": 2461396.855382916,
+    "nauticalDusk": 2461396.1095141107,
+    "nauticalDawn": 2461396.7827915056,
+    "astronomicalDusk": 2461396.16394692,
+    "astronomicalDawn": 2461396.72835983
    },
    "sunLowest": {
     "jd": 2461396.4461540305,
-    "alt": -43.78997430497707
+    "alt": -43.7899743054142
    },
    "sunHighest": {
-    "jd": 2461396.946333209,
-    "alt": -3.0877743054806497
+    "jd": 2461396.9463270386,
+    "alt": -3.0877743191728126
    },
    "windowStart": 2461396.0416666665,
    "windowEnd": 2461396.875,
@@ -7880,8 +7880,8 @@
     "Sadalmelik": 2461396.1184549276
    },
    "panel": {
-    "periodStart": 2461396.1095141415,
-    "periodEnd": 2461396.213680808,
+    "periodStart": 2461396.1095141107,
+    "periodEnd": 2461396.2136807772,
     "qualifies": [
      true,
      true,
@@ -7901,20 +7901,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461397.037283571,
-    "civilDawn": 2461397.8556055264,
-    "nauticalDusk": 2461397.109876414,
-    "nauticalDawn": 2461397.7830678043,
-    "astronomicalDusk": 2461397.164309484,
-    "astronomicalDawn": 2461397.728650884
+    "civilDusk": 2461397.037283933,
+    "civilDawn": 2461397.855605561,
+    "nauticalDusk": 2461397.109876341,
+    "nauticalDawn": 2461397.7830678187,
+    "astronomicalDusk": 2461397.164309517,
+    "astronomicalDawn": 2461397.7286508568
    },
    "sunLowest": {
     "jd": 2461397.44649046,
-    "alt": -43.78543881149347
+    "alt": -43.78543881149936
    },
    "sunHighest": {
-    "jd": 2461397.946688309,
-    "alt": -3.0793236206808845
+    "jd": 2461397.946671304,
+    "alt": -3.0793237250842083
    },
    "windowStart": 2461397.0416666665,
    "windowEnd": 2461397.875,
@@ -8912,8 +8912,8 @@
     "Sadalmelik": 2461397.115724364
    },
    "panel": {
-    "periodStart": 2461397.109876414,
-    "periodEnd": 2461397.2140430803,
+    "periodStart": 2461397.109876341,
+    "periodEnd": 2461397.2140430077,
     "qualifies": [
      true,
      true,
@@ -8933,20 +8933,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461398.0377718005,
-    "civilDawn": 2461398.855705676,
-    "nauticalDusk": 2461398.1103129503,
-    "nauticalDawn": 2461398.783269652,
-    "astronomicalDusk": 2461398.164733919,
-    "astronomicalDawn": 2461398.7288800366
+    "civilDusk": 2461398.037772081,
+    "civilDawn": 2461398.8557058587,
+    "nauticalDusk": 2461398.110312831,
+    "nauticalDawn": 2461398.7832697746,
+    "astronomicalDusk": 2461398.164733957,
+    "astronomicalDawn": 2461398.728879926
    },
    "sunLowest": {
-    "jd": 2461398.4468268077,
-    "alt": -43.77307448480494
+    "jd": 2461398.446826808,
+    "alt": -43.77307448521712
    },
    "sunHighest": {
-    "jd": 2461398.9470431544,
-    "alt": -3.0630454499060793
+    "jd": 2461398.9470153213,
+    "alt": -3.0630457296599136
    },
    "windowStart": 2461398.0416666665,
    "windowEnd": 2461398.875,
@@ -9944,8 +9944,8 @@
     "Sadalmelik": 2461398.1129938
    },
    "panel": {
-    "periodStart": 2461398.1103129503,
-    "periodEnd": 2461398.214479617,
+    "periodStart": 2461398.110312831,
+    "periodEnd": 2461398.2144794976,
     "qualifies": [
      true,
      true,
@@ -9965,20 +9965,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461399.0383824147,
-    "civilDawn": 2461399.855683521,
-    "nauticalDusk": 2461399.110823133,
-    "nauticalDawn": 2461399.783397229,
-    "astronomicalDusk": 2461399.165219795,
-    "astronomicalDawn": 2461399.7290469604
+    "civilDusk": 2461399.038382291,
+    "civilDawn": 2461399.85568324,
+    "nauticalDusk": 2461399.1108232173,
+    "nauticalDawn": 2461399.7833971684,
+    "astronomicalDusk": 2461399.165219786,
+    "astronomicalDawn": 2461399.729046984
    },
    "sunLowest": {
     "jd": 2461399.447162745,
-    "alt": -43.75288474243857
+    "alt": -43.7528847424559
    },
    "sunHighest": {
-    "jd": 2461399.9473974155,
-    "alt": -3.038943149605994
+    "jd": 2461399.9473587647,
+    "alt": -3.0389436892564183
    },
    "windowStart": 2461399.0416666665,
    "windowEnd": 2461399.875,
@@ -10977,8 +10977,8 @@
     "Sadalmelik": 2461399.110263239
    },
    "panel": {
-    "periodStart": 2461399.110823133,
-    "periodEnd": 2461399.2149897995,
+    "periodStart": 2461399.1108232173,
+    "periodEnd": 2461399.214989884,
     "qualifies": [
      true,
      true,
@@ -10998,20 +10998,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461400.039113747,
-    "civilDawn": 2461400.855540258,
-    "nauticalDusk": 2461400.111406713,
-    "nauticalDawn": 2461400.7834503944,
-    "astronomicalDusk": 2461400.1657665903,
-    "astronomicalDawn": 2461400.729151508
+    "civilDusk": 2461400.039114085,
+    "civilDawn": 2461400.8555407296,
+    "nauticalDusk": 2461400.111406831,
+    "nauticalDawn": 2461400.7834505,
+    "astronomicalDusk": 2461400.165766576,
+    "astronomicalDawn": 2461400.7291516094
    },
    "sunLowest": {
-    "jd": 2461400.447497942,
-    "alt": -43.724872919733286
+    "jd": 2461400.4474979425,
+    "alt": -43.724872920121655
    },
    "sunHighest": {
-    "jd": 2461400.947750764,
-    "alt": -3.007020288175262
+    "jd": 2461400.9477013056,
+    "alt": -3.007021171990473
    },
    "windowStart": 2461400.0416666665,
    "windowEnd": 2461400.875,
@@ -12010,8 +12010,8 @@
     "Sadalmelik": 2461400.1075326824
    },
    "panel": {
-    "periodStart": 2461400.111406713,
-    "periodEnd": 2461400.2155733793,
+    "periodStart": 2461400.111406831,
+    "periodEnd": 2461400.2155734976,
     "qualifies": [
      true,
      true,
@@ -12031,20 +12031,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461401.0399641087,
-    "civilDawn": 2461401.8552785614,
-    "nauticalDusk": 2461401.1120629767,
-    "nauticalDawn": 2461401.783429062,
-    "astronomicalDusk": 2461401.166374019,
-    "astronomicalDawn": 2461401.729193575
+    "civilDusk": 2461401.039964333,
+    "civilDawn": 2461401.855278583,
+    "nauticalDusk": 2461401.1120629697,
+    "nauticalDawn": 2461401.7834289796,
+    "astronomicalDusk": 2461401.166374053,
+    "astronomicalDawn": 2461401.729193574
    },
    "sunLowest": {
-    "jd": 2461401.4478320708,
-    "alt": -43.68904324298481
+    "jd": 2461401.447832071,
+    "alt": -43.68904324299617
    },
    "sunHighest": {
-    "jd": 2461401.9481028584,
-    "alt": -2.96728228199066
+    "jd": 2461401.9480426116,
+    "alt": -2.967283593847382
    },
    "windowStart": 2461401.0416666665,
    "windowEnd": 2461401.875,
@@ -12935,8 +12935,8 @@
     "Sadalmelik": 2461401.1048021293
    },
    "panel": {
-    "periodStart": 2461401.1120629767,
-    "periodEnd": 2461401.216229643,
+    "periodStart": 2461401.1120629697,
+    "periodEnd": 2461401.216229636,
     "qualifies": [
      true,
      true,
@@ -12956,20 +12956,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461402.0409317557,
-    "civilDawn": 2461402.8548987117,
-    "nauticalDusk": 2461402.112791175,
-    "nauticalDawn": 2461402.7833333598,
-    "astronomicalDusk": 2461402.1670415597,
-    "astronomicalDawn": 2461402.729172946
+    "civilDusk": 2461402.0409314088,
+    "civilDawn": 2461402.8548991582,
+    "nauticalDusk": 2461402.112791285,
+    "nauticalDawn": 2461402.7833335986,
+    "astronomicalDusk": 2461402.167041587,
+    "astronomicalDawn": 2461402.729173056
    },
    "sunLowest": {
-    "jd": 2461402.4481647937,
-    "alt": -43.645402880055876
+    "jd": 2461402.4481647946,
+    "alt": -43.64540288039472
    },
    "sunHighest": {
-    "jd": 2461402.9484533495,
-    "alt": -2.919738570467166
+    "jd": 2461402.9483823385,
+    "alt": -2.9197403935155486
    },
    "windowStart": 2461402.0416666665,
    "windowEnd": 2461402.875,
@@ -13724,8 +13724,8 @@
     "Sadalmelik": 2461402.102071581
    },
    "panel": {
-    "periodStart": 2461402.112791175,
-    "periodEnd": 2461402.2169578415,
+    "periodStart": 2461402.112791285,
+    "periodEnd": 2461402.2169579514,
     "qualifies": [
      true,
      true,
@@ -13745,20 +13745,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461403.042012535,
-    "civilDawn": 2461403.8544049384,
-    "nauticalDusk": 2461403.1135904957,
-    "nauticalDawn": 2461403.78316394,
-    "astronomicalDusk": 2461403.1677686432,
-    "astronomicalDawn": 2461403.7290896173
+    "civilDusk": 2461403.042012718,
+    "civilDawn": 2461403.8544048313,
+    "nauticalDusk": 2461403.113590591,
+    "nauticalDawn": 2461403.783163973,
+    "astronomicalDusk": 2461403.1677686833,
+    "astronomicalDawn": 2461403.729089634
    },
    "sunLowest": {
     "jd": 2461403.448495769,
-    "alt": -43.593963952311846
+    "alt": -43.59396395234912
    },
    "sunHighest": {
-    "jd": 2461403.94880187,
-    "alt": -2.864404241278135
+    "jd": 2461403.948720132,
+    "alt": -2.8644066576585363
    },
    "windowStart": 2461403.0416666665,
    "windowEnd": 2461403.875,
@@ -14405,8 +14405,8 @@
     "Sadalmelik": 2461403.0993410377
    },
    "panel": {
-    "periodStart": 2461403.1135904957,
-    "periodEnd": 2461403.217757162,
+    "periodStart": 2461403.113590591,
+    "periodEnd": 2461403.2177572576,
     "qualifies": [
      true,
      true,
@@ -14426,20 +14426,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461404.043204814,
-    "civilDawn": 2461404.853798881,
-    "nauticalDusk": 2461404.114460048,
-    "nauticalDawn": 2461404.782920751,
-    "astronomicalDusk": 2461404.1685546376,
-    "astronomicalDawn": 2461404.7289435305
+    "civilDusk": 2461404.043205169,
+    "civilDawn": 2461404.853798566,
+    "nauticalDusk": 2461404.114459953,
+    "nauticalDawn": 2461404.7829206428,
+    "astronomicalDusk": 2461404.1685546166,
+    "astronomicalDawn": 2461404.728943488
    },
    "sunLowest": {
-    "jd": 2461404.448824637,
-    "alt": -43.534744663961675
+    "jd": 2461404.4488246376,
+    "alt": -43.534744664241494
    },
    "sunHighest": {
-    "jd": 2461404.9491480454,
-    "alt": -2.8013006647492116
+    "jd": 2461404.949055626,
+    "alt": -2.801303755165325
    },
    "windowStart": 2461404.0416666665,
    "windowEnd": 2461404.875,
@@ -14990,8 +14990,8 @@
     "Sadalmelik": 2461404.096610497
    },
    "panel": {
-    "periodStart": 2461404.114460048,
-    "periodEnd": 2461404.2186267143,
+    "periodStart": 2461404.114459953,
+    "periodEnd": 2461404.2186266193,
     "qualifies": [
      true,
      true,
@@ -15011,20 +15011,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461405.0445043994,
-    "civilDawn": 2461405.853083969,
-    "nauticalDusk": 2461405.1153985206,
-    "nauticalDawn": 2461405.782604157,
-    "astronomicalDusk": 2461405.169398847,
-    "astronomicalDawn": 2461405.7287346683
+    "civilDusk": 2461405.0445040367,
+    "civilDawn": 2461405.853083939,
+    "nauticalDusk": 2461405.1153984186,
+    "nauticalDawn": 2461405.78260419,
+    "astronomicalDusk": 2461405.169398806,
+    "astronomicalDawn": 2461405.728734667
    },
    "sunLowest": {
-    "jd": 2461405.449151035,
-    "alt": -43.46776950594368
+    "jd": 2461405.449151034,
+    "alt": -43.46776950602749
    },
    "sunHighest": {
-    "jd": 2461405.9494914887,
-    "alt": -2.7304553625464343
+    "jd": 2461405.949388446,
+    "alt": -2.7304592061939257
    },
    "windowStart": 2461405.0416666665,
    "windowEnd": 2461405.875,
@@ -15479,8 +15479,8 @@
     "Sadalmelik": 2461405.09387996
    },
    "panel": {
-    "periodStart": 2461405.1153985206,
-    "periodEnd": 2461405.219565187,
+    "periodStart": 2461405.1153984186,
+    "periodEnd": 2461405.219565085,
     "qualifies": [
      true,
      true,
@@ -15500,20 +15500,20 @@
    "events": {
     "sunset": null,
     "sunrise": null,
-    "civilDusk": 2461406.045907131,
-    "civilDawn": 2461406.8522635526,
-    "nauticalDusk": 2461406.1164046745,
-    "nauticalDawn": 2461406.782215359,
-    "astronomicalDusk": 2461406.1703003095,
-    "astronomicalDawn": 2461406.728463074
+    "civilDusk": 2461406.0459072185,
+    "civilDawn": 2461406.852263581,
+    "nauticalDusk": 2461406.1164046656,
+    "nauticalDawn": 2461406.782215236,
+    "astronomicalDusk": 2461406.170300385,
+    "astronomicalDawn": 2461406.728463179
    },
    "sunLowest": {
-    "jd": 2461406.4494745852,
-    "alt": -43.39306890278587
+    "jd": 2461406.4494745857,
+    "alt": -43.39306890298846
    },
    "sunHighest": {
-    "jd": 2461406.9498318126,
-    "alt": -2.6519015385365776
+    "jd": 2461406.9497182104,
+    "alt": -2.651906212705931
    },
    "windowStart": 2461406.0416666665,
    "windowEnd": 2461406.875,
@@ -15836,8 +15836,8 @@
     "Sadalmelik": 2461406.091149424
    },
    "panel": {
-    "periodStart": 2461406.1164046745,
-    "periodEnd": 2461406.220571341,
+    "periodStart": 2461406.1164046656,
+    "periodEnd": 2461406.220571332,
     "qualifies": [
      true,
      true,

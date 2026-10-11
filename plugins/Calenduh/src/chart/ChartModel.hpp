@@ -73,8 +73,8 @@ struct NightRow
 	std::optional<double> dusk[ThresholdCount];
 	std::optional<double> dawn[ThresholdCount];
 
-	SunExtreme sunLowest;         //!< lowest Sun altitude, noon to noon
-	SunExtreme sunHighest;        //!< highest Sun altitude, noon to noon
+	SunExtreme sunLowest;         //!< lowest Sun altitude, culmination to culmination
+	SunExtreme sunHighest;        //!< highest Sun altitude, culmination to culmination
 
 	double moonIllumination = 0.; //!< 0..1 at local midnight (CAL-P-04)
 	bool moonWaning = false;

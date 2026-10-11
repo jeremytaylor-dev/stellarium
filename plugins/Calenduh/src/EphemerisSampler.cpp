@@ -37,9 +37,8 @@ namespace calenduh {
 namespace {
 
 constexpr double MINUTE = 1. / 1440.;
-constexpr double SUN_STEP = 10. * MINUTE;    //!< Sun sampling, noon to noon
+constexpr double SUN_STEP = 10. * MINUTE;    //!< Sun sampling, culmination to culmination
 constexpr double SAMPLE_STEP = 5. * MINUTE;  //!< Moon and target sampling (architecture 5.4, 5.7)
-constexpr double SAMPLE_STEP_HOURS = SAMPLE_STEP * 24.;
 constexpr double SIDEREAL_DEGREES_PER_DAY = 360.98564736629;
 constexpr double EARTH_EQUATORIAL_RADIUS_KM = 6378.137;
 constexpr double EARTH_FLATTENING = 1. / 298.257223563;
@@ -106,7 +105,7 @@ bool EphemerisSampler::prepare(QString* error)
 	if (!timeZone.isValid())
 		return fail(QString("Unknown time zone: %1").arg(settings.location.timeZone));
 	const qint64 nights = settings.firstEvening.daysTo(settings.lastEvening) + 1;
-	if (!settings.firstEvening.isValid() || nights < 1 || nights > MAX_NIGHTS)
+	if (!settings.firstEvening.isValid() || !settings.lastEvening.isValid() || nights < 1 || nights > MAX_NIGHTS)
 		return fail(QString("The date range must have 1 to %1 nights.").arg(MAX_NIGHTS));
 
 	model_ = ChartModel();
@@ -243,13 +242,19 @@ Vec3d EphemerisSampler::geocentricEquatorial(const Body& body, double jd) const
 	return j2000ToDate.multiplyWithoutTranslation(StelCore::matVsop87ToJ2000.multiplyWithoutTranslation(ecliptic));
 }
 
-double EphemerisSampler::altitude(const Body& body, double jd, bool refraction) const
+Vec3d EphemerisSampler::topocentricEquatorial(const Body& body, double jd, double theta) const
 {
-	const double theta = localSiderealRadians(jd);
 	Vec3d v = geocentricEquatorial(body, jd);
 	if (body.planet)
 		v -= Vec3d(observerShape[0] * std::cos(theta), observerShape[0] * std::sin(theta), observerShape[2]);
 	v.normalize();
+	return v;
+}
+
+double EphemerisSampler::altitude(const Body& body, double jd, bool refraction) const
+{
+	const double theta = localSiderealRadians(jd);
+	const Vec3d v = topocentricEquatorial(body, jd, theta);
 	const double dec = std::asin(std::clamp(v[2], -1., 1.));
 	const double hourAngle = theta - std::atan2(v[1], v[0]);
 	const double sinAlt = std::sin(latitude) * std::sin(dec) + std::cos(latitude) * std::cos(dec) * std::cos(hourAngle);
@@ -275,13 +280,30 @@ double EphemerisSampler::findCrossing(const Body& body, bool refraction, double 
 	return 0.5 * (jdA + jdB);
 }
 
+double EphemerisSampler::sunCulmination(const QDate& date) const
+{
+	// Upper culmination nearest to local clock noon: hour angle zero. The Sun's
+	// hour angle changes by about 360 degrees per day.
+	double jd = localClockToJd(date, 12 * 60, timeZone);
+	for (int i = 0; i < 3; ++i)
+	{
+		const double theta = localSiderealRadians(jd);
+		const Vec3d v = topocentricEquatorial(sunBody, jd, theta);
+		jd -= wrap180(qRadiansToDegrees(theta - std::atan2(v[1], v[0]))) / 360.;
+	}
+	return jd;
+}
+
 void EphemerisSampler::computeSunEvents(NightRow& row)
 {
 	// Sun: geometric altitude of the centre; the thresholds include refraction (CAL-T-02).
-	const double start = localClockToJd(row.eveningDate, 12 * 60, timeZone);
-	const double end = localClockToJd(row.eveningDate.addDays(1), 12 * 60, timeZone);
-	// Even steps of about SUN_STEP including both ends (local noon to noon is 23-25 h).
-	const int steps = std::max(1, static_cast<int>(std::lround((end - start) / SUN_STEP)));
+	// The window runs from one upper culmination of the Sun to the next. Each window
+	// then holds at most one setting and one rising per threshold, also near polar
+	// night and day, where clock noon can be far from solar noon.
+	const double start = sunCulmination(row.eveningDate);
+	const double end = sunCulmination(row.eveningDate.addDays(1));
+	// Even steps of about SUN_STEP including both ends (23-25 h with DST changes).
+	const int steps = std::max(2, static_cast<int>(std::lround((end - start) / SUN_STEP)));
 	QVector<double> t, alt;
 	for (int i = 0; i <= steps; ++i)
 	{
@@ -289,27 +311,11 @@ void EphemerisSampler::computeSunEvents(NightRow& row)
 		alt.append(altitude(sunBody, t.last(), false));
 	}
 
-	for (int k = 0; k < ThresholdCount; ++k)
-	{
-		const double level = thresholdAltitude(static_cast<Threshold>(k));
-		row.dusk[k].reset();
-		row.dawn[k].reset();
-		for (int i = 1; i < t.size(); ++i)
-		{
-			const bool belowA = alt[i - 1] < level;
-			const bool belowB = alt[i] < level;
-			if (belowA == belowB)
-				continue;
-			std::optional<double>& slot = belowB ? row.dusk[k] : row.dawn[k];
-			if (!slot)
-				slot = findCrossing(sunBody, false, t[i - 1], t[i], level);
-		}
-	}
-
 	// Lowest and highest Sun altitude (CAL-T-09a, CAL-T-09b), golden-section refinement.
+	// The highest altitude is at one end of the window (a culmination).
+	const int lowIndex = static_cast<int>(std::min_element(alt.cbegin(), alt.cend()) - alt.cbegin());
 	auto extreme = [&](bool lowest) {
-		const auto it = lowest ? std::min_element(alt.cbegin(), alt.cend()) : std::max_element(alt.cbegin(), alt.cend());
-		const int i = static_cast<int>(it - alt.cbegin());
+		const int i = lowest ? lowIndex : static_cast<int>(std::max_element(alt.cbegin(), alt.cend()) - alt.cbegin());
 		SunExtreme e{ t[i], alt[i] };
 		if (i == 0 || i == t.size() - 1)
 			return e;
@@ -344,6 +350,31 @@ void EphemerisSampler::computeSunEvents(NightRow& row)
 	};
 	row.sunLowest = extreme(true);
 	row.sunHighest = extreme(false);
+
+	for (int k = 0; k < ThresholdCount; ++k)
+	{
+		const double level = thresholdAltitude(static_cast<Threshold>(k));
+		row.dusk[k].reset();
+		row.dawn[k].reset();
+		for (int i = 1; i < t.size(); ++i)
+		{
+			const bool belowA = alt[i - 1] < level;
+			const bool belowB = alt[i] < level;
+			if (belowA == belowB)
+				continue;
+			std::optional<double>& slot = belowB ? row.dusk[k] : row.dawn[k];
+			if (!slot)
+				slot = findCrossing(sunBody, false, t[i - 1], t[i], level);
+		}
+		// A dip below the threshold shorter than the sampling step: no sample is
+		// below, but the refined minimum is. The crossings are on each side of it.
+		if (!row.dusk[k] && !row.dawn[k] && alt[0] >= level && row.sunLowest.altitude < level
+		    && lowIndex > 0 && lowIndex < t.size() - 1)
+		{
+			row.dusk[k] = findCrossing(sunBody, false, t[lowIndex - 1], row.sunLowest.jd, level);
+			row.dawn[k] = findCrossing(sunBody, false, row.sunLowest.jd, t[lowIndex + 1], level);
+		}
+	}
 }
 
 void EphemerisSampler::chooseWindow()
@@ -472,16 +503,34 @@ void EphemerisSampler::computeNight(int index)
 			row.periodEnd = period->second;
 			for (int k = 0; k < targets.size(); ++k)
 			{
-				int best = 0, run = 0;
-				for (int i = 0; period->first + i * SAMPLE_STEP <= period->second + 1e-9; ++i)
+				// Samples every SAMPLE_STEP and at the period end. The ends of each run
+				// above the minimum altitude are refined to the crossing times.
+				const Body& body = targets[k];
+				const double minAlt = settings.panel.minAltitude;
+				double longest = -1.;
+				std::optional<double> runStart;
+				double prevJd = 0.;
+				bool prevAbove = false;
+				for (int i = 0;; ++i)
 				{
-					const double jd = period->first + i * SAMPLE_STEP;
-					run = altitude(targets[k], jd, true) >= settings.panel.minAltitude ? run + 1 : 0;
-					best = std::max(best, run);
+					const double jd = std::min(period->first + i * SAMPLE_STEP, period->second);
+					const bool above = altitude(body, jd, true) >= minAlt;
+					if (above && !prevAbove)
+						runStart = (i == 0) ? jd : findCrossing(body, true, prevJd, jd, minAlt);
+					else if (!above && prevAbove)
+					{
+						longest = std::max(longest, findCrossing(body, true, prevJd, jd, minAlt) - *runStart);
+						runStart.reset();
+					}
+					prevJd = jd;
+					prevAbove = above;
+					if (jd >= period->second)
+						break;
 				}
-				// A run of n samples spans (n - 1) sample steps.
-				row.targetQualifies[k] = best > 0
-					&& (best - 1) * SAMPLE_STEP_HOURS >= settings.panel.minDurationHours - 1e-9;
+				if (runStart)
+					longest = std::max(longest, period->second - *runStart);
+				row.targetQualifies[k] = longest >= 0.
+					&& longest * 24. >= settings.panel.minDurationHours - 1e-9;
 			}
 		}
 	}

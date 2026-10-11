@@ -34,6 +34,7 @@ namespace {
 
 //! Transit times of a star move earlier by (1 solar day - 1 sidereal day) per day.
 constexpr double STAR_DRIFT_MINUTES_PER_DAY = -3.9333;
+constexpr double SIDEREAL_DAY = 0.99726957; //!< days
 
 enum class RowKind { Crossing, NeverBelow, NeverAbove };
 
@@ -317,10 +318,15 @@ QVector<ChartRenderer::StarLabel> ChartRenderer::drawStarLines(QPainter& painter
 				++r;
 				continue;
 			}
+			// A run ends where the star has no transit, or where its transit jumps to
+			// the other end of a window of about 24 hours (one sidereal day apart).
 			QVector<RowPoint> points;
 			while (r < rowCount && model.rows.at(r).transits.contains(star))
 			{
-				points.append({ r, model.rows.at(r).transits.value(star) });
+				const double jd = model.rows.at(r).transits.value(star);
+				if (!points.isEmpty() && std::abs(jd - points.last().jd - SIDEREAL_DAY) > 0.25)
+					break;
+				points.append({ r, jd });
 				++r;
 			}
 			// Extend half a row to the chart edges (CAL-S-04); one row at a break,

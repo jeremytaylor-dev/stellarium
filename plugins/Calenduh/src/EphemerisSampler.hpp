@@ -95,12 +95,14 @@ private:
 
 	bool resolveBodies(QString* error);
 	void setNight(const QDate& evening);
+	double sunCulmination(const QDate& date) const;
 	void computeSunEvents(NightRow& row);
 	void chooseWindow();
 
 	double localSiderealRadians(double jd) const;
 	Vec3d heliocentric(const QSharedPointer<Planet>& p, double jde) const;
 	Vec3d geocentricEquatorial(const Body& body, double jd) const;
+	Vec3d topocentricEquatorial(const Body& body, double jd, double theta) const;
 	double altitude(const Body& body, double jd, bool refraction) const;
 	double findCrossing(const Body& body, bool refraction, double jdA, double jdB, double level) const;
 };
