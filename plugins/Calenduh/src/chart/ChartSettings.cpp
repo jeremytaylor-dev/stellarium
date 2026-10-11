@@ -31,15 +31,28 @@ const char* const eventKeys[SunEventCount] = {
 	"sunset", "civilDusk", "nauticalDusk", "astronomicalDusk",
 	"astronomicalDawn", "nauticalDawn", "civilDawn", "sunrise" };
 
-// N_() marks the names for translation; the plugin window translates them.
+// N_() marks the names for translation; the plugin window translates them. The chart text
+// (summary, period descriptions) uses the English names.
 #ifndef N_
 #define N_(str) str
 #endif
 const char* const eventNames[SunEventCount] = {
-	// TRANSLATORS: Calenduh: Sun events, lower case. They are list items, and they are also
-	// used inside phrases such as "nautical dusk + 1:00" and "sunset to sunrise".
-	N_("sunset"), N_("civil dusk"), N_("nautical dusk"), N_("astronomical dusk"),
-	N_("astronomical dawn"), N_("nautical dawn"), N_("civil dawn"), N_("sunrise") };
+	// TRANSLATORS: Calenduh: a Sun event, a list item in the settings window.
+	N_("sunset"),
+	// TRANSLATORS: Calenduh: a Sun event, a list item in the settings window.
+	N_("civil dusk"),
+	// TRANSLATORS: Calenduh: a Sun event, a list item in the settings window.
+	N_("nautical dusk"),
+	// TRANSLATORS: Calenduh: a Sun event, a list item in the settings window.
+	N_("astronomical dusk"),
+	// TRANSLATORS: Calenduh: a Sun event, a list item in the settings window.
+	N_("astronomical dawn"),
+	// TRANSLATORS: Calenduh: a Sun event, a list item in the settings window.
+	N_("nautical dawn"),
+	// TRANSLATORS: Calenduh: a Sun event, a list item in the settings window.
+	N_("civil dawn"),
+	// TRANSLATORS: Calenduh: a Sun event, a list item in the settings window.
+	N_("sunrise") };
 
 QString hoursAndMinutes(double hours)
 {

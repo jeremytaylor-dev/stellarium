@@ -161,9 +161,6 @@ void SettingsEditor::retranslate()
 	loading = wasLoading;
 	for (int i = 0; i < pageList.size(); ++i)
 		pageList[i].first = q_(pageTitles.at(i));
-	// The name check sets translated tooltips and status text: run it again.
-	stars.checked.clear();
-	targets.checked.clear();
 	if (!pageList.isEmpty())
 		load();
 }
