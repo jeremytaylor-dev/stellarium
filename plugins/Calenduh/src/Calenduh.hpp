@@ -69,8 +69,8 @@ public:
 	bool resolveChartSettings(calenduh::ChartSettings& settings, QString* error = nullptr);
 
 	//! Stellarium's current location as a chart location. Returns false if the
-	//! observer is not on Earth. A time zone that Qt cannot use (LMST, LTST, an
-	//! unknown name) becomes Stellarium's present UTC offset.
+	//! observer is not on Earth. LMST and LTST become Stellarium's present UTC
+	//! offset; a name that Qt does not know becomes the system time zone.
 	static bool stellariumLocation(calenduh::ChartLocation& location);
 
 private slots:

@@ -138,15 +138,18 @@ bool Calenduh::stellariumLocation(calenduh::ChartLocation& location)
 	QString tz = core->getCurrentTimeZone();
 	if (tz.isEmpty())
 		tz = loc.ianaTimeZone;
-	if (tz == "system_default")
-		tz = QString::fromUtf8(QTimeZone::systemTimeZoneId());
-	if (tz == "LMST" || tz == "LTST" || !QTimeZone(tz.toUtf8()).isValid())
+	if (tz == "LMST" || tz == "LTST")
 	{
-		// Solar time or a zone that Qt does not know: Stellarium's present UTC
-		// offset as a fixed offset. For LTST this ignores the change of the
-		// equation of time over the date range (less than 1 minute per week).
+		// Solar time: Stellarium's present UTC offset as a fixed offset. For LTST
+		// this ignores the change of the equation of time over the date range
+		// (up to about 30 s per day).
 		const int minutes = static_cast<int>(std::lround(core->getUTCOffset(core->getJD()) * 60.));
 		tz = calenduh::fixedOffsetTimeZone(minutes);
+	}
+	else if (tz == "system_default" || !QTimeZone(tz.toUtf8()).isValid())
+	{
+		// Stellarium also uses the system time zone for a name it cannot resolve.
+		tz = QString::fromUtf8(QTimeZone::systemTimeZoneId());
 	}
 
 	location.name = loc.name;
@@ -182,14 +185,13 @@ bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* 
 		return false;
 	}
 
-	// CAL-L-06: the calendar month of Stellarium's current evening. Before local
-	// noon, the evening is the previous day's.
+	// CAL-L-06: the calendar month of Stellarium's current local date.
 	if (userSettings.currentMonth || !settings.firstEvening.isValid() || !settings.lastEvening.isValid())
 	{
 		const StelCore* core = StelApp::getInstance().getCore();
 		const double jd = core->getJD();
 		int year, month, day;
-		StelUtils::getDateFromJulianDay(jd + core->getUTCOffset(jd) / 24. - 0.5, &year, &month, &day);
+		StelUtils::getDateFromJulianDay(jd + core->getUTCOffset(jd) / 24., &year, &month, &day);
 		settings.firstEvening = QDate(year, month, 1);
 		settings.lastEvening = settings.firstEvening.addMonths(1).addDays(-1);
 	}
