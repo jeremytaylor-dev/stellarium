@@ -27,6 +27,7 @@
 #include <QtMath>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace calenduh {
 
@@ -641,18 +642,26 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	// Labels: black, overlaid on the line, reading upwards, near the top of each span,
 	// not cut off at the end of a short span (CAL-G-13). A label that would extend past the
 	// page margin sits above its span instead, if it fits there clear of the panel top and
-	// of the previous span of the same target. Otherwise it moves up along its own line
-	// until it ends at the margin; if it is then too long for the free space, it gets a
-	// smaller font (to 70 %) and is then shortened.
+	// of the previous line of the same target. Otherwise it moves up along its own line
+	// until it ends at the margin; if it would then reach the previous line, it gets a
+	// smaller font (to 70 %) and is then shortened. Where two labels of one target would
+	// then overlap (or come closer than 0.2 em), only the lower one is drawn.
 	QFont font = painter.font();
 	font.setPointSizeF(0.8 * em);
-	painter.setFont(font);
 	const QFontMetricsF fm(font, painter.device());
-	painter.setPen(style.panelTextColor);
-	double noteLeft = panelArea.left();  // right of the labels that extend below the panel
-	// Lowest point drawn in each column. The spans are in column order, then row order, so
-	// this is the previous span of the same target.
-	QVector<double> usedBottom(panel.targets.size(), panelArea.top());
+	struct Label
+	{
+		int target;
+		QString name;
+		QFont font;
+		QPointF anchor;  // lower end of the text
+		double top;
+		bool drawn;
+	};
+	QVector<Label> labels;
+	// Bottom of the previous line in each column. The spans are in column order, then row
+	// order, so this is the previous span of the same target.
+	QVector<double> lineAbove(panel.targets.size(), panelArea.top());
 	for (const Span& s : spans)
 	{
 		QString name = panel.targets.at(s.target);
@@ -664,8 +673,8 @@ void ChartRenderer::drawPanel(QPainter& painter)
 		if (anchor.y() > labelLimit)
 		{
 			const double above = lineTop - 0.2 * em;
-			const double space = labelLimit - usedBottom.at(s.target) - em;
-			if (above - length >= usedBottom.at(s.target) + em)
+			const double space = labelLimit - lineAbove.at(s.target) - em;
+			if (above - length >= lineAbove.at(s.target) + em)
 				anchor.setY(above);
 			else
 			{
@@ -677,15 +686,38 @@ void ChartRenderer::drawPanel(QPainter& painter)
 				}
 			}
 		}
-		const QFontMetricsF labelMetrics(labelFont, painter.device());
-		usedBottom[s.target] = std::max(lineBottom, anchor.y());
-		if (anchor.y() > chart.bottom())
-			noteLeft = std::max(noteLeft, anchor.x() + 0.5 * (labelMetrics.ascent() + labelMetrics.descent()) + 0.3 * em);
+		lineAbove[s.target] = lineBottom;
+		if (name.isEmpty())
+			continue;
+		const double top = anchor.y() - QFontMetricsF(labelFont, painter.device()).horizontalAdvance(name);
+		labels.append({ s.target, name, labelFont, anchor, top, true });
+	}
+
+	// Where two labels of one target would overlap, only the lower one is drawn (CAL-G-13).
+	QVector<double> keptTop(panel.targets.size(), std::numeric_limits<double>::max());
+	for (int i = labels.size() - 1; i >= 0; --i)
+	{
+		Label& label = labels[i];
+		if (label.anchor.y() + 0.2 * em > keptTop.at(label.target))
+			label.drawn = false;
+		else
+			keptTop[label.target] = label.top;
+	}
+
+	painter.setPen(style.panelTextColor);
+	double noteLeft = panelArea.left();  // right of the labels that extend below the panel
+	for (const Label& label : labels)
+	{
+		if (!label.drawn)
+			continue;
+		const QFontMetricsF labelMetrics(label.font, painter.device());
+		if (label.anchor.y() > chart.bottom())
+			noteLeft = std::max(noteLeft, label.anchor.x() + 0.5 * (labelMetrics.ascent() + labelMetrics.descent()) + 0.3 * em);
 		painter.save();
-		painter.setFont(labelFont);
-		painter.translate(anchor);
+		painter.setFont(label.font);
+		painter.translate(label.anchor);
 		painter.rotate(-90.);
-		painter.drawText(QPointF(0., 0.5 * (labelMetrics.ascent() - labelMetrics.descent())), name);
+		painter.drawText(QPointF(0., 0.5 * (labelMetrics.ascent() - labelMetrics.descent())), label.name);
 		painter.restore();
 	}
 
