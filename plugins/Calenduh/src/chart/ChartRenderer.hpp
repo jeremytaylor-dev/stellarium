@@ -84,7 +84,15 @@ private:
 
 	void drawBands(QPainter& painter, const QPainterPath bands[ThresholdCount]);
 	void drawGrid(QPainter& painter);
-	void drawStarLines(QPainter& painter);
+	//! A star line segment and its name, for the label pass.
+	struct StarLabel
+	{
+		QString name;
+		QVector<QPointF> line;
+	};
+
+	QVector<StarLabel> drawStarLines(QPainter& painter);
+	void drawStarLabels(QPainter& painter, const QVector<StarLabel>& labels);
 	void drawMoonCurves(QPainter& painter, const QPainterPath& civilRegion);
 	void drawPhaseGraphics(QPainter& painter);
 	void drawLabels(QPainter& painter);

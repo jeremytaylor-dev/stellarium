@@ -78,8 +78,9 @@ void ChartRenderer::render(QPainter& painter, const QRectF& page)
 	// Paint order: fills behind everything (CAL-T-10), Moon above the star lines (CAL-M-11).
 	drawBands(painter, bands);
 	drawGrid(painter);
-	drawStarLines(painter);
+	const QVector<StarLabel> starLabels = drawStarLines(painter);
 	drawMoonCurves(painter, bands[static_cast<int>(Threshold::Civil)]);
+	drawStarLabels(painter, starLabels);
 	drawPhaseGraphics(painter);
 	drawLabels(painter);
 
@@ -292,15 +293,12 @@ void ChartRenderer::drawGrid(QPainter& painter)
 	painter.restore();
 }
 
-void ChartRenderer::drawStarLines(QPainter& painter)
+QVector<ChartRenderer::StarLabel> ChartRenderer::drawStarLines(QPainter& painter)
 {
+	QVector<StarLabel> labels;
 	painter.save();
 	painter.setClipRect(chart);
 	painter.setPen(QPen(style.starLineColor, style.starLineWidth));
-	QFont font = painter.font();
-	font.setPointSizeF(std::min(0.8 * em, 0.9 * rowHeight));
-	font.setItalic(true);
-	painter.setFont(font);
 
 	const int rowCount = model.rows.size();
 	for (const QString& star : model.stars)
@@ -325,18 +323,38 @@ void ChartRenderer::drawStarLines(QPainter& painter)
 			const double extEnd = (points.last().row == rowCount - 1) ? 0.5 : 1.;
 			const QVector<QPointF> line = chain(points, extStart, extEnd, STAR_DRIFT_MINUTES_PER_DAY);
 			painter.drawPolyline(line.constData(), line.size());
-
-			// CAL-S-06: one label per segment, near its top, along the line.
-			const QPointF a = line.at(1);
-			const QPointF b = line.size() > 2 ? line.at(2) : line.at(1) + QPointF(0., rowHeight);
-			const double angle = qRadiansToDegrees(std::atan2(b.y() - a.y(), b.x() - a.x()));
-			const QPointF anchor = a + QPointF(0., 0.3 * rowHeight);
-			painter.save();
-			painter.translate(anchor);
-			painter.rotate(angle);
-			painter.drawText(QPointF(0., -0.25 * em), star);
-			painter.restore();
+			labels.append({ star, line });
 		}
+	}
+	painter.restore();
+	return labels;
+}
+
+void ChartRenderer::drawStarLabels(QPainter& painter, const QVector<StarLabel>& labels)
+{
+	painter.save();
+	painter.setClipRect(chart);
+	painter.setPen(style.starLineColor);
+	QFont font = painter.font();
+	font.setPointSizeF(std::min(0.8 * em, 0.9 * rowHeight));
+	font.setItalic(true);
+	painter.setFont(font);
+	const QFontMetricsF fm(font);
+
+	// CAL-S-06: one label per segment, near its top, on the left side of the line.
+	// The text reads upwards (first letter lowest), with its baseline along the line.
+	for (const StarLabel& label : labels)
+	{
+		const QPointF top = label.line.at(1);
+		const QPointF next = label.line.size() > 2 ? label.line.at(2) : top + QPointF(0., rowHeight);
+		QPointF down = next - top;
+		down /= std::hypot(down.x(), down.y());
+		const QPointF anchor = top + (0.3 * rowHeight + fm.horizontalAdvance(label.name)) * down;
+		painter.save();
+		painter.translate(anchor);
+		painter.rotate(qRadiansToDegrees(std::atan2(-down.y(), -down.x())));
+		painter.drawText(QPointF(0., -0.25 * em), label.name);
+		painter.restore();
 	}
 	painter.restore();
 }
