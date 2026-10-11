@@ -56,6 +56,12 @@ public:
 	void init() override;
 	bool configureGui(bool show) override;
 
+private slots:
+	//! Development diagnostic: time StelCore::setJD() + update(0) over many steps
+	//! and write the statistics to the log. Runs at start-up only if the
+	//! environment variable CALENDUH_BENCHMARK=1. Restores the simulation time.
+	void runUpdateBenchmark();
+
 private:
 #ifndef NO_GUI
 	CalenduhDialog* dialog;

@@ -18,6 +18,7 @@
  */
 
 #include "StelApp.hpp"
+#include "StelCore.hpp"
 #include "StelTranslator.hpp"
 #include "Calenduh.hpp"
 #ifndef NO_GUI
@@ -27,6 +28,10 @@
 #endif
 
 #include <QPixmap>
+#include <QTimer>
+#include <QElapsedTimer>
+#include <algorithm>
+#include <numeric>
 
 StelModule* CalenduhStelPluginInterface::getStelModule() const
 {
@@ -82,6 +87,45 @@ void Calenduh::init()
 		gui->getButtonBar()->addButton(toolbarButton, "065-pluginsGroup");
 	}
 #endif
+
+	if (qEnvironmentVariableIntValue("CALENDUH_BENCHMARK") == 1)
+		QTimer::singleShot(5000, this, &Calenduh::runUpdateBenchmark);
+}
+
+void Calenduh::runUpdateBenchmark()
+{
+	StelCore* core = StelApp::getInstance().getCore();
+	const double jd0 = core->getJD();
+	const double rate0 = core->getTimeRate();
+	const qint64 millis0 = core->getMilliSecondsOfLastJDUpdate();
+	core->setTimeRate(0.);
+
+	const double step = 5. / 1440.; // 5 minutes, as for the Moon sampling
+	const int warmUp = 20;
+	const int n = 2000;
+	QVector<double> ms;
+	ms.reserve(n);
+	QElapsedTimer timer;
+	for (int i = -warmUp; i < n; ++i)
+	{
+		timer.start();
+		core->setJD(jd0 + (i + warmUp) * step);
+		core->update(0.);
+		if (i >= 0)
+			ms.append(static_cast<double>(timer.nsecsElapsed()) * 1e-6);
+	}
+
+	core->setJD(jd0);
+	core->setMilliSecondsOfLastJDUpdate(millis0);
+	core->setTimeRate(rate0);
+	core->update(0.);
+
+	std::sort(ms.begin(), ms.end());
+	const double mean = std::accumulate(ms.cbegin(), ms.cend(), 0.) / n;
+	const double perMonth = mean * 350. * 31. / 1000.; // architecture §5.6: ~350 updates per night
+	qInfo().noquote() << QString("[Calenduh] update benchmark: n=%1 mean=%2 ms median=%3 ms p95=%4 ms min=%5 ms max=%6 ms; estimate for 31 nights x 350 updates: %7 s")
+			     .arg(n).arg(mean, 0, 'f', 3).arg(ms.at(n / 2), 0, 'f', 3).arg(ms.at(n * 95 / 100), 0, 'f', 3)
+			     .arg(ms.first(), 0, 'f', 3).arg(ms.last(), 0, 'f', 3).arg(perMonth, 0, 'f', 1);
 }
 
 bool Calenduh::configureGui(bool show)
