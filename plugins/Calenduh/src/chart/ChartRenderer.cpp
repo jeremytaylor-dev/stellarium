@@ -81,9 +81,16 @@ void ChartRenderer::render(QPainter& painter, const QRectF& page)
 {
 	if (model.rows.isEmpty())
 		return;
+	painter.save();
+	// The page is laid out in points, and every export device is 72 dpi (ChartExporter).
+	// Hinting snaps glyph advances to whole device units, here whole points; small text then
+	// gets uneven letter spacing, which grows when renderImage() scales the page up.
+	// With Qt before 6.8 on Windows, this preference also selects DirectWrite instead of GDI.
+	QFont base = painter.font();
+	base.setHintingPreference(QFont::PreferNoHinting);
+	painter.setFont(base);
 	layout(page, painter);
 
-	painter.save();
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	painter.setRenderHint(QPainter::TextAntialiasing, true);
 
