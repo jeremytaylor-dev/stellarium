@@ -39,8 +39,11 @@ ChartJob::~ChartJob() = default;
 
 bool ChartJob::start(const ChartSettings& settings, QString* error)
 {
-	if (isRunning())
-		cancel();
+	// Replace a running job without a cancelled() signal, so that no receiver
+	// can start another job inside this call.
+	timer.stop();
+	sampler.reset();
+	++generation;
 	// Connected here, not in the constructor: the plugin may be created before SolarSystem.
 	if (SolarSystem* solarSystem = GETSTELMODULE(SolarSystem))
 		connect(solarSystem, &SolarSystem::solarSystemDataReloaded, this, &ChartJob::solarSystemReloaded, Qt::UniqueConnection);
@@ -77,14 +80,18 @@ void ChartJob::step()
 	else
 		sampler->computeNight(next - nights);
 	++next;
-	emit progress(next, 2 * nights);
 	if (next < 2 * nights)
 	{
-		timer.start();
+		const quint64 current = generation;
+		emit progress(next, 2 * nights);
+		// A receiver can have cancelled this job or started another one.
+		if (isRunning() && generation == current)
+			timer.start();
 		return;
 	}
-	// Release the sampler before the signal, so that a receiver can start a new job.
+	// Release the sampler before the signals, so that a receiver can start a new job.
 	const std::unique_ptr<EphemerisSampler> done = std::move(sampler);
+	emit progress(next, 2 * nights);
 	emit finished(done->model(), done->unresolvedNames());
 }
 

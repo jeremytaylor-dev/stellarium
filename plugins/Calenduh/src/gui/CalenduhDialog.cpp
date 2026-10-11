@@ -131,6 +131,7 @@ void CalenduhDialog::jobFinished(const calenduh::ChartModel& model, const QStrin
 	setRunning(false);
 	ui->preview->setChart(model, jobStyle, jobPage);
 	// CAL-S-07, CAL-G-12: names that Stellarium cannot find are left out and reported.
+	shownUnresolved = unresolvedNames;
 	setStatus([unresolvedNames]() {
 		return unresolvedNames.isEmpty() ? QString()
 			: q_("Not found, left out: %1").arg(unresolvedNames.join(", "));
@@ -140,10 +141,17 @@ void CalenduhDialog::jobFinished(const calenduh::ChartModel& model, const QStrin
 void CalenduhDialog::jobCancelled()
 {
 	setRunning(false);
-	const bool previous = ui->preview->hasChart();
-	setStatus([previous]() {
-		return previous ? q_("Calculation cancelled. The chart shown is the previous one.")
-				: q_("Calculation cancelled.");
+	if (!ui->preview->hasChart())
+	{
+		setStatus([]() { return q_("Calculation cancelled."); });
+		return;
+	}
+	const QStringList unresolved = shownUnresolved;
+	setStatus([unresolved]() {
+		QString text = q_("Calculation cancelled. The chart shown is the previous one.");
+		if (!unresolved.isEmpty())
+			text += " " + q_("Not found, left out: %1").arg(unresolved.join(", "));
+		return text;
 	});
 }
 
@@ -151,6 +159,8 @@ void CalenduhDialog::jobFailed(const QString& message)
 {
 	setRunning(false);
 	ui->preview->clearChart();
+	shownUnresolved.clear();
+	// The message is translated by its sender; it is not built again after a language change.
 	setStatus([message]() { return message; });
 }
 

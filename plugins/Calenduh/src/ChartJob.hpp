@@ -44,8 +44,8 @@ public:
 	explicit ChartJob(QObject* parent = nullptr);
 	~ChartJob() override;
 
-	//! Start a job; a running job is cancelled first. Returns false and sets
-	//! @p error if the settings cannot be used.
+	//! Start a job. A running job is replaced; it emits no signal. Returns false
+	//! and sets @p error if the settings cannot be used.
 	bool start(const ChartSettings& settings, QString* error = nullptr);
 	//! Stop a running job. Emits cancelled().
 	void cancel();
@@ -65,6 +65,7 @@ private:
 	std::unique_ptr<EphemerisSampler> sampler;
 	int next = 0;           //!< next step: 0..n-1 Sun events, n..2n-1 nights
 	QTimer timer;
+	quint64 generation = 0; //!< counts start() calls
 };
 
 } // namespace calenduh

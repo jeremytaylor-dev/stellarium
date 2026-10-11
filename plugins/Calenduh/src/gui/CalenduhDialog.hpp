@@ -66,6 +66,7 @@ private:
 	calenduh::ChartStyle jobStyle;    //!< style and page in force when the job started
 	QSizeF jobPage;
 	std::function<QString()> statusText;  //!< status line, built again after a language change
+	QStringList shownUnresolved;      //!< names left out of the chart shown (CAL-S-07, CAL-G-12)
 
 	void setRunning(bool running);
 	void setStatus(std::function<QString()> text);
