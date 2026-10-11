@@ -132,6 +132,10 @@ Q_IMPORT_PLUGIN(ArchaeoLinesStelPluginInterface)
 Q_IMPORT_PLUGIN(CalendarsStelPluginInterface)
 #endif
 
+#ifdef USE_STATIC_PLUGIN_CALENDUH
+Q_IMPORT_PLUGIN(CalenduhStelPluginInterface)
+#endif
+
 #ifdef USE_STATIC_PLUGIN_SATELLITES
 Q_IMPORT_PLUGIN(SatellitesStelPluginInterface)
 #endif

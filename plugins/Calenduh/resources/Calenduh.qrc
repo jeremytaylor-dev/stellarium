@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/Calenduh" >
+    <file>bt_Calenduh_On.png</file>
+    <file>bt_Calenduh_Off.png</file>
+  </qresource>
+</RCC>
