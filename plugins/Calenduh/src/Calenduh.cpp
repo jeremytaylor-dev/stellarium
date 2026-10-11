@@ -19,7 +19,9 @@
 
 #include "StelApp.hpp"
 #include "StelCore.hpp"
+#include "StelLocation.hpp"
 #include "StelTranslator.hpp"
+#include "StelUtils.hpp"
 #include "Calenduh.hpp"
 #ifndef NO_GUI
 #include "StelGui.hpp"
@@ -35,9 +37,12 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPixmap>
+#include <QSettings>
+#include <QTimeZone>
 #include <QTimer>
 #include <QElapsedTimer>
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 
 StelModule* CalenduhStelPluginInterface::getStelModule() const
@@ -79,6 +84,9 @@ Calenduh::~Calenduh()
 
 void Calenduh::init()
 {
+	if (QSettings* conf = StelApp::getInstance().getSettings())
+		userSettings.load(*conf);
+
 #ifndef NO_GUI
 	addAction("actionShow_Calenduh_dialog", N_("Calenduh"), N_("Show observation planning calendar"), dialog, "visible");
 
@@ -99,6 +107,95 @@ void Calenduh::init()
 		QTimer::singleShot(5000, this, &Calenduh::runUpdateBenchmark);
 	if (qEnvironmentVariableIsSet("CALENDUH_SAMPLE"))
 		QTimer::singleShot(3000, this, &Calenduh::runSamplerCheck);
+}
+
+namespace {
+bool sameLocation(const calenduh::ChartLocation& a, const calenduh::ChartLocation& b)
+{
+	return a.name == b.name && a.latitude == b.latitude && a.longitude == b.longitude
+	       && a.elevation == b.elevation && a.timeZone == b.timeZone;
+}
+} // namespace
+
+void Calenduh::setUserSettings(const calenduh::UserSettings& settings)
+{
+	userSettings = settings;
+	if (QSettings* conf = StelApp::getInstance().getSettings())
+	{
+		userSettings.save(*conf);
+		conf->sync();
+	}
+}
+
+bool Calenduh::stellariumLocation(calenduh::ChartLocation& location)
+{
+	const StelCore* core = StelApp::getInstance().getCore();
+	const StelLocation& loc = core->getCurrentLocation();
+	if (loc.planetName != "Earth")
+		return false;
+
+	// Stellarium's time zone may differ from the location's (user setting).
+	QString tz = core->getCurrentTimeZone();
+	if (tz.isEmpty())
+		tz = loc.ianaTimeZone;
+	if (tz == "LMST" || tz == "LTST")
+	{
+		// Solar time: Stellarium's present UTC offset as a fixed offset. For LTST
+		// this ignores the change of the equation of time over the date range
+		// (up to about 30 s per day).
+		const int minutes = static_cast<int>(std::lround(core->getUTCOffset(core->getJD()) * 60.));
+		tz = calenduh::fixedOffsetTimeZone(minutes);
+	}
+	else if (tz == "system_default" || !QTimeZone(tz.toUtf8()).isValid())
+	{
+		// Stellarium also uses the system time zone for a name it cannot resolve.
+		tz = QString::fromUtf8(QTimeZone::systemTimeZoneId());
+	}
+
+	location.name = loc.name;
+	location.latitude = loc.getLatitude(true);
+	location.longitude = loc.getLongitude(true);
+	location.elevation = loc.altitude;
+	location.timeZone = tz;
+	return true;
+}
+
+bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* error)
+{
+	settings = userSettings.chart;
+
+	// CAL-L-09, CAL-I-09: Stellarium's location, or the last Earth location used.
+	calenduh::ChartLocation current;
+	const bool onEarth = stellariumLocation(current);
+	if (onEarth && (userSettings.followStellariumLocation || !userSettings.hasSavedLocation))
+	{
+		settings.location = current;
+		if (!userSettings.hasSavedLocation || !sameLocation(userSettings.chart.location, current))
+		{
+			calenduh::UserSettings updated = userSettings;
+			updated.chart.location = current;
+			updated.hasSavedLocation = true;
+			setUserSettings(updated);
+		}
+	}
+	else if (!userSettings.hasSavedLocation)
+	{
+		if (error)
+			*error = q_("Stellarium's observer is not on Earth, and no earlier chart location is saved. Select a chart location.");
+		return false;
+	}
+
+	// CAL-L-06: the calendar month of Stellarium's current local date.
+	if (userSettings.currentMonth || !settings.firstEvening.isValid() || !settings.lastEvening.isValid())
+	{
+		const StelCore* core = StelApp::getInstance().getCore();
+		const double jd = core->getJD();
+		int year, month, day;
+		StelUtils::getDateFromJulianDay(jd + core->getUTCOffset(jd) / 24., &year, &month, &day);
+		settings.firstEvening = QDate(year, month, 1);
+		settings.lastEvening = settings.firstEvening.addMonths(1).addDays(-1);
+	}
+	return true;
 }
 
 void Calenduh::runSamplerCheck()

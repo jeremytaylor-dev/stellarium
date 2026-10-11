@@ -17,6 +17,8 @@ ADD_LIBRARY(CalenduhChart STATIC
      chart/ChartSettings.hpp
      chart/ChartSettings.cpp
      chart/ChartStyle.hpp
+     chart/UserSettings.hpp
+     chart/UserSettings.cpp
      chart/ChartRenderer.hpp
      chart/ChartRenderer.cpp
      chart/ChartExporter.hpp
@@ -69,4 +71,11 @@ IF(ENABLE_TESTING)
      ADD_EXECUTABLE(calenduh-render test/calenduh-render.cpp)
      TARGET_LINK_LIBRARIES(calenduh-render CalenduhChart Qt${QT_VERSION_MAJOR}::Gui)
      SET_TARGET_PROPERTIES(calenduh-render PROPERTIES FOLDER "plugins/Calenduh/test")
+
+     # Unit tests of the Qt-only chart library
+     FIND_PACKAGE(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
+     ADD_EXECUTABLE(testCalenduhSettings test/testCalenduhSettings.cpp)
+     SET_TARGET_PROPERTIES(testCalenduhSettings PROPERTIES AUTOMOC ON FOLDER "plugins/Calenduh/test")
+     TARGET_LINK_LIBRARIES(testCalenduhSettings CalenduhChart Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Test)
+     ADD_TEST(testCalenduhSettings testCalenduhSettings)
 ENDIF(ENABLE_TESTING)
