@@ -212,7 +212,7 @@ void UserSettings::load(QSettings& conf)
 	else if (orientation == "landscape")
 		exportOptions.orientation = QPageLayout::Landscape;
 	double dpi = exportOptions.pngDpi;
-	readNumber(conf, "export_png_dpi", dpi, 36., 1200.);
+	readNumber(conf, "export_png_dpi", dpi, 36., ExportOptions::MaxPngDpi);
 	exportOptions.pngDpi = static_cast<int>(dpi);
 	exportOptions.directory = conf.value("export_directory", exportOptions.directory).toString();
 

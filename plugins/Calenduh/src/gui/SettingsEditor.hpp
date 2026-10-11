@@ -59,6 +59,12 @@ public:
 	QList<QPair<QString, QWidget*>> pages();
 
 	void setSettings(const calenduh::UserSettings& settings);
+	//! Keep the format and directory of the last export (no widgets show them).
+	void setExportTarget(calenduh::ExportOptions::Format format, const QString& directory)
+	{
+		current.exportOptions.format = format;
+		current.exportOptions.directory = directory;
+	}
 	const calenduh::UserSettings& settings() const { return current; }
 
 	//! Set the texts again after a language change.

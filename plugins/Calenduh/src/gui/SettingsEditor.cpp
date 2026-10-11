@@ -534,7 +534,7 @@ QWidget* SettingsEditor::buildExportPage()
 	orientation = new QComboBox();
 	form->addRow(label(N_("Orientation")), orientation);
 	pngDpi = new QSpinBox();
-	pngDpi->setRange(36, 1200);
+	pngDpi->setRange(36, ExportOptions::MaxPngDpi);
 	pngDpi->setSingleStep(50);
 	pngDpi->setSuffix(" dpi");
 	form->addRow(label(N_("PNG resolution")), pngDpi);

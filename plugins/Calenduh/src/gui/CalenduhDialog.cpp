@@ -31,6 +31,7 @@
 #include "StelTranslator.hpp"
 
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QStandardPaths>
 
 #include <QCoreApplication>
@@ -42,17 +43,14 @@
 namespace {
 
 //! True if the two settings give the same chart model (style and export aside).
+//! The location is compared also when Stellarium's location is followed: off Earth, the saved one is used.
 bool sameChartInputs(const calenduh::UserSettings& a, const calenduh::UserSettings& b)
 {
 	const calenduh::ChartSettings& x = a.chart;
 	const calenduh::ChartSettings& y = b.chart;
 	if (a.followStellariumLocation != b.followStellariumLocation || a.currentMonth != b.currentMonth
-	    || x.autoWindow != y.autoWindow || x.stars != y.stars || x.panel.toJson() != y.panel.toJson())
-		return false;
-	if (!a.followStellariumLocation
-	    && (x.location.name != y.location.name || x.location.latitude != y.location.latitude
-		|| x.location.longitude != y.location.longitude || x.location.elevation != y.location.elevation
-		|| x.location.timeZone != y.location.timeZone))
+	    || x.autoWindow != y.autoWindow || x.stars != y.stars || x.panel.toJson() != y.panel.toJson()
+	    || x.location != y.location)
 		return false;
 	if (!a.currentMonth && (x.firstEvening != y.firstEvening || x.lastEvening != y.lastEvening))
 		return false;
@@ -139,7 +137,6 @@ void CalenduhDialog::generate()
 	if (!dialog)
 		return;
 	saveSettingsNow();
-	changedDuringJob = false;
 	Calenduh* plugin = GETSTELMODULE(Calenduh);
 	calenduh::ChartSettings settings;
 	QString error;
@@ -157,8 +154,6 @@ void CalenduhDialog::generate()
 		return;
 	}
 	jobSettings = plugin->getUserSettings();
-	jobStyle = plugin->getUserSettings().style;
-	jobPage = plugin->getUserSettings().exportOptions.pagePoints();
 	setStatus([]() { return q_("Calculating..."); });
 	setRunning(true);
 }
@@ -216,18 +211,28 @@ void CalenduhDialog::jobProgress(int stepsDone, int steps)
 
 void CalenduhDialog::jobFinished(const calenduh::ChartModel& model, const QStringList& unresolvedNames)
 {
-	setRunning(false);
-	ui->preview->setChart(model, jobStyle, jobPage);
-	ui->pushButtonExport->setEnabled(true);
+	// The style and the page need no calculation: use those in force now.
+	const calenduh::UserSettings& current = editor->settings();
+	ui->preview->setChart(model, current.style, current.exportOptions.pagePoints());
+	shownSettings = jobSettings;
 	// CAL-S-07, CAL-G-12: names that Stellarium cannot find are left out and reported.
 	shownUnresolved = unresolvedNames;
-	const bool outOfDate = changedDuringJob;
-	setStatus([unresolvedNames, outOfDate]() {
+	setRunning(false);
+	showChartStatus(current, false);
+}
+
+void CalenduhDialog::showChartStatus(const calenduh::UserSettings& current, bool cancelled)
+{
+	const bool outOfDate = !sameChartInputs(current, shownSettings);
+	const QStringList unresolved = shownUnresolved;
+	setStatus([cancelled, outOfDate, unresolved]() {
 		QStringList lines;
+		if (cancelled)
+			lines.append(q_("Calculation cancelled. The chart shown is the previous one."));
 		if (outOfDate)
-			lines.append(q_("Settings changed during the calculation. Generate the chart again to apply them."));
-		if (!unresolvedNames.isEmpty())
-			lines.append(q_("Not found, left out: %1").arg(unresolvedNames.join(", ")));
+			lines.append(q_("Settings changed. Generate the chart again to apply them."));
+		if (!unresolved.isEmpty())
+			lines.append(q_("Not found, left out: %1").arg(unresolved.join(", ")));
 		return lines.join(" ");
 	});
 }
@@ -240,21 +245,14 @@ void CalenduhDialog::jobCancelled()
 		setStatus([]() { return q_("Calculation cancelled."); });
 		return;
 	}
-	const QStringList unresolved = shownUnresolved;
-	setStatus([unresolved]() {
-		QString text = q_("Calculation cancelled. The chart shown is the previous one.");
-		if (!unresolved.isEmpty())
-			text += " " + q_("Not found, left out: %1").arg(unresolved.join(", "));
-		return text;
-	});
+	showChartStatus(editor->settings(), true);
 }
 
 void CalenduhDialog::jobFailed(const QString& message)
 {
-	setRunning(false);
 	ui->preview->clearChart();
-	ui->pushButtonExport->setEnabled(false);
 	shownUnresolved.clear();
+	setRunning(false);
 	// The message is translated by its sender; it is not built again after a language change.
 	setStatus([message]() { return message; });
 }
@@ -263,17 +261,14 @@ void CalenduhDialog::settingsChanged(const calenduh::UserSettings& settings)
 {
 	savePending = true;
 	saveTimer->start();
-	if (job->isRunning())
-	{
-		changedDuringJob = true;
-		return;
-	}
-	if (!ui->preview->hasChart())
+	// During a calculation, jobFinished() uses the settings in force at its end.
+	if (job->isRunning() || !ui->preview->hasChart())
 		return;
 	// Colours, line widths and the page need no new calculation.
-	ui->preview->setAppearance(settings.style, settings.exportOptions.pagePoints());
-	if (!sameChartInputs(settings, jobSettings))
-		setStatus([]() { return q_("Settings changed. Generate the chart again to apply them."); });
+	const QSizeF page = settings.exportOptions.pagePoints();
+	if (settings.style != ui->preview->chartStyle() || page != ui->preview->pagePoints())
+		ui->preview->setAppearance(settings.style, page);
+	showChartStatus(settings, false);
 }
 
 bool CalenduhDialog::writeChart(const QString& path, calenduh::ExportOptions::Format format,
@@ -308,9 +303,9 @@ void CalenduhDialog::exportChart()
 	calenduh::ExportOptions& options = settings.exportOptions;
 
 	using Format = calenduh::ExportOptions::Format;
-	const QString filters[3] = { q_("PDF document (*.pdf)"), q_("SVG image (*.svg)"), q_("PNG image (*.png)") };
+	const QStringList filters = { q_("PDF document (*.pdf)"), q_("SVG image (*.svg)"), q_("PNG image (*.png)") };
 	const Format formats[3] = { Format::Pdf, Format::Svg, Format::Png };
-	QString selected = filters[static_cast<int>(options.format)];
+	QString selected = filters.at(static_cast<int>(options.format));
 	QString directory = options.directory;
 	if (directory.isEmpty() || !QDir(directory).exists())
 		directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
@@ -319,12 +314,13 @@ void CalenduhDialog::exportChart()
 							     calenduh::ExportOptions::formatSuffix(options.format));
 	QString path = QFileDialog::getSaveFileName(&StelMainView::getInstance(), q_("Export chart"),
 						    QDir(directory).filePath(name),
-						    QStringList(std::begin(filters), std::end(filters)).join(";;"), &selected);
+						    filters.join(";;"), &selected);
 	if (path.isEmpty())
 		return;
 
 	// The suffix selects the format; without a known suffix, the selected filter does.
-	Format format = formats[std::max<qsizetype>(0, QStringList(std::begin(filters), std::end(filters)).indexOf(selected))];
+	const int filterIndex = filters.indexOf(selected);
+	Format format = filterIndex >= 0 ? formats[filterIndex] : options.format;
 	const QString suffix = QFileInfo(path).suffix().toLower();
 	bool known = false;
 	for (Format f : formats)
@@ -334,7 +330,15 @@ void CalenduhDialog::exportChart()
 			known = true;
 		}
 	if (!known)
+	{
 		path += "." + calenduh::ExportOptions::formatSuffix(format);
+		// The file dialog asked about the name without the suffix.
+		if (QFileInfo::exists(path)
+		    && QMessageBox::question(&StelMainView::getInstance(), q_("Export chart"),
+					     q_("%1 exists. Replace it?").arg(QDir::toNativeSeparators(path)))
+			       != QMessageBox::Yes)
+			return;
+	}
 
 	if (!writeChart(path, format, options))
 	{
@@ -347,7 +351,7 @@ void CalenduhDialog::exportChart()
 	options.format = format;
 	options.directory = QFileInfo(path).absolutePath();
 	GETSTELMODULE(Calenduh)->setUserSettings(settings);
-	editor->setSettings(settings);
+	editor->setExportTarget(options.format, options.directory);
 }
 
 void CalenduhDialog::saveSettingsNow()

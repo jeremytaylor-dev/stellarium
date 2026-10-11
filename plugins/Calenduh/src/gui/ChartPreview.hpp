@@ -46,6 +46,7 @@ public:
 	//! The chart shown, or nullptr.
 	const calenduh::ChartModel* chartModel() const { return model ? &*model : nullptr; }
 	const calenduh::ChartStyle& chartStyle() const { return style; }
+	QSizeF pagePoints() const { return page; }
 
 	//! Remove the chart and show @p message instead.
 	void clearChart(const QString& message = QString());
