@@ -62,6 +62,21 @@ private slots:
 		QCOMPARE(s.chart.panel.summary(), visual.summary());
 	}
 
+	void panelSummaryText()
+	{
+		// CAL-G-11: sums in brackets, and the minimum duration at the end.
+		PanelSettings p = PanelSettings::visualPreset();
+		QCOMPARE(p.summary(), QString::fromUtf8("nautical dusk to (start + 2:30), above 20° for minimum 1:00"));
+		p.start = PeriodEdge::atEvent(SunEvent::Sunset, 0.5);
+		p.end = PeriodEdge::atEvent(SunEvent::Sunrise, -1.);
+		p.minDurationHours = 0.75;
+		QCOMPARE(p.summary(), QString::fromUtf8("(sunset + 0:30) to (sunrise - 1:00), above 20° for minimum 0:45"));
+		p.start = PeriodEdge::atEvent(SunEvent::Sunset, 0.004);
+		p.end = PeriodEdge::atClock(23 * 60);
+		p.minDurationHours = 0.004;
+		QCOMPARE(p.summary(), QString::fromUtf8("sunset to 23:00, above 20° at any time"));
+	}
+
 	void roundTrip()
 	{
 		UserSettings s;

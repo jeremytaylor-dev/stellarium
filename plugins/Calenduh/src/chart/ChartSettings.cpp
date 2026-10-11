@@ -137,14 +137,15 @@ QString PeriodEdge::describe() const
 		case Kind::Clock:
 			return clockText(clockMinutes);
 		case Kind::Duration:
-			return QString("start + %1").arg(hoursAndMinutes(durationHours));
+			return QString("(start + %1)").arg(hoursAndMinutes(durationHours));
 		case Kind::Event:
 			break;
 	}
-	QString text = sunEventName(event);
-	if (offsetHours != 0.)
-		text += QString(" %1 %2").arg(offsetHours > 0. ? "+" : "-", hoursAndMinutes(offsetHours));
-	return text;
+	// An edge with an offset is a sum, and is shown in brackets (CAL-G-11).
+	const QString name = sunEventName(event);
+	if (std::lround(offsetHours * 60.) == 0)
+		return name;
+	return QString("(%1 %2 %3)").arg(name, offsetHours > 0. ? "+" : "-", hoursAndMinutes(offsetHours));
 }
 
 QJsonObject PeriodEdge::toJson() const
@@ -202,9 +203,10 @@ PanelSettings PanelSettings::astrophotographyPreset()
 
 QString PanelSettings::summary() const
 {
-	return QString("%1 to %2, %3+ above %4°")
-		.arg(start.describe(), end.describe(), hoursAndMinutes(minDurationHours))
-		.arg(minAltitude, 0, 'g', 4);
+	// A minimum duration of 0:00 means at any time (CAL-G-08, CAL-G-11).
+	const QString duration = std::lround(minDurationHours * 60.) > 0
+		? QString("for minimum %1").arg(hoursAndMinutes(minDurationHours)) : QString("at any time");
+	return QString("%1 to %2, above %3° %4").arg(start.describe(), end.describe()).arg(minAltitude, 0, 'g', 4).arg(duration);
 }
 
 std::optional<std::pair<double, double>> PanelSettings::period(const NightRow& row, const QTimeZone& timeZone) const

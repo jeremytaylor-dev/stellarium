@@ -27,6 +27,7 @@
 #include <QPainterPath>
 #include <QPointF>
 #include <QRectF>
+#include <QString>
 #include <QTimeZone>
 #include <QVector>
 
@@ -61,6 +62,7 @@ private:
 	QRectF chart;         //!< the chart area (rows x time window)
 	QRectF panelArea;     //!< the target-panel area (CAL-G-17); empty when the panel is off
 	double labelLimit = 0.; //!< lowest point a target label may reach: the page margin
+	double titleTop = 0.;   //!< top of the chart title and of the panel heading
 	double columnWidth = 0.; //!< target-panel column width
 	double rowHeight = 0.;
 	double em = 0.;       //!< base font size [pt]
@@ -104,7 +106,13 @@ private:
 	void drawLabels(QPainter& painter);
 	void drawPanel(QPainter& painter);
 
-	QString titleText() const;
+	//! The two lines of the chart title (CAL-L-05).
+	struct Title
+	{
+		QString range;    //!< the title and the date range
+		QString location; //!< the location name, and the latitude and longitude
+	};
+	Title titleText() const;
 };
 
 } // namespace calenduh

@@ -48,6 +48,19 @@ QFont fittedFont(QFont font, const QString& text, double width, QPaintDevice* de
 	return font;
 }
 
+//! Draw one line of @p text with its baseline at @p baseline, between @p left and @p right,
+//! left-aligned or centred. Text that is too wide gets a smaller font (to 70 %) and is then shortened.
+void drawFittedLine(QPainter& painter, QFont font, const QString& text, double left, double right, double baseline, bool centred)
+{
+	const double width = right - left;
+	font = fittedFont(font, text, width, painter.device(), 0.7);
+	const QFontMetricsF metrics(font, painter.device());
+	const QString shown = metrics.elidedText(text, Qt::ElideRight, width);
+	const double x = centred ? left + 0.5 * (width - metrics.horizontalAdvance(shown)) : left;
+	painter.setFont(font);
+	painter.drawText(QPointF(x, baseline), shown);
+}
+
 //! Transit times of a star move earlier by (1 solar day - 1 sidereal day) per day.
 constexpr double STAR_DRIFT_MINUTES_PER_DAY = -3.9333;
 constexpr double SIDEREAL_DAY = 0.99726957; //!< days
@@ -68,6 +81,12 @@ QString formatLongitude(double deg)
 {
 	return QString("%1° %2").arg(std::fabs(deg), 0, 'f', 2).arg(deg < 0. ? "W" : "E");
 }
+
+//! Height of the chart title and of the panel heading, in em. The first line has its baseline
+//! at 1.3 em and the second line at 2.6 em.
+constexpr double TITLE_HEIGHT = 3.0;
+constexpr double TITLE_BASELINE_1 = 1.3;
+constexpr double TITLE_BASELINE_2 = 2.6;
 
 } // namespace
 
@@ -133,7 +152,7 @@ void ChartRenderer::layout(const QRectF& page, const QPainter& painter)
 	const int rowCount = model.rows.size();
 	const double margin = 0.03 * std::min(page.width(), page.height());
 	em = 0.016 * page.height();
-	const double titleHeight = 2.4 * em;
+	const double titleHeight = TITLE_HEIGHT * em;
 	const double hourLabelHeight = 1.6 * em;
 
 	rowHeight = (page.height() - 2. * margin - titleHeight - 2. * hourLabelHeight) / rowCount;
@@ -161,6 +180,7 @@ void ChartRenderer::layout(const QRectF& page, const QPainter& painter)
 		       rowCount * rowHeight);
 	panelArea = model.panel ? QRectF(chart.right() + rightReserve, chart.top(), panelWidth, chart.height()) : QRectF();
 	labelLimit = page.bottom() - margin;
+	titleTop = page.top() + margin;
 
 	const NightRow& first = model.rows.first();
 	windowStartClock = clockMinutes(jdToDateTime(first.windowStart).toTimeZone(timeZone));
@@ -537,16 +557,15 @@ void ChartRenderer::drawLabels(QPainter& painter)
 	painter.save();
 	painter.setPen(style.textColor);
 
+	// Two title lines, centred on the chart: the date range in 1.3 em bold, the location in 1.0 em.
+	const Title title = titleText();
 	QFont titleFont = painter.font();
 	titleFont.setPointSizeF(1.3 * em);
 	titleFont.setBold(true);
-	// A title wider than the chart gets a smaller font (to 70 %) and is then shortened.
-	const QRectF titleRect(chart.left(), chart.top() - 1.6 * em - 2.4 * em, chart.width(), 2.4 * em);
-	const QString title = titleText();
-	titleFont = fittedFont(titleFont, title, titleRect.width(), painter.device(), 0.7);
-	painter.setFont(titleFont);
-	painter.drawText(titleRect, Qt::AlignHCenter | Qt::AlignVCenter,
-			 QFontMetricsF(titleFont, painter.device()).elidedText(title, Qt::ElideRight, titleRect.width()));
+	QFont locationFont = painter.font();
+	locationFont.setPointSizeF(1.0 * em);
+	drawFittedLine(painter, titleFont, title.range, chart.left(), chart.right(), titleTop + TITLE_BASELINE_1 * em, true);
+	drawFittedLine(painter, locationFont, title.location, chart.left(), chart.right(), titleTop + TITLE_BASELINE_2 * em, true);
 
 	QFont font = painter.font();
 	font.setBold(false);
@@ -722,31 +741,21 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	}
 
 	// Heading above the panel, level with the chart title (CAL-G-11, CAL-G-17). layout() makes
-	// the panel wide enough for it where it can; text that is still too wide gets a smaller
-	// font (to 70 %) and is then shortened.
+	// the panel wide enough for it where it can.
 	painter.setPen(style.textColor);
-	QPaintDevice* device = painter.device();
-	const auto drawLine = [&](const QFont& lineFont, const QString& text, double left, double baseline) {
-		const double width = panelArea.right() - left;
-		const QFont fitted = fittedFont(lineFont, text, width, device, 0.7);
-		painter.setFont(fitted);
-		const QFontMetricsF metrics(fitted, device);
-		painter.drawText(QPointF(left, baseline), metrics.elidedText(text, Qt::ElideRight, width));
-	};
-	const double headingTop = chart.top() - 1.6 * em - 2.4 * em;
 	const QFont titleFont = panelTitleFont(font);
 	const QFont summaryFont = panelSummaryFont(font);
-	drawLine(titleFont, panel.title, panelArea.left(), headingTop + 1.1 * em);
-	drawLine(summaryFont, panel.summary, panelArea.left(), headingTop + 2.1 * em);
+	drawFittedLine(painter, titleFont, panel.title, panelArea.left(), panelArea.right(), titleTop + TITLE_BASELINE_1 * em, false);
+	drawFittedLine(painter, summaryFont, panel.summary, panelArea.left(), panelArea.right(), titleTop + TITLE_BASELINE_2 * em, false);
 
 	// CAL-G-16: the note goes right of target labels that extend below the panel (CAL-G-13).
 	if (anyShaded && noteLeft < panelArea.right())
-		drawLine(summaryFont, style.panelShadeNote, noteLeft,
-			 chart.bottom() + 0.45 * em + QFontMetricsF(summaryFont, device).ascent());
+		drawFittedLine(painter, summaryFont, style.panelShadeNote, noteLeft, panelArea.right(),
+			       chart.bottom() + 0.45 * em + QFontMetricsF(summaryFont, painter.device()).ascent(), false);
 	painter.restore();
 }
 
-QString ChartRenderer::titleText() const
+ChartRenderer::Title ChartRenderer::titleText() const
 {
 	// CAL-L-05: date range, location name, latitude and longitude.
 	const QLocale english(QLocale::English);
@@ -764,8 +773,8 @@ QString ChartRenderer::titleText() const
 							  formatLongitude(model.location.longitude));
 	// A location without a name (for example a position from the network) shows the coordinates only.
 	if (model.location.name.trimmed().isEmpty())
-		return QString("%1, %2, %3").arg(style.title, range, coordinates);
-	return QString("%1, %2, %3 (%4)").arg(style.title, range, model.location.name, coordinates);
+		return { QString("%1, %2").arg(style.title, range), coordinates };
+	return { QString("%1, %2").arg(style.title, range), QString("%1 (%2)").arg(model.location.name, coordinates) };
 }
 
 } // namespace calenduh
