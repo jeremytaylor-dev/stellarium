@@ -34,6 +34,10 @@ class QSettings;
 
 namespace calenduh {
 
+//! True if @p id names a time zone that Qt knows. Qt accepts an empty name
+//! (as the system zone); this function does not.
+bool isValidTimeZone(const QString& id);
+
 //! Identifier of a fixed UTC offset, e.g. "UTC+12:45", which QTimeZone accepts.
 QString fixedOffsetTimeZone(int minutesAheadOfUtc);
 
@@ -55,6 +59,9 @@ struct ExportOptions
 //! Everything the plugin saves (CAL-I-08).
 struct UserSettings
 {
+	//! The target panel starts with the values of the Visual preset, switched off.
+	UserSettings();
+
 	ChartSettings chart;
 
 	//! CAL-L-09: use Stellarium's current location (if it is on Earth). If false,

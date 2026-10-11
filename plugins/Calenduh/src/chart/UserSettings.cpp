@@ -92,6 +92,11 @@ QString edgeText(const PeriodEdge& edge)
 
 } // namespace
 
+bool isValidTimeZone(const QString& id)
+{
+	return !id.trimmed().isEmpty() && QTimeZone(id.toUtf8()).isValid();
+}
+
 QString fixedOffsetTimeZone(int minutesAheadOfUtc)
 {
 	const int m = std::abs(minutesAheadOfUtc);
@@ -117,6 +122,12 @@ QString ExportOptions::formatSuffix(Format f)
 	return QStringLiteral("pdf");
 }
 
+UserSettings::UserSettings()
+{
+	chart.panel = PanelSettings::visualPreset();
+	chart.panel.enabled = false;
+}
+
 void UserSettings::load(QSettings& conf)
 {
 	conf.beginGroup(GROUP);
@@ -129,8 +140,9 @@ void UserSettings::load(QSettings& conf)
 		const double lon = conf.value("location_longitude").toDouble(&okLon);
 		const double elev = conf.value("location_elevation", 0.).toDouble(&okElev);
 		const QString tz = conf.value("location_time_zone").toString();
+		// A time zone that Qt does not know is kept; the window and Generate report it.
 		if (okLat && okLon && okElev && std::abs(lat) <= 90. && std::abs(lon) <= 180. && std::isfinite(elev)
-		    && QTimeZone(tz.toUtf8()).isValid())
+		    && !tz.trimmed().isEmpty())
 		{
 			chart.location = { conf.value("location_name").toString(), lat, lon, elev, tz };
 			hasSavedLocation = true;

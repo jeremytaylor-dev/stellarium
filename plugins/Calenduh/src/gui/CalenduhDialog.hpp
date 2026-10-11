@@ -25,10 +25,12 @@
 #include "ChartStyle.hpp"
 
 #include <QSizeF>
+#include <QTimer>
 #include <functional>
 
 class Ui_calenduhDialogForm;
-namespace calenduh { class ChartJob; }
+class SettingsEditor;
+namespace calenduh { class ChartJob; struct UserSettings; }
 
 //! Main window of the Calenduh plug-in: chart generation and preview.
 //! @ingroup calenduh
@@ -49,6 +51,8 @@ public slots:
 	//! Development check: show the window, wait for the chart, save an image of
 	//! the window to @p pngPath, and quit Stellarium if @p quit.
 	void runDialogCheck(const QString& pngPath, bool quit);
+	//! Save settings edits that wait for the pause timer (at quit).
+	void flushSettings() { saveSettingsNow(); }
 
 protected:
 	void createDialogContent() override;
@@ -58,10 +62,15 @@ private slots:
 	void jobFinished(const calenduh::ChartModel& model, const QStringList& unresolvedNames);
 	void jobCancelled();
 	void jobFailed(const QString& message);
+	void settingsChanged(const calenduh::UserSettings& settings);
 
 private:
 	Ui_calenduhDialogForm* ui;
 	calenduh::ChartJob* job;
+	SettingsEditor* editor = nullptr;
+	QTimer* saveTimer = nullptr;          //!< saves the settings when the edits pause
+	bool savePending = false;
+	bool changedDuringJob = false;
 	bool generatedOnce = false;       //!< the first opening has started a chart
 	calenduh::ChartStyle jobStyle;    //!< style and page in force when the job started
 	QSizeF jobPage;
@@ -69,6 +78,7 @@ private:
 	QStringList shownUnresolved;      //!< names left out of the chart shown (CAL-S-07, CAL-G-12)
 
 	void setRunning(bool running);
+	void saveSettingsNow();
 	void setStatus(std::function<QString()> text);
 };
 

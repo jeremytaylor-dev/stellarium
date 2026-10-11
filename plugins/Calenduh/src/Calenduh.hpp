@@ -55,6 +55,7 @@ public:
 	~Calenduh() override;
 
 	void init() override;
+	void deinit() override;
 	bool configureGui(bool show) override;
 
 	//! The saved user settings (CAL-I-08).
