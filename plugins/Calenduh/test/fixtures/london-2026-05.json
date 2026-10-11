@@ -9543,6 +9543,32 @@
    "M27",
    "Jupiter",
    "Saturn"
-  ]
+  ],
+  "settings": {
+   "enabled": true,
+   "title": "Astrophotography",
+   "start": {
+    "event": "astronomicalDusk",
+    "offset": 0.0
+   },
+   "end": {
+    "event": "astronomicalDawn",
+    "offset": 0.0
+   },
+   "minAltitude": 30.0,
+   "minDuration": 3.0,
+   "targets": [
+    "M81",
+    "M51",
+    "M3",
+    "M101",
+    "M104",
+    "M13",
+    "M57",
+    "M27",
+    "Jupiter",
+    "Saturn"
+   ]
+  }
  }
 }

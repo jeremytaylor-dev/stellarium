@@ -62,6 +62,13 @@ private slots:
 	//! environment variable CALENDUH_BENCHMARK=1. Restores the simulation time.
 	void runUpdateBenchmark();
 
+	//! Development diagnostic: run the EphemerisSampler with the settings of a
+	//! chart-model fixture and write the result as JSON, for comparison with the
+	//! fixture (tools/compare-models.py). Runs at start-up only if the environment
+	//! variable CALENDUH_SAMPLE="<fixture.json>;<output.json>" is set; quits
+	//! Stellarium afterwards if CALENDUH_SAMPLE_QUIT=1.
+	void runSamplerCheck();
+
 private:
 #ifndef NO_GUI
 	CalenduhDialog* dialog;

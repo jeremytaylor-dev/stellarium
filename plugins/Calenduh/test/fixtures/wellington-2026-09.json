@@ -12782,6 +12782,29 @@
    "47 Tuc",
    "Saturn",
    "Jupiter"
-  ]
+  ],
+  "settings": {
+   "enabled": true,
+   "title": "Visual",
+   "start": {
+    "event": "nauticalDusk",
+    "offset": 0.0
+   },
+   "end": {
+    "duration": 2.5
+   },
+   "minAltitude": 20.0,
+   "minDuration": 1.0,
+   "targets": [
+    "M8",
+    "Omega Centauri",
+    "M83",
+    "Helix Nebula",
+    "NGC 253",
+    "47 Tuc",
+    "Saturn",
+    "Jupiter"
+   ]
+  }
  }
 }

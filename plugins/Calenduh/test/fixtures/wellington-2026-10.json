@@ -10776,6 +10776,33 @@
    "M8",
    "Carina Nebula",
    "Saturn"
-  ]
+  ],
+  "settings": {
+   "enabled": true,
+   "title": "Astrophotography",
+   "start": {
+    "event": "astronomicalDusk",
+    "offset": 0.0
+   },
+   "end": {
+    "event": "astronomicalDawn",
+    "offset": 0.0
+   },
+   "minAltitude": 30.0,
+   "minDuration": 3.0,
+   "targets": [
+    "NGC 55",
+    "NGC 253",
+    "47 Tuc",
+    "SMC",
+    "LMC",
+    "Tarantula Nebula",
+    "Helix Nebula",
+    "M42",
+    "M8",
+    "Carina Nebula",
+    "Saturn"
+   ]
+  }
  }
 }

@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace Calenduh {
+namespace calenduh {
 
 namespace {
 
@@ -633,4 +633,4 @@ QString ChartRenderer::titleText() const
 		     formatLatitude(model.location.latitude), formatLongitude(model.location.longitude));
 }
 
-} // namespace Calenduh
+} // namespace calenduh

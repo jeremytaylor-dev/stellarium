@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 		err << "Cannot read " << args.at(1) << "\n";
 		return 1;
 	}
-	Calenduh::ChartModel model;
+	calenduh::ChartModel model;
 	QString message;
 	if (!model.fromJson(file.readAll(), &message))
 	{
@@ -57,17 +57,17 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	const Calenduh::ChartStyle style;
+	const calenduh::ChartStyle style;
 	const QString out = args.at(2);
 	const QString suffix = QFileInfo(out).suffix().toLower();
-	const QSizeF page = Calenduh::ChartExporter::defaultPageSize();
+	const QSizeF page = calenduh::ChartExporter::defaultPageSize();
 	bool ok = false;
 	if (suffix == "png")
-		ok = Calenduh::ChartExporter::writePng(model, style, out, page, dpi);
+		ok = calenduh::ChartExporter::writePng(model, style, out, page, dpi);
 	else if (suffix == "svg")
-		ok = Calenduh::ChartExporter::writeSvg(model, style, out, page);
+		ok = calenduh::ChartExporter::writeSvg(model, style, out, page);
 	else if (suffix == "pdf")
-		ok = Calenduh::ChartExporter::writePdf(model, style, out);
+		ok = calenduh::ChartExporter::writePdf(model, style, out);
 	else
 		err << "Unknown output type: " << suffix << "\n";
 

@@ -15867,6 +15867,31 @@
    "M81",
    "Jupiter",
    "Saturn"
-  ]
+  ],
+  "settings": {
+   "enabled": true,
+   "title": "Visual",
+   "start": {
+    "event": "nauticalDusk",
+    "offset": 0.0
+   },
+   "end": {
+    "duration": 2.5
+   },
+   "minAltitude": 20.0,
+   "minDuration": 1.0,
+   "targets": [
+    "M31",
+    "M33",
+    "Double Cluster",
+    "M45",
+    "M1",
+    "M42",
+    "M35",
+    "M81",
+    "Jupiter",
+    "Saturn"
+   ]
+  }
  }
 }

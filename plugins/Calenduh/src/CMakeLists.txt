@@ -14,6 +14,8 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/src)
 ADD_LIBRARY(CalenduhChart STATIC
      chart/ChartModel.hpp
      chart/ChartModel.cpp
+     chart/ChartSettings.hpp
+     chart/ChartSettings.cpp
      chart/ChartStyle.hpp
      chart/ChartRenderer.hpp
      chart/ChartRenderer.cpp
@@ -26,6 +28,8 @@ SET_TARGET_PROPERTIES(CalenduhChart PROPERTIES FOLDER "plugins/Calenduh")
 SET(CALENDUH_SRCS
      Calenduh.hpp
      Calenduh.cpp
+     EphemerisSampler.hpp
+     EphemerisSampler.cpp
 )
 IF (STELLARIUM_GUI_MODE STREQUAL "Standard")
 LIST(APPEND CALENDUH_SRCS
