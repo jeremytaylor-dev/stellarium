@@ -131,10 +131,16 @@ private:
 	QDoubleSpinBox* moonMinWidth = nullptr;
 	QDoubleSpinBox* moonMaxWidth = nullptr;
 
+	// Page and export (CAL-I-05)
+	QComboBox* pageSize = nullptr;
+	QComboBox* orientation = nullptr;
+	QSpinBox* pngDpi = nullptr;
+
 	QWidget* buildLocationPage();
 	QWidget* buildStarsPage();
 	QWidget* buildPanelPage();
 	QWidget* buildAppearancePage();
+	QWidget* buildExportPage();
 	void buildEdge(EdgeWidgets& edge, bool isEnd, QFormLayout* form, const char* label);
 	void buildListEditor(ListEditor& editor, QBoxLayout* layout, bool upDown);
 
@@ -145,6 +151,7 @@ private:
 	void fillEventCombos();
 	void fillKindCombos();
 	void fillPresetCombo();
+	void fillOrientationCombo();
 
 	void onChanged() { if (!loading) store(); }
 	void load();            //!< settings -> widgets

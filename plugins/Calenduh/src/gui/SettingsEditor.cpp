@@ -137,10 +137,10 @@ QList<QPair<QString, QWidget*>> SettingsEditor::pages()
 {
 	if (pageList.isEmpty())
 	{
-		pageTitles = { N_("Location and dates"), N_("Stars"), N_("Target panel"), N_("Appearance") };
+		pageTitles = { N_("Location and dates"), N_("Stars"), N_("Target panel"), N_("Appearance"), N_("Page and export") };
 		// No change handling while the widgets are made: store() needs all of them.
 		loading = true;
-		const QList<QWidget*> widgets = { buildLocationPage(), buildStarsPage(), buildPanelPage(), buildAppearancePage() };
+		const QList<QWidget*> widgets = { buildLocationPage(), buildStarsPage(), buildPanelPage(), buildAppearancePage(), buildExportPage() };
 		for (int i = 0; i < widgets.size(); ++i)
 			pageList.append({ q_(pageTitles.at(i)), scrolled(widgets.at(i)) });
 		load();
@@ -157,6 +157,7 @@ void SettingsEditor::retranslate()
 	fillKindCombos();
 	fillEventCombos();
 	fillPresetCombo();
+	fillOrientationCombo();
 	loading = wasLoading;
 	for (int i = 0; i < pageList.size(); ++i)
 		pageList[i].first = q_(pageTitles.at(i));
@@ -514,6 +515,51 @@ QWidget* SettingsEditor::buildAppearancePage()
 	return page;
 }
 
+namespace {
+// Page sizes offered for the chart (CAL-I-05).
+const QPageSize::PageSizeId PAGE_SIZES[] = { QPageSize::A4, QPageSize::A3, QPageSize::A5, QPageSize::Letter,
+					     QPageSize::Legal, QPageSize::Tabloid };
+}
+
+QWidget* SettingsEditor::buildExportPage()
+{
+	// CAL-I-05: the page of the PDF; SVG and PNG have the same size.
+	auto* page = new QWidget();
+	auto* layout = new QVBoxLayout(page);
+	auto* form = new QFormLayout();
+	pageSize = new QComboBox();
+	for (QPageSize::PageSizeId id : PAGE_SIZES)
+		pageSize->addItem(QPageSize::name(id), static_cast<int>(id));
+	form->addRow(label(N_("Page size")), pageSize);
+	orientation = new QComboBox();
+	form->addRow(label(N_("Orientation")), orientation);
+	pngDpi = new QSpinBox();
+	pngDpi->setRange(36, 1200);
+	pngDpi->setSingleStep(50);
+	pngDpi->setSuffix(" dpi");
+	form->addRow(label(N_("PNG resolution")), pngDpi);
+	layout->addLayout(form);
+	layout->addWidget(label(N_("Use Export on the Chart page to write PDF, SVG or PNG. The file name suffix selects the format.")));
+	layout->addStretch(1);
+	fillOrientationCombo();
+
+	connect(pageSize, &QComboBox::currentIndexChanged, this, &SettingsEditor::onChanged);
+	connect(orientation, &QComboBox::currentIndexChanged, this, &SettingsEditor::onChanged);
+	connect(pngDpi, &QSpinBox::valueChanged, this, &SettingsEditor::onChanged);
+	return page;
+}
+
+void SettingsEditor::fillOrientationCombo()
+{
+	if (!orientation)
+		return;
+	const int index = orientation->currentIndex();
+	orientation->clear();
+	orientation->addItem(q_("Landscape"), static_cast<int>(QPageLayout::Landscape));
+	orientation->addItem(q_("Portrait"), static_cast<int>(QPageLayout::Portrait));
+	orientation->setCurrentIndex(std::max(index, 0));
+}
+
 // ---------------------------------------------------------------- combos
 
 void SettingsEditor::fillKindCombos()
@@ -625,6 +671,14 @@ void SettingsEditor::load()
 	moonMinWidth->setValue(current.style.moonMinWidth);
 	moonMaxWidth->setValue(current.style.moonMaxWidthFactor);
 
+	const ExportOptions& e = current.exportOptions;
+	const int pageIndex = pageSize->findData(static_cast<int>(e.pageSize));
+	if (pageIndex < 0)
+		pageSize->addItem(QPageSize::name(e.pageSize), static_cast<int>(e.pageSize));
+	pageSize->setCurrentIndex(pageSize->findData(static_cast<int>(e.pageSize)));
+	orientation->setCurrentIndex(orientation->findData(static_cast<int>(e.orientation)));
+	pngDpi->setValue(e.pngDpi);
+
 	// The lists were refilled: check all names again.
 	stars.checked.clear();
 	targets.checked.clear();
@@ -671,6 +725,11 @@ void SettingsEditor::store()
 	current.style.moonDayColor = colorOf(moonDayColor);
 	current.style.moonMinWidth = moonMinWidth->value();
 	current.style.moonMaxWidthFactor = moonMaxWidth->value();
+
+	ExportOptions& e = current.exportOptions;
+	e.pageSize = static_cast<QPageSize::PageSizeId>(pageSize->currentData().toInt());
+	e.orientation = static_cast<QPageLayout::Orientation>(orientation->currentData().toInt());
+	e.pngDpi = pngDpi->value();
 
 	// The widgets keep their state (lists are not refilled, which could disturb a drag).
 	refreshDerived();

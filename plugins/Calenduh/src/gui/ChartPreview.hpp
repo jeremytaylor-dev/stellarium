@@ -41,6 +41,12 @@ public:
 
 	//! Show a chart on a page of @p pagePoints (points).
 	void setChart(const calenduh::ChartModel& model, const calenduh::ChartStyle& style, const QSizeF& pagePoints);
+	//! Draw the shown chart again with another style or page (no new calculation).
+	void setAppearance(const calenduh::ChartStyle& style, const QSizeF& pagePoints);
+	//! The chart shown, or nullptr.
+	const calenduh::ChartModel* chartModel() const { return model ? &*model : nullptr; }
+	const calenduh::ChartStyle& chartStyle() const { return style; }
+
 	//! Remove the chart and show @p message instead.
 	void clearChart(const QString& message = QString());
 	bool hasChart() const { return model.has_value(); }
