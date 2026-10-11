@@ -32,6 +32,40 @@ namespace calenduh {
 
 namespace {
 
+//! The largest font, from @p font down to @p minFactor of its size in 5 % steps, with which
+//! @p text fits in @p box (wrapped if @p flags has Qt::TextWordWrap).
+QFont fittedFont(QFont font, const QString& text, const QRectF& box, int flags, QPaintDevice* device, double minFactor)
+{
+	const double size = font.pointSizeF();
+	for (int step = 0; 1. - 0.05 * step >= minFactor - 1e-9; ++step)
+	{
+		font.setPointSizeF((1. - 0.05 * step) * size);
+		const QRectF need = QFontMetricsF(font, device).boundingRect(box, flags, text);
+		if (need.width() <= box.width() + 1e-6 && need.height() <= box.height() + 1e-6)
+			return font;
+	}
+	font.setPointSizeF(minFactor * size);
+	return font;
+}
+
+//! @p text, shortened at the end with an ellipsis until it fits in @p box.
+QString fittedText(const QString& text, const QFont& font, const QRectF& box, int flags, QPaintDevice* device)
+{
+	const QFontMetricsF fm(font, device);
+	if (!(flags & Qt::TextWordWrap))
+		return fm.elidedText(text, Qt::ElideRight, box.width());
+	if (fm.boundingRect(box, flags, text).height() <= box.height() + 1e-6)
+		return text;
+	const QStringList words = text.split(' ');
+	for (int n = words.size() - 1; n > 0; --n)
+	{
+		const QString shown = QStringList(words.mid(0, n)).join(' ') + QChar(0x2026);
+		if (fm.boundingRect(box, flags, shown).height() <= box.height() + 1e-6)
+			return shown;
+	}
+	return fm.elidedText(text, Qt::ElideRight, box.width());
+}
+
 //! Transit times of a star move earlier by (1 solar day - 1 sidereal day) per day.
 constexpr double STAR_DRIFT_MINUTES_PER_DAY = -3.9333;
 constexpr double SIDEREAL_DAY = 0.99726957; //!< days
@@ -351,7 +385,7 @@ void ChartRenderer::drawStarLabels(QPainter& painter, const QVector<StarLabel>& 
 	font.setPointSizeF(std::min(0.8 * em, 0.9 * rowHeight));
 	font.setItalic(true);
 	painter.setFont(font);
-	const QFontMetricsF fm(font);
+	const QFontMetricsF fm(font, painter.device());
 
 	// CAL-S-06: one label per segment, near its top, on the left side of the line.
 	// The text reads upwards (first letter lowest), with its baseline along the line.
@@ -496,7 +530,7 @@ void ChartRenderer::drawLabels(QPainter& painter)
 	font.setBold(false);
 	font.setPointSizeF(0.85 * em);
 	painter.setFont(font);
-	const QFontMetricsF fm(font);
+	const QFontMetricsF fm(font, painter.device());
 
 	// CAL-L-03: hour labels at the top and the bottom.
 	const int firstHour = (windowStartClock + 59) / 60 * 60;
@@ -513,7 +547,7 @@ void ChartRenderer::drawLabels(QPainter& painter)
 	QFont dateFont = font;
 	dateFont.setPointSizeF(std::min(0.85 * em, 0.75 * rowHeight));
 	painter.setFont(dateFont);
-	const QFontMetricsF dfm(dateFont);
+	const QFontMetricsF dfm(dateFont, painter.device());
 	for (int row = 0; row < model.rows.size(); ++row)
 	{
 		const QDate evening = model.rows.at(row).eveningDate;
@@ -588,7 +622,7 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	QFont font = painter.font();
 	font.setPointSizeF(0.8 * em);
 	painter.setFont(font);
-	const QFontMetricsF fm(font);
+	const QFontMetricsF fm(font, painter.device());
 	painter.setPen(style.panelTextColor);
 	for (const Span& s : spans)
 	{
@@ -601,43 +635,39 @@ void ChartRenderer::drawPanel(QPainter& painter)
 		painter.restore();
 	}
 
-	// Heading level with the chart title (CAL-G-11, CAL-G-17). A line starts at the panel's
-	// left edge. A longer line moves left, up to the end of the chart title; if it is still
-	// too long, its font gets smaller (to 70 %), and then the text is elided.
-	QFont chartTitleFont = font;
-	chartTitleFont.setPointSizeF(1.3 * em);
-	chartTitleFont.setBold(true);
-	const double chartTitleEnd = chart.center().x() + 0.5 * QFontMetricsF(chartTitleFont).horizontalAdvance(titleText());
-	const double headingLeft = std::min(panelArea.left(), std::max(chart.left(), chartTitleEnd + em));
-	const double headingRight = panelArea.right();
-	const auto drawHeadingLine = [&](QFont lineFont, const QString& text, double baseline) {
-		const double width = headingRight - headingLeft;
-		const double advance = QFontMetricsF(lineFont).horizontalAdvance(text);
-		if (advance > width)
-		{
-			const double size = lineFont.pointSizeF();
-			lineFont.setPointSizeF(std::max(0.7 * size, size * width / advance));
-		}
-		const QFontMetricsF lineMetrics(lineFont);
-		const QString shown = lineMetrics.elidedText(text, Qt::ElideRight, width);
-		const double x = std::max(headingLeft, std::min(panelArea.left(), headingRight - lineMetrics.horizontalAdvance(shown)));
-		painter.setFont(lineFont);
-		painter.drawText(QPointF(x, baseline), shown);
-	};
+	// Heading above the panel, level with the chart title (CAL-G-11, CAL-G-17). The summary
+	// wraps into the space above the panel, where there are no hour labels. Text that does not
+	// fit gets a smaller font (to 70 %), and then it is shortened.
 	painter.setPen(style.textColor);
+	QPaintDevice* device = painter.device();
 	const double headingTop = chart.top() - 1.6 * em - 2.4 * em;
 	QFont titleFont = font;
 	titleFont.setPointSizeF(1.0 * em);
 	titleFont.setBold(true);
-	drawHeadingLine(titleFont, panel.title, headingTop + 1.1 * em);
+	const QRectF titleBox(panelArea.left(), headingTop, panelArea.width(), 1e6);
+	titleFont = fittedFont(titleFont, panel.title, titleBox, Qt::TextSingleLine, device, 0.7);
+	painter.setFont(titleFont);
+	painter.drawText(QPointF(panelArea.left(), headingTop + 1.1 * em),
+			 fittedText(panel.title, titleFont, titleBox, Qt::TextSingleLine, device));
+
 	QFont summaryFont = font;
 	summaryFont.setPointSizeF(0.7 * em);
-	drawHeadingLine(summaryFont, panel.summary, headingTop + 2.1 * em);
-	painter.setFont(summaryFont);
+	const QRectF summaryBox(panelArea.left(), headingTop + 1.45 * em, panelArea.width(),
+				chart.top() - 0.3 * em - (headingTop + 1.45 * em));
+	const int summaryFlags = Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap;
+	const QFont fittedSummaryFont = fittedFont(summaryFont, panel.summary, summaryBox, summaryFlags, device, 0.7);
+	painter.setFont(fittedSummaryFont);
+	painter.drawText(summaryBox, summaryFlags,
+			 fittedText(panel.summary, fittedSummaryFont, summaryBox, summaryFlags, device));
 
 	if (anyShaded)
-		painter.drawText(QPointF(panelArea.left(), chart.bottom() + 0.45 * em + QFontMetricsF(summaryFont).ascent()),
-				 style.panelShadeNote);
+	{
+		const QRectF noteBox(panelArea.left(), chart.bottom(), panelArea.width(), 1e6);
+		const QFont noteFont = fittedFont(summaryFont, style.panelShadeNote, noteBox, Qt::TextSingleLine, device, 0.7);
+		painter.setFont(noteFont);
+		painter.drawText(QPointF(panelArea.left(), chart.bottom() + 0.45 * em + QFontMetricsF(noteFont, device).ascent()),
+				 fittedText(style.panelShadeNote, noteFont, noteBox, Qt::TextSingleLine, device));
+	}
 	painter.restore();
 }
 
