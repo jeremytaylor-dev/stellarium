@@ -642,7 +642,8 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	// not cut off at the end of a short span (CAL-G-13). A label that would extend past the
 	// page margin sits above its span instead, if it fits there clear of the panel top and
 	// of the previous span of the same target. Otherwise it moves up along its own line
-	// until it ends at the margin.
+	// until it ends at the margin; if it is then too long for the free space, it gets a
+	// smaller font (to 70 %) and is then shortened.
 	QFont font = painter.font();
 	font.setPointSizeF(0.8 * em);
 	painter.setFont(font);
@@ -654,23 +655,37 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	QVector<double> usedBottom(panel.targets.size(), panelArea.top());
 	for (const Span& s : spans)
 	{
-		const QString& name = panel.targets.at(s.target);
+		QString name = panel.targets.at(s.target);
 		const double length = fm.horizontalAdvance(name);
 		const double lineTop = rowTop(s.first) + 0.15 * rowHeight;
 		const double lineBottom = rowTop(s.last + 1) - 0.15 * rowHeight;
 		QPointF anchor(columnX(s.target), lineTop + 0.2 * em + length);
+		QFont labelFont = font;
 		if (anchor.y() > labelLimit)
 		{
 			const double above = lineTop - 0.2 * em;
-			anchor.setY(above - length >= usedBottom.at(s.target) + em ? above : labelLimit);
+			const double space = labelLimit - usedBottom.at(s.target) - em;
+			if (above - length >= usedBottom.at(s.target) + em)
+				anchor.setY(above);
+			else
+			{
+				anchor.setY(labelLimit);
+				if (length > space)
+				{
+					labelFont = fittedFont(font, name, space, painter.device(), 0.7);
+					name = QFontMetricsF(labelFont, painter.device()).elidedText(name, Qt::ElideRight, std::max(space, 0.));
+				}
+			}
 		}
+		const QFontMetricsF labelMetrics(labelFont, painter.device());
 		usedBottom[s.target] = std::max(lineBottom, anchor.y());
 		if (anchor.y() > chart.bottom())
-			noteLeft = std::max(noteLeft, anchor.x() + 0.5 * (fm.ascent() + fm.descent()) + 0.3 * em);
+			noteLeft = std::max(noteLeft, anchor.x() + 0.5 * (labelMetrics.ascent() + labelMetrics.descent()) + 0.3 * em);
 		painter.save();
+		painter.setFont(labelFont);
 		painter.translate(anchor);
 		painter.rotate(-90.);
-		painter.drawText(QPointF(0., 0.5 * (fm.ascent() - fm.descent())), name);
+		painter.drawText(QPointF(0., 0.5 * (labelMetrics.ascent() - labelMetrics.descent())), name);
 		painter.restore();
 	}
 
