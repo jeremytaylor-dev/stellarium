@@ -638,17 +638,30 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	}
 
 	// Labels: black, overlaid on the line, reading upwards, near the top of each span,
-	// not cut off at the end of a short span (CAL-G-13).
+	// not cut off at the end of a short span (CAL-G-13). A label that would extend below
+	// the panel sits above its span instead, if it fits there clear of the panel top and of
+	// the previous span of the same target, with its line and label.
 	QFont font = painter.font();
 	font.setPointSizeF(0.8 * em);
 	painter.setFont(font);
 	const QFontMetricsF fm(font, painter.device());
 	painter.setPen(style.panelTextColor);
 	double noteLeft = panelArea.left();  // right of the labels that extend below the panel
+	QVector<double> usedBottom(panel.targets.size(), panelArea.top());  // lowest point drawn per column
 	for (const Span& s : spans)
 	{
 		const QString& name = panel.targets.at(s.target);
-		const QPointF anchor(columnX(s.target), rowTop(s.first) + 0.15 * rowHeight + 0.2 * em + fm.horizontalAdvance(name));
+		const double length = fm.horizontalAdvance(name);
+		const double lineTop = rowTop(s.first) + 0.15 * rowHeight;
+		const double lineBottom = rowTop(s.last + 1) - 0.15 * rowHeight;
+		QPointF anchor(columnX(s.target), lineTop + 0.2 * em + length);
+		if (anchor.y() > panelArea.bottom())
+		{
+			const double above = lineTop - 0.2 * em;
+			if (above - length >= usedBottom.at(s.target) + 0.2 * em)
+				anchor.setY(above);
+		}
+		usedBottom[s.target] = std::max(lineBottom, anchor.y());
 		if (anchor.y() > chart.bottom())
 			noteLeft = std::max(noteLeft, anchor.x() + 0.5 * (fm.ascent() + fm.descent()) + 0.3 * em);
 		painter.save();
