@@ -28,7 +28,8 @@
 #include <functional>
 
 class Ui_calenduhDialogForm;
-namespace calenduh { class ChartJob; }
+class SettingsEditor;
+namespace calenduh { class ChartJob; struct UserSettings; }
 
 //! Main window of the Calenduh plug-in: chart generation and preview.
 //! @ingroup calenduh
@@ -58,10 +59,12 @@ private slots:
 	void jobFinished(const calenduh::ChartModel& model, const QStringList& unresolvedNames);
 	void jobCancelled();
 	void jobFailed(const QString& message);
+	void settingsChanged(const calenduh::UserSettings& settings);
 
 private:
 	Ui_calenduhDialogForm* ui;
 	calenduh::ChartJob* job;
+	SettingsEditor* editor = nullptr;
 	bool generatedOnce = false;       //!< the first opening has started a chart
 	calenduh::ChartStyle jobStyle;    //!< style and page in force when the job started
 	QSizeF jobPage;

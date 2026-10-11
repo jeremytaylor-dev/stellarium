@@ -21,12 +21,14 @@
 #include "ui_calenduhDialog.h"
 #include "Calenduh.hpp"
 #include "ChartJob.hpp"
+#include "SettingsEditor.hpp"
 
 #include "StelApp.hpp"
 #include "StelModuleMgr.hpp"
 #include "StelTranslator.hpp"
 
 #include <QCoreApplication>
+#include <QRegularExpression>
 #include <QTimer>
 #include <memory>
 
@@ -51,6 +53,10 @@ void CalenduhDialog::retranslate()
 	if (dialog)
 	{
 		ui->retranslateUi(dialog);
+		editor->retranslate();
+		const auto pages = editor->pages();
+		for (int i = 0; i < pages.size(); ++i)
+			ui->listWidgetPages->item(i + 1)->setText(pages.at(i).first);
 		setStatus(statusText);
 	}
 }
@@ -73,6 +79,18 @@ void CalenduhDialog::createDialogContent()
 	connect(ui->titleBar, &TitleBar::closeClicked, this, &StelDialog::close);
 	connect(ui->titleBar, SIGNAL(movedTo(QPoint)), this, SLOT(handleMovedTo(QPoint)));
 
+	// Settings pages after the chart page.
+	editor = new SettingsEditor(this);
+	editor->setSettings(GETSTELMODULE(Calenduh)->getUserSettings());
+	for (const auto& page : editor->pages())
+	{
+		ui->listWidgetPages->addItem(page.first);
+		ui->stackedWidget->addWidget(page.second);
+	}
+	connect(ui->listWidgetPages, &QListWidget::currentRowChanged, ui->stackedWidget, &QStackedWidget::setCurrentIndex);
+	ui->listWidgetPages->setCurrentRow(0);
+	connect(editor, &SettingsEditor::changed, this, &CalenduhDialog::settingsChanged);
+
 	connect(ui->pushButtonGenerate, &QPushButton::clicked, this, &CalenduhDialog::generate);
 	connect(ui->pushButtonCancel, &QPushButton::clicked, job, &calenduh::ChartJob::cancel);
 	setRunning(false);
@@ -90,6 +108,8 @@ void CalenduhDialog::generate()
 		jobFailed(error);
 		return;
 	}
+	// resolveChartSettings() can save the last Earth location; show it in the editor.
+	editor->setSettings(plugin->getUserSettings());
 	jobStyle = plugin->getUserSettings().style;
 	jobPage = plugin->getUserSettings().exportOptions.pagePoints();
 	setStatus([]() { return q_("Calculating..."); });
@@ -109,6 +129,17 @@ void CalenduhDialog::runDialogCheck(const QString& pngPath, bool quit)
 			const bool ok = dialog && dialog->grab().save(pngPath);
 			qInfo().noquote() << QString("[Calenduh] dialog check: %1 %2; status: %3")
 					     .arg(ok ? "written" : "NOT written", pngPath, ui->labelStatus->text());
+			// Also an image of each settings page: <name>-page<N>.png.
+			for (int i = 1; dialog && i < ui->listWidgetPages->count(); ++i)
+			{
+				ui->listWidgetPages->setCurrentRow(i);
+				QCoreApplication::processEvents();
+				QString pagePath = pngPath;
+				pagePath.replace(QRegularExpression("\\.png$"), QString("-page%1.png").arg(i));
+				dialog->grab().save(pagePath);
+			}
+			if (dialog)
+				ui->listWidgetPages->setCurrentRow(0);
 			if (quit)
 				QTimer::singleShot(0, qApp, &QCoreApplication::quit);
 		});
@@ -162,6 +193,13 @@ void CalenduhDialog::jobFailed(const QString& message)
 	shownUnresolved.clear();
 	// The message is translated by its sender; it is not built again after a language change.
 	setStatus([message]() { return message; });
+}
+
+void CalenduhDialog::settingsChanged(const calenduh::UserSettings& settings)
+{
+	GETSTELMODULE(Calenduh)->setUserSettings(settings);
+	if (ui->preview->hasChart() && !job->isRunning())
+		setStatus([]() { return q_("Settings changed. Generate the chart again to apply them."); });
 }
 
 void CalenduhDialog::setStatus(std::function<QString()> text)

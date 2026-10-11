@@ -53,6 +53,15 @@ private slots:
 		QCOMPARE(s.exportOptions.orientation, QPageLayout::Landscape);
 	}
 
+	void panelDefaultsAreVisualPreset()
+	{
+		const UserSettings s;
+		const PanelSettings visual = PanelSettings::visualPreset();
+		QVERIFY(!s.chart.panel.enabled);
+		QCOMPARE(s.chart.panel.title, visual.title);
+		QCOMPARE(s.chart.panel.summary(), visual.summary());
+	}
+
 	void roundTrip()
 	{
 		UserSettings s;
@@ -183,6 +192,25 @@ private slots:
 		r.load(conf);
 		QVERIFY(!r.hasSavedLocation);
 		QCOMPARE(r.chart.panel.end.kind, UserSettings().chart.panel.end.kind);
+	}
+
+	void emptyTimeZoneIsNotSaved()
+	{
+		{
+			QSettings conf(iniPath("emptyzone"), QSettings::IniFormat);
+			conf.beginGroup("Calenduh");
+			conf.setValue("location_latitude", 10.);
+			conf.setValue("location_longitude", 10.);
+			conf.setValue("location_time_zone", "");
+			conf.endGroup();
+		}
+		QSettings conf(iniPath("emptyzone"), QSettings::IniFormat);
+		UserSettings r;
+		r.load(conf);
+		QVERIFY(!r.hasSavedLocation);
+		QVERIFY(!isValidTimeZone(""));
+		QVERIFY(!isValidTimeZone("  "));
+		QVERIFY(isValidTimeZone("Pacific/Auckland"));
 	}
 
 	void clockWraps()

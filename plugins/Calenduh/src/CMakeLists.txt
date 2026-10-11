@@ -41,6 +41,8 @@ LIST(APPEND CALENDUH_SRCS
      gui/CalenduhDialog.cpp
      gui/ChartPreview.hpp
      gui/ChartPreview.cpp
+     gui/SettingsEditor.hpp
+     gui/SettingsEditor.cpp
 )
 
 SET(CALENDUH_UIS

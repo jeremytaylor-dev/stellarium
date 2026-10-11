@@ -18,6 +18,7 @@
  */
 
 #include "EphemerisSampler.hpp"
+#include "UserSettings.hpp"
 
 #include "StelApp.hpp"
 #include "StelTranslator.hpp"
@@ -120,7 +121,7 @@ bool EphemerisSampler::begin(QString* error)
 			*error = message;
 		return false;
 	};
-	if (!timeZone.isValid())
+	if (!isValidTimeZone(settings.location.timeZone))
 		return fail(q_("Unknown time zone: %1").arg(settings.location.timeZone));
 	const qint64 nights = settings.firstEvening.daysTo(settings.lastEvening) + 1;
 	if (!settings.firstEvening.isValid() || !settings.lastEvening.isValid() || nights < 1 || nights > MAX_NIGHTS)

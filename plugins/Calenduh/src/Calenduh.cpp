@@ -154,7 +154,7 @@ bool Calenduh::stellariumLocation(calenduh::ChartLocation& location)
 		const int minutes = static_cast<int>(std::lround(core->getUTCOffset(core->getJD()) * 60.));
 		tz = calenduh::fixedOffsetTimeZone(minutes);
 	}
-	else if (tz == "system_default" || !QTimeZone(tz.toUtf8()).isValid())
+	else if (tz == "system_default" || !calenduh::isValidTimeZone(tz))
 	{
 		// Stellarium also uses the system time zone for a name it cannot resolve.
 		tz = QString::fromUtf8(QTimeZone::systemTimeZoneId());
