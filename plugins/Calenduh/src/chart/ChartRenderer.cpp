@@ -159,6 +159,7 @@ void ChartRenderer::layout(const QRectF& page, const QPainter& painter)
 		       page.width() - 2. * margin - leftReserve - rightReserve - panelWidth,
 		       rowCount * rowHeight);
 	panelArea = model.panel ? QRectF(chart.right() + rightReserve, chart.top(), panelWidth, chart.height()) : QRectF();
+	labelLimit = page.bottom() - margin;
 
 	const NightRow& first = model.rows.first();
 	windowStartClock = clockMinutes(jdToDateTime(first.windowStart).toTimeZone(timeZone));
@@ -638,23 +639,53 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	}
 
 	// Labels: black, overlaid on the line, reading upwards, near the top of each span,
-	// not cut off at the end of a short span (CAL-G-13).
+	// not cut off at the end of a short span (CAL-G-13). A label that would extend past the
+	// page margin sits above its span instead, if it fits there clear of the panel top and
+	// of the previous span of the same target. Otherwise it moves up along its own line
+	// until it ends at the margin; if it is then too long for the free space, it gets a
+	// smaller font (to 70 %) and is then shortened.
 	QFont font = painter.font();
 	font.setPointSizeF(0.8 * em);
 	painter.setFont(font);
 	const QFontMetricsF fm(font, painter.device());
 	painter.setPen(style.panelTextColor);
 	double noteLeft = panelArea.left();  // right of the labels that extend below the panel
+	// Lowest point drawn in each column. The spans are in column order, then row order, so
+	// this is the previous span of the same target.
+	QVector<double> usedBottom(panel.targets.size(), panelArea.top());
 	for (const Span& s : spans)
 	{
-		const QString& name = panel.targets.at(s.target);
-		const QPointF anchor(columnX(s.target), rowTop(s.first) + 0.15 * rowHeight + 0.2 * em + fm.horizontalAdvance(name));
+		QString name = panel.targets.at(s.target);
+		const double length = fm.horizontalAdvance(name);
+		const double lineTop = rowTop(s.first) + 0.15 * rowHeight;
+		const double lineBottom = rowTop(s.last + 1) - 0.15 * rowHeight;
+		QPointF anchor(columnX(s.target), lineTop + 0.2 * em + length);
+		QFont labelFont = font;
+		if (anchor.y() > labelLimit)
+		{
+			const double above = lineTop - 0.2 * em;
+			const double space = labelLimit - usedBottom.at(s.target) - em;
+			if (above - length >= usedBottom.at(s.target) + em)
+				anchor.setY(above);
+			else
+			{
+				anchor.setY(labelLimit);
+				if (length > space)
+				{
+					labelFont = fittedFont(font, name, space, painter.device(), 0.7);
+					name = QFontMetricsF(labelFont, painter.device()).elidedText(name, Qt::ElideRight, std::max(space, 0.));
+				}
+			}
+		}
+		const QFontMetricsF labelMetrics(labelFont, painter.device());
+		usedBottom[s.target] = std::max(lineBottom, anchor.y());
 		if (anchor.y() > chart.bottom())
-			noteLeft = std::max(noteLeft, anchor.x() + 0.5 * (fm.ascent() + fm.descent()) + 0.3 * em);
+			noteLeft = std::max(noteLeft, anchor.x() + 0.5 * (labelMetrics.ascent() + labelMetrics.descent()) + 0.3 * em);
 		painter.save();
+		painter.setFont(labelFont);
 		painter.translate(anchor);
 		painter.rotate(-90.);
-		painter.drawText(QPointF(0., 0.5 * (fm.ascent() - fm.descent())), name);
+		painter.drawText(QPointF(0., 0.5 * (labelMetrics.ascent() - labelMetrics.descent())), name);
 		painter.restore();
 	}
 

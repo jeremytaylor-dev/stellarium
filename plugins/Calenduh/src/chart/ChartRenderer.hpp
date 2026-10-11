@@ -60,6 +60,7 @@ private:
 	// Layout, set by render().
 	QRectF chart;         //!< the chart area (rows x time window)
 	QRectF panelArea;     //!< the target-panel area (CAL-G-17); empty when the panel is off
+	double labelLimit = 0.; //!< lowest point a target label may reach: the page margin
 	double columnWidth = 0.; //!< target-panel column width
 	double rowHeight = 0.;
 	double em = 0.;       //!< base font size [pt]
