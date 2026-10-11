@@ -22,6 +22,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QTimeZone>
 #include <cmath>
 
@@ -83,6 +84,18 @@ QDateTime jdToDateTime(double jd)
 double dateTimeToJd(const QDateTime& dateTime)
 {
 	return JD_UNIX_EPOCH + static_cast<double>(dateTime.toMSecsSinceEpoch()) / MS_PER_DAY;
+}
+
+QTimeZone chartTimeZone(const QString& id)
+{
+	static const QRegularExpression fixedOffset(QStringLiteral("^UTC([+-])(\\d{2}):(\\d{2})$"));
+	const QRegularExpressionMatch m = fixedOffset.match(id);
+	if (m.hasMatch())
+	{
+		const int seconds = m.captured(2).toInt() * 3600 + m.captured(3).toInt() * 60;
+		return QTimeZone(m.captured(1) == QLatin1String("-") ? -seconds : seconds);
+	}
+	return QTimeZone(id.toUtf8());
 }
 
 double localClockToJd(const QDate& date, int minutes, const QTimeZone& timeZone)
@@ -199,7 +212,7 @@ bool ChartModel::fromJson(const QByteArray& json, QString* errorMessage)
 		rows.append(row);
 	}
 
-	if (!QTimeZone(location.timeZone.toUtf8()).isValid())
+	if (!chartTimeZone(location.timeZone).isValid())
 	{
 		if (errorMessage)
 			*errorMessage = QStringLiteral("unknown time zone: %1").arg(location.timeZone);

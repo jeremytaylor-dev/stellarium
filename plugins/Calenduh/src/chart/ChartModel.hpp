@@ -131,6 +131,11 @@ struct ChartModel
 QDateTime jdToDateTime(double jd);
 double dateTimeToJd(const QDateTime& dateTime);
 
+//! The time zone of a ChartLocation: an IANA identifier, or a fixed offset "UTC+hh:mm" /
+//! "UTC-hh:mm" (Stellarium's LMST and LTST). Fixed offsets are made from the number of
+//! seconds, because older Qt versions accept only some offsets by name.
+QTimeZone chartTimeZone(const QString& id);
+
 //! JD of a local clock time (minutes after midnight) on @p date in @p timeZone.
 //! A time in a daylight-saving gap maps to a valid instant next to the gap;
 //! an ambiguous time (clock set back) maps to one of its two instants.

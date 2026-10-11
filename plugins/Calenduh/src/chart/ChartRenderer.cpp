@@ -73,7 +73,7 @@ QString formatLongitude(double deg)
 ChartRenderer::ChartRenderer(const ChartModel& model, const ChartStyle& style)
 	: model(model)
 	, style(style)
-	, timeZone(model.location.timeZone.toUtf8())
+	, timeZone(chartTimeZone(model.location.timeZone))
 {
 }
 

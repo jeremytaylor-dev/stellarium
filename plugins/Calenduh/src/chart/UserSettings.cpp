@@ -94,7 +94,7 @@ QString edgeText(const PeriodEdge& edge)
 
 bool isValidTimeZone(const QString& id)
 {
-	return !id.trimmed().isEmpty() && QTimeZone(id.toUtf8()).isValid();
+	return !id.trimmed().isEmpty() && chartTimeZone(id).isValid();
 }
 
 QString fixedOffsetTimeZone(int minutesAheadOfUtc)
