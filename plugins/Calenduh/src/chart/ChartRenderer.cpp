@@ -159,6 +159,7 @@ void ChartRenderer::layout(const QRectF& page, const QPainter& painter)
 		       page.width() - 2. * margin - leftReserve - rightReserve - panelWidth,
 		       rowCount * rowHeight);
 	panelArea = model.panel ? QRectF(chart.right() + rightReserve, chart.top(), panelWidth, chart.height()) : QRectF();
+	labelLimit = page.bottom() - margin;
 
 	const NightRow& first = model.rows.first();
 	windowStartClock = clockMinutes(jdToDateTime(first.windowStart).toTimeZone(timeZone));
@@ -638,16 +639,19 @@ void ChartRenderer::drawPanel(QPainter& painter)
 	}
 
 	// Labels: black, overlaid on the line, reading upwards, near the top of each span,
-	// not cut off at the end of a short span (CAL-G-13). A label that would extend below
-	// the panel sits above its span instead, if it fits there clear of the panel top and of
-	// the previous span of the same target, with its line and label.
+	// not cut off at the end of a short span (CAL-G-13). A label that would extend past the
+	// page margin sits above its span instead, if it fits there clear of the panel top and
+	// of the previous span of the same target. Otherwise it moves up along its own line
+	// until it ends at the margin.
 	QFont font = painter.font();
 	font.setPointSizeF(0.8 * em);
 	painter.setFont(font);
 	const QFontMetricsF fm(font, painter.device());
 	painter.setPen(style.panelTextColor);
 	double noteLeft = panelArea.left();  // right of the labels that extend below the panel
-	QVector<double> usedBottom(panel.targets.size(), panelArea.top());  // lowest point drawn per column
+	// Lowest point drawn in each column. The spans are in column order, then row order, so
+	// this is the previous span of the same target.
+	QVector<double> usedBottom(panel.targets.size(), panelArea.top());
 	for (const Span& s : spans)
 	{
 		const QString& name = panel.targets.at(s.target);
@@ -655,11 +659,10 @@ void ChartRenderer::drawPanel(QPainter& painter)
 		const double lineTop = rowTop(s.first) + 0.15 * rowHeight;
 		const double lineBottom = rowTop(s.last + 1) - 0.15 * rowHeight;
 		QPointF anchor(columnX(s.target), lineTop + 0.2 * em + length);
-		if (anchor.y() > panelArea.bottom())
+		if (anchor.y() > labelLimit)
 		{
 			const double above = lineTop - 0.2 * em;
-			if (above - length >= usedBottom.at(s.target) + 0.2 * em)
-				anchor.setY(above);
+			anchor.setY(above - length >= usedBottom.at(s.target) + em ? above : labelLimit);
 		}
 		usedBottom[s.target] = std::max(lineBottom, anchor.y());
 		if (anchor.y() > chart.bottom())
