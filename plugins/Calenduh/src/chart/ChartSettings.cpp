@@ -36,6 +36,8 @@ const char* const eventKeys[SunEventCount] = {
 #define N_(str) str
 #endif
 const char* const eventNames[SunEventCount] = {
+	// TRANSLATORS: Calenduh: Sun events, lower case. They are list items, and they are also
+	// used inside phrases such as "nautical dusk + 1:00" and "sunset to sunrise".
 	N_("sunset"), N_("civil dusk"), N_("nautical dusk"), N_("astronomical dusk"),
 	N_("astronomical dawn"), N_("nautical dawn"), N_("civil dawn"), N_("sunrise") };
 
