@@ -81,7 +81,7 @@ private:
 
 	void setRunning(bool running);
 	//! Status for the chart shown: out of date, cancelled, names left out.
-	void showChartStatus(const calenduh::UserSettings& current, bool cancelled);
+	void showChartStatus(const calenduh::UserSettings& current, bool cancelled, const QString& writtenPath = QString());
 	bool writeChart(const QString& path, calenduh::ExportOptions::Format format,
 			const calenduh::ExportOptions& options) const;
 	void saveSettingsNow();

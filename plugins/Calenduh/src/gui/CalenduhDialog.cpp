@@ -221,12 +221,14 @@ void CalenduhDialog::jobFinished(const calenduh::ChartModel& model, const QStrin
 	showChartStatus(current, false);
 }
 
-void CalenduhDialog::showChartStatus(const calenduh::UserSettings& current, bool cancelled)
+void CalenduhDialog::showChartStatus(const calenduh::UserSettings& current, bool cancelled, const QString& writtenPath)
 {
 	const bool outOfDate = !sameChartInputs(current, shownSettings);
 	const QStringList unresolved = shownUnresolved;
-	setStatus([cancelled, outOfDate, unresolved]() {
+	setStatus([cancelled, outOfDate, unresolved, writtenPath]() {
 		QStringList lines;
+		if (!writtenPath.isEmpty())
+			lines.append(q_("Chart written to %1.").arg(QDir::toNativeSeparators(writtenPath)));
 		if (cancelled)
 			lines.append(q_("Calculation cancelled. The chart shown is the previous one."));
 		if (outOfDate)
@@ -245,7 +247,9 @@ void CalenduhDialog::jobCancelled()
 		setStatus([]() { return q_("Calculation cancelled."); });
 		return;
 	}
-	showChartStatus(editor->settings(), true);
+	const calenduh::UserSettings& current = editor->settings();
+	ui->preview->setAppearance(current.style, current.exportOptions.pagePoints());
+	showChartStatus(current, true);
 }
 
 void CalenduhDialog::jobFailed(const QString& message)
@@ -340,18 +344,23 @@ void CalenduhDialog::exportChart()
 			return;
 	}
 
+	if (format == Format::Png && calenduh::ChartExporter::pngTooLarge(options.pagePoints(), options.pngDpi))
+	{
+		setStatus([]() { return q_("The PNG image is too large. Select a smaller page or a lower resolution."); });
+		return;
+	}
 	if (!writeChart(path, format, options))
 	{
 		setStatus([path]() { return q_("The chart could not be written to %1.").arg(QDir::toNativeSeparators(path)); });
 		return;
 	}
-	setStatus([path]() { return q_("Chart written to %1.").arg(QDir::toNativeSeparators(path)); });
 
 	// Remember the format and the directory (CAL-I-08).
 	options.format = format;
 	options.directory = QFileInfo(path).absolutePath();
 	GETSTELMODULE(Calenduh)->setUserSettings(settings);
 	editor->setExportTarget(options.format, options.directory);
+	showChartStatus(editor->settings(), false, path);
 }
 
 void CalenduhDialog::saveSettingsNow()

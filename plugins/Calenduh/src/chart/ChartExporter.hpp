@@ -42,6 +42,8 @@ public:
 
 	static bool writePng(const ChartModel& model, const ChartStyle& style, const QString& path,
 			     const QSizeF& pagePoints, double dpi);
+	//! True if one image of the page needs more than about 400 MB; writePng() refuses it.
+	static bool pngTooLarge(const QSizeF& pagePoints, double dpi);
 	static bool writeSvg(const ChartModel& model, const ChartStyle& style, const QString& path,
 			     const QSizeF& pagePoints);
 	static bool writePdf(const ChartModel& model, const ChartStyle& style, const QString& path,
