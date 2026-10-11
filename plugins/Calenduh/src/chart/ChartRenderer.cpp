@@ -81,9 +81,14 @@ void ChartRenderer::render(QPainter& painter, const QRectF& page)
 {
 	if (model.rows.isEmpty())
 		return;
+	painter.save();
+	// The page is laid out in points (72 dpi). Hinting would round glyph advances to whole
+	// points, which gives uneven letter spacing in small text when the page is scaled.
+	QFont base = painter.font();
+	base.setHintingPreference(QFont::PreferNoHinting);
+	painter.setFont(base);
 	layout(page, painter);
 
-	painter.save();
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	painter.setRenderHint(QPainter::TextAntialiasing, true);
 
