@@ -54,6 +54,14 @@ void ChartPreview::setChart(const calenduh::ChartModel& m, const calenduh::Chart
 	update();
 }
 
+void ChartPreview::setAppearance(const calenduh::ChartStyle& s, const QSizeF& pagePoints)
+{
+	style = s;
+	page = pagePoints;
+	cache = QImage();
+	update();
+}
+
 void ChartPreview::clearChart(const QString& text)
 {
 	model.reset();

@@ -99,6 +99,16 @@
              </widget>
             </item>
             <item>
+             <widget class="QPushButton" name="pushButtonExport">
+              <property name="toolTip">
+               <string>Write the chart to a PDF, SVG or PNG file</string>
+              </property>
+              <property name="text">
+               <string>Export...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QProgressBar" name="progressBar">
               <property name="value">
                <number>0</number>

@@ -59,6 +59,12 @@ public:
 	QList<QPair<QString, QWidget*>> pages();
 
 	void setSettings(const calenduh::UserSettings& settings);
+	//! Keep the format and directory of the last export (no widgets show them).
+	void setExportTarget(calenduh::ExportOptions::Format format, const QString& directory)
+	{
+		current.exportOptions.format = format;
+		current.exportOptions.directory = directory;
+	}
 	const calenduh::UserSettings& settings() const { return current; }
 
 	//! Set the texts again after a language change.
@@ -131,10 +137,16 @@ private:
 	QDoubleSpinBox* moonMinWidth = nullptr;
 	QDoubleSpinBox* moonMaxWidth = nullptr;
 
+	// Page and export (CAL-I-05)
+	QComboBox* pageSize = nullptr;
+	QComboBox* orientation = nullptr;
+	QSpinBox* pngDpi = nullptr;
+
 	QWidget* buildLocationPage();
 	QWidget* buildStarsPage();
 	QWidget* buildPanelPage();
 	QWidget* buildAppearancePage();
+	QWidget* buildExportPage();
 	void buildEdge(EdgeWidgets& edge, bool isEnd, QFormLayout* form, const char* label);
 	void buildListEditor(ListEditor& editor, QBoxLayout* layout, bool upDown);
 
@@ -145,6 +157,7 @@ private:
 	void fillEventCombos();
 	void fillKindCombos();
 	void fillPresetCombo();
+	void fillOrientationCombo();
 
 	void onChanged() { if (!loading) store(); }
 	void load();            //!< settings -> widgets

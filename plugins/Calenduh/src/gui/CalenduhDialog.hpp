@@ -23,6 +23,7 @@
 #include "StelDialog.hpp"
 #include "ChartModel.hpp"
 #include "ChartStyle.hpp"
+#include "UserSettings.hpp"
 
 #include <QSizeF>
 #include <QTimer>
@@ -30,7 +31,7 @@
 
 class Ui_calenduhDialogForm;
 class SettingsEditor;
-namespace calenduh { class ChartJob; struct UserSettings; }
+namespace calenduh { class ChartJob; }
 
 //! Main window of the Calenduh plug-in: chart generation and preview.
 //! @ingroup calenduh
@@ -63,6 +64,8 @@ private slots:
 	void jobCancelled();
 	void jobFailed(const QString& message);
 	void settingsChanged(const calenduh::UserSettings& settings);
+	//! Write the chart shown to PDF, SVG or PNG (CAL-I-05).
+	void exportChart();
 
 private:
 	Ui_calenduhDialogForm* ui;
@@ -70,14 +73,17 @@ private:
 	SettingsEditor* editor = nullptr;
 	QTimer* saveTimer = nullptr;          //!< saves the settings when the edits pause
 	bool savePending = false;
-	bool changedDuringJob = false;
+	calenduh::UserSettings jobSettings;   //!< settings of the last chart started
+	calenduh::UserSettings shownSettings; //!< settings of the chart shown
 	bool generatedOnce = false;       //!< the first opening has started a chart
-	calenduh::ChartStyle jobStyle;    //!< style and page in force when the job started
-	QSizeF jobPage;
 	std::function<QString()> statusText;  //!< status line, built again after a language change
 	QStringList shownUnresolved;      //!< names left out of the chart shown (CAL-S-07, CAL-G-12)
 
 	void setRunning(bool running);
+	//! Status for the chart shown: out of date, cancelled, names left out.
+	void showChartStatus(const calenduh::UserSettings& current, bool cancelled, const QString& writtenPath = QString());
+	bool writeChart(const QString& path, calenduh::ExportOptions::Format format,
+			const calenduh::ExportOptions& options) const;
 	void saveSettingsNow();
 	void setStatus(std::function<QString()> text);
 };

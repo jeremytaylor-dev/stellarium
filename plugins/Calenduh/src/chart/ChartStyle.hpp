@@ -59,6 +59,22 @@ struct ChartStyle
 
 	QColor textColor       { 0x20, 0x20, 0x20 };
 	QColor phaseOutline    { 0x80, 0x80, 0x80 };
+
+	bool operator==(const ChartStyle& o) const
+	{
+		for (int i = 0; i < 4; ++i)
+			if (bandColor[i] != o.bandColor[i])
+				return false;
+		return title == o.title && daylight == o.daylight && gridColor == o.gridColor && gridWidth == o.gridWidth
+		       && starLineColor == o.starLineColor && starLineWidth == o.starLineWidth
+		       && moonNightColor == o.moonNightColor && moonDayColor == o.moonDayColor
+		       && moonMinWidth == o.moonMinWidth && moonMaxWidthFactor == o.moonMaxWidthFactor
+		       && panelLineColor == o.panelLineColor && panelLineWidth == o.panelLineWidth
+		       && panelTextColor == o.panelTextColor && panelRowColor == o.panelRowColor
+		       && panelShadeColor == o.panelShadeColor && panelColumnFactor == o.panelColumnFactor
+		       && panelShadeNote == o.panelShadeNote && textColor == o.textColor && phaseOutline == o.phaseOutline;
+	}
+	bool operator!=(const ChartStyle& o) const { return !(*this == o); }
 };
 
 } // namespace calenduh

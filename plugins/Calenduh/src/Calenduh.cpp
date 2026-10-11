@@ -118,11 +118,6 @@ void Calenduh::init()
 }
 
 namespace {
-bool sameLocation(const calenduh::ChartLocation& a, const calenduh::ChartLocation& b)
-{
-	return a.name == b.name && a.latitude == b.latitude && a.longitude == b.longitude
-	       && a.elevation == b.elevation && a.timeZone == b.timeZone;
-}
 } // namespace
 
 void Calenduh::setUserSettings(const calenduh::UserSettings& settings)
@@ -178,7 +173,7 @@ bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* 
 	if (onEarth && (userSettings.followStellariumLocation || !userSettings.hasSavedLocation))
 	{
 		settings.location = current;
-		if (!userSettings.hasSavedLocation || !sameLocation(userSettings.chart.location, current))
+		if (!userSettings.hasSavedLocation || userSettings.chart.location != current)
 		{
 			calenduh::UserSettings updated = userSettings;
 			updated.chart.location = current;

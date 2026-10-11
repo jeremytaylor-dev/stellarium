@@ -49,6 +49,7 @@ struct ExportOptions
 	QPageSize::PageSizeId pageSize = QPageSize::A4;
 	QPageLayout::Orientation orientation = QPageLayout::Landscape;
 	int pngDpi = 150;
+	static constexpr int MaxPngDpi = 600;
 	QString directory;              //!< last export directory
 
 	//! Page size in points, in the selected orientation. Also used for SVG and PNG.

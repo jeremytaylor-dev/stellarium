@@ -50,11 +50,22 @@ QImage ChartExporter::renderImage(const ChartModel& model, const ChartStyle& sty
 bool ChartExporter::writePng(const ChartModel& model, const ChartStyle& style, const QString& path,
 			     const QSizeF& pagePoints, double dpi)
 {
+	if (pngTooLarge(pagePoints, dpi))
+		return false;
 	QImage image = renderImage(model, style, pagePoints, dpi);
+	if (image.isNull())
+		return false;
 	const int dpm = qRound(dpi / 0.0254);
 	image.setDotsPerMeterX(dpm);
 	image.setDotsPerMeterY(dpm);
 	return image.save(path, "PNG");
+}
+
+bool ChartExporter::pngTooLarge(const QSizeF& pagePoints, double dpi)
+{
+	// One ARGB32 image of the page, 4 bytes for each pixel.
+	const double pixels = pagePoints.width() / 72. * dpi * pagePoints.height() / 72. * dpi;
+	return !(pixels > 0.) || pixels > 100e6;
 }
 
 bool ChartExporter::writeSvg(const ChartModel& model, const ChartStyle& style, const QString& path,

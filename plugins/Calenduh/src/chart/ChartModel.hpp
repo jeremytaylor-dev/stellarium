@@ -105,6 +105,13 @@ struct ChartLocation
 	double longitude = 0.;  //!< degrees, east positive
 	double elevation = 0.;  //!< metres
 	QString timeZone;       //!< IANA identifier, e.g. "Pacific/Auckland"
+
+	bool operator==(const ChartLocation& o) const
+	{
+		return name == o.name && latitude == o.latitude && longitude == o.longitude
+		       && elevation == o.elevation && timeZone == o.timeZone;
+	}
+	bool operator!=(const ChartLocation& o) const { return !(*this == o); }
 };
 
 struct ChartModel
