@@ -23,6 +23,7 @@
 
 #include <QSettings>
 #include <QTemporaryDir>
+#include <QTimeZone>
 #include <QTest>
 
 using namespace calenduh;
@@ -144,7 +145,10 @@ private slots:
 			conf.setValue("star_line_width", -1);
 			conf.setValue("export_page_size", "NoSuchPage");
 			conf.setValue("export_png_dpi", 5);
-			conf.setValue("location_latitude", 10.);  // no time zone: not a saved location
+			conf.setValue("location_latitude", "abc");
+			conf.setValue("location_longitude", 10.);
+			conf.setValue("location_time_zone", "Europe/Oslo");
+			conf.setValue("panel_min_duration", "foo");
 			conf.endGroup();
 		}
 		QSettings conf(iniPath("invalid"), QSettings::IniFormat);
@@ -158,8 +162,54 @@ private slots:
 		QCOMPARE(r.style.starLineColor, d.style.starLineColor);
 		QCOMPARE(r.style.starLineWidth, d.style.starLineWidth);
 		QCOMPARE(r.exportOptions.pageSize, QPageSize::A4);
-		QCOMPARE(r.exportOptions.pngDpi, 36);
+		QCOMPARE(r.exportOptions.pngDpi, d.exportOptions.pngDpi);
 		QVERIFY(!r.hasSavedLocation);
+		QCOMPARE(r.chart.panel.minDurationHours, d.chart.panel.minDurationHours);
+	}
+
+	void invalidTimeZoneIsNotSaved()
+	{
+		{
+			QSettings conf(iniPath("badzone"), QSettings::IniFormat);
+			conf.beginGroup("Calenduh");
+			conf.setValue("location_latitude", 10.);
+			conf.setValue("location_longitude", 10.);
+			conf.setValue("location_time_zone", "Foo/Bar");
+			conf.setValue("panel_end", "{\"duration\":-2}");
+			conf.endGroup();
+		}
+		QSettings conf(iniPath("badzone"), QSettings::IniFormat);
+		UserSettings r;
+		r.load(conf);
+		QVERIFY(!r.hasSavedLocation);
+		QCOMPARE(r.chart.panel.end.kind, UserSettings().chart.panel.end.kind);
+	}
+
+	void clockWraps()
+	{
+		UserSettings s;
+		s.chart.autoWindow = false;
+		s.chart.windowEndClock = 24 * 60;
+		{
+			QSettings conf(iniPath("clock"), QSettings::IniFormat);
+			s.save(conf);
+		}
+		QSettings conf(iniPath("clock"), QSettings::IniFormat);
+		UserSettings r;
+		r.load(conf);
+		QCOMPARE(r.chart.windowEndClock, 0);
+	}
+
+	void fixedOffsetZones()
+	{
+		QCOMPARE(fixedOffsetTimeZone(12 * 60 + 45), QString("UTC+12:45"));
+		QCOMPARE(fixedOffsetTimeZone(-(9 * 60 + 30)), QString("UTC-09:30"));
+		for (int minutes : { 0, 699, -37, 12 * 60 + 45, -(9 * 60 + 30) })
+		{
+			const QTimeZone tz(fixedOffsetTimeZone(minutes).toUtf8());
+			QVERIFY2(tz.isValid(), qPrintable(fixedOffsetTimeZone(minutes)));
+			QCOMPARE(tz.offsetFromUtc(QDateTime::currentDateTimeUtc()), minutes * 60);
+		}
 	}
 
 	void pagePoints()

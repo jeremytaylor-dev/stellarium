@@ -63,12 +63,14 @@ public:
 	void setUserSettings(const calenduh::UserSettings& settings);
 
 	//! The inputs of the next chart: the user settings with the location and the
-	//! dates resolved (CAL-L-06, CAL-L-09, CAL-I-09). Returns false and sets
+	//! dates resolved (CAL-L-06, CAL-L-09, CAL-I-09). A Stellarium location that
+	//! is used is saved as the last Earth location. Returns false and sets
 	//! @p error if no Earth location is available; the user must then select one.
-	bool resolveChartSettings(calenduh::ChartSettings& settings, QString* error = nullptr) const;
+	bool resolveChartSettings(calenduh::ChartSettings& settings, QString* error = nullptr);
 
 	//! Stellarium's current location as a chart location. Returns false if the
-	//! observer is not on Earth or the time zone cannot be used.
+	//! observer is not on Earth. A time zone that Qt cannot use (LMST, LTST, an
+	//! unknown name) becomes Stellarium's present UTC offset.
 	static bool stellariumLocation(calenduh::ChartLocation& location);
 
 private slots:

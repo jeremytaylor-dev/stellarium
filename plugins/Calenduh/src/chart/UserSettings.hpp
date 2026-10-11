@@ -34,6 +34,9 @@ class QSettings;
 
 namespace calenduh {
 
+//! Identifier of a fixed UTC offset, e.g. "UTC+12:45", which QTimeZone accepts.
+QString fixedOffsetTimeZone(int minutesAheadOfUtc);
+
 //! Export options (CAL-I-05).
 struct ExportOptions
 {

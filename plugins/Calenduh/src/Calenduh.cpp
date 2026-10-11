@@ -109,6 +109,14 @@ void Calenduh::init()
 		QTimer::singleShot(3000, this, &Calenduh::runSamplerCheck);
 }
 
+namespace {
+bool sameLocation(const calenduh::ChartLocation& a, const calenduh::ChartLocation& b)
+{
+	return a.name == b.name && a.latitude == b.latitude && a.longitude == b.longitude
+	       && a.elevation == b.elevation && a.timeZone == b.timeZone;
+}
+} // namespace
+
 void Calenduh::setUserSettings(const calenduh::UserSettings& settings)
 {
 	userSettings = settings;
@@ -132,15 +140,14 @@ bool Calenduh::stellariumLocation(calenduh::ChartLocation& location)
 		tz = loc.ianaTimeZone;
 	if (tz == "system_default")
 		tz = QString::fromUtf8(QTimeZone::systemTimeZoneId());
-	else if (tz == "LMST" || tz == "LTST")
+	if (tz == "LMST" || tz == "LTST" || !QTimeZone(tz.toUtf8()).isValid())
 	{
-		// Local mean solar time: a fixed offset from the longitude, to the minute.
-		const int minutes = static_cast<int>(std::lround(loc.getLongitude(true) * 4.));
-		tz = QString("UTC%1%2:%3").arg(minutes < 0 ? '-' : '+')
-			.arg(std::abs(minutes) / 60, 2, 10, QChar('0')).arg(std::abs(minutes) % 60, 2, 10, QChar('0'));
+		// Solar time or a zone that Qt does not know: Stellarium's present UTC
+		// offset as a fixed offset. For LTST this ignores the change of the
+		// equation of time over the date range (less than 1 minute per week).
+		const int minutes = static_cast<int>(std::lround(core->getUTCOffset(core->getJD()) * 60.));
+		tz = calenduh::fixedOffsetTimeZone(minutes);
 	}
-	if (!QTimeZone(tz.toUtf8()).isValid())
-		return false;
 
 	location.name = loc.name;
 	location.latitude = loc.getLatitude(true);
@@ -150,29 +157,39 @@ bool Calenduh::stellariumLocation(calenduh::ChartLocation& location)
 	return true;
 }
 
-bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* error) const
+bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* error)
 {
 	settings = userSettings.chart;
 
-	// CAL-L-09, CAL-I-09
+	// CAL-L-09, CAL-I-09: Stellarium's location, or the last Earth location used.
 	calenduh::ChartLocation current;
 	const bool onEarth = stellariumLocation(current);
-	if (userSettings.followStellariumLocation && onEarth)
+	if (onEarth && (userSettings.followStellariumLocation || !userSettings.hasSavedLocation))
+	{
 		settings.location = current;
+		if (!userSettings.hasSavedLocation || !sameLocation(userSettings.chart.location, current))
+		{
+			calenduh::UserSettings updated = userSettings;
+			updated.chart.location = current;
+			updated.hasSavedLocation = true;
+			setUserSettings(updated);
+		}
+	}
 	else if (!userSettings.hasSavedLocation)
 	{
 		if (error)
-			*error = q_("Stellarium's observer is not on Earth. Select a chart location.");
+			*error = q_("Stellarium's observer is not on Earth, and no earlier chart location is saved. Select a chart location.");
 		return false;
 	}
 
-	// CAL-L-06: the calendar month of Stellarium's current date (local time).
+	// CAL-L-06: the calendar month of Stellarium's current evening. Before local
+	// noon, the evening is the previous day's.
 	if (userSettings.currentMonth || !settings.firstEvening.isValid() || !settings.lastEvening.isValid())
 	{
 		const StelCore* core = StelApp::getInstance().getCore();
 		const double jd = core->getJD();
 		int year, month, day;
-		StelUtils::getDateFromJulianDay(jd + core->getUTCOffset(jd) / 24., &year, &month, &day);
+		StelUtils::getDateFromJulianDay(jd + core->getUTCOffset(jd) / 24. - 0.5, &year, &month, &day);
 		settings.firstEvening = QDate(year, month, 1);
 		settings.lastEvening = settings.firstEvening.addMonths(1).addDays(-1);
 	}

@@ -22,7 +22,9 @@
 #include <QJsonDocument>
 #include <QSettings>
 #include <QTime>
+#include <QTimeZone>
 #include <algorithm>
+#include <cmath>
 
 namespace calenduh {
 
@@ -33,7 +35,17 @@ const char* const BAND_KEYS[4] = { "color_band_sunset", "color_band_civil", "col
 
 QString clockText(int minutes)
 {
+	minutes = ((minutes % 1440) + 1440) % 1440;
 	return QTime(minutes / 60, minutes % 60).toString("HH:mm");
+}
+
+//! Replace @p value if the stored value is a finite number within [min, max].
+void readNumber(const QSettings& conf, const QString& key, double& value, double min, double max)
+{
+	bool ok = false;
+	const double v = conf.value(key).toDouble(&ok);
+	if (ok && std::isfinite(v) && v >= min && v <= max)
+		value = v;
 }
 
 void readClock(const QSettings& conf, const QString& key, int& minutes)
@@ -54,15 +66,23 @@ void readPositive(const QSettings& conf, const QString& key, double& value)
 {
 	bool ok = false;
 	const double v = conf.value(key).toDouble(&ok);
-	if (ok && v > 0.)
+	if (ok && std::isfinite(v) && v > 0.)
 		value = v;
 }
 
+//! Replace @p edge if the stored edge is valid: a duration of more than 0 and at
+//! most 24 hours, or an event offset of at most 12 hours.
 void readEdge(const QSettings& conf, const QString& key, PeriodEdge& edge)
 {
 	const QJsonDocument doc = QJsonDocument::fromJson(conf.value(key).toString().toUtf8());
-	if (const std::optional<PeriodEdge> e = PeriodEdge::fromJson(doc.object()))
-		edge = *e;
+	const std::optional<PeriodEdge> e = PeriodEdge::fromJson(doc.object());
+	if (!e)
+		return;
+	if (e->kind == PeriodEdge::Kind::Duration && !(e->durationHours > 0. && e->durationHours <= 24.))
+		return;
+	if (e->kind == PeriodEdge::Kind::Event && !(std::abs(e->offsetHours) <= 12.))
+		return;
+	edge = *e;
 }
 
 QString edgeText(const PeriodEdge& edge)
@@ -71,6 +91,13 @@ QString edgeText(const PeriodEdge& edge)
 }
 
 } // namespace
+
+QString fixedOffsetTimeZone(int minutesAheadOfUtc)
+{
+	const int m = std::abs(minutesAheadOfUtc);
+	return QString("UTC%1%2:%3").arg(minutesAheadOfUtc < 0 ? '-' : '+')
+		.arg(m / 60, 2, 10, QChar('0')).arg(m % 60, 2, 10, QChar('0'));
+}
 
 QSizeF ExportOptions::pagePoints() const
 {
@@ -96,16 +123,18 @@ void UserSettings::load(QSettings& conf)
 
 	// Location (CAL-L-09, CAL-I-09)
 	followStellariumLocation = conf.value("follow_stellarium_location", followStellariumLocation).toBool();
-	const QString tz = conf.value("location_time_zone").toString();
-	if (conf.contains("location_latitude") && conf.contains("location_longitude") && !tz.isEmpty())
 	{
-		ChartLocation& l = chart.location;
-		l.name = conf.value("location_name").toString();
-		l.latitude = std::clamp(conf.value("location_latitude").toDouble(), -90., 90.);
-		l.longitude = std::clamp(conf.value("location_longitude").toDouble(), -180., 180.);
-		l.elevation = conf.value("location_elevation").toDouble();
-		l.timeZone = tz;
-		hasSavedLocation = true;
+		bool okLat = false, okLon = false, okElev = false;
+		const double lat = conf.value("location_latitude").toDouble(&okLat);
+		const double lon = conf.value("location_longitude").toDouble(&okLon);
+		const double elev = conf.value("location_elevation", 0.).toDouble(&okElev);
+		const QString tz = conf.value("location_time_zone").toString();
+		if (okLat && okLon && okElev && std::abs(lat) <= 90. && std::abs(lon) <= 180. && std::isfinite(elev)
+		    && QTimeZone(tz.toUtf8()).isValid())
+		{
+			chart.location = { conf.value("location_name").toString(), lat, lon, elev, tz };
+			hasSavedLocation = true;
+		}
 	}
 
 	// Dates (CAL-L-06)
@@ -137,8 +166,8 @@ void UserSettings::load(QSettings& conf)
 	readEdge(conf, "panel_end", p.end);
 	if (p.start.kind == PeriodEdge::Kind::Duration)
 		p.start = PeriodEdge::atEvent(SunEvent::NauticalDusk);
-	p.minAltitude = std::clamp(conf.value("panel_min_altitude", p.minAltitude).toDouble(), -90., 90.);
-	p.minDurationHours = std::max(0., conf.value("panel_min_duration", p.minDurationHours).toDouble());
+	readNumber(conf, "panel_min_altitude", p.minAltitude, -90., 90.);
+	readNumber(conf, "panel_min_duration", p.minDurationHours, 0., 24.);
 	if (conf.contains("panel_targets"))
 		p.targets = conf.value("panel_targets").toStringList();
 
@@ -170,7 +199,9 @@ void UserSettings::load(QSettings& conf)
 		exportOptions.orientation = QPageLayout::Portrait;
 	else if (orientation == "landscape")
 		exportOptions.orientation = QPageLayout::Landscape;
-	exportOptions.pngDpi = std::clamp(conf.value("export_png_dpi", exportOptions.pngDpi).toInt(), 36, 1200);
+	double dpi = exportOptions.pngDpi;
+	readNumber(conf, "export_png_dpi", dpi, 36., 1200.);
+	exportOptions.pngDpi = static_cast<int>(dpi);
 	exportOptions.directory = conf.value("export_directory", exportOptions.directory).toString();
 
 	conf.endGroup();
