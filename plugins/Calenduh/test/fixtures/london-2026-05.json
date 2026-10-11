@@ -486,6 +486,22 @@
     "Zubenelgenubi": 2461162.509126495,
     "Antares": 2461162.5774694085,
     "Rasalhague": 2461162.6225708793
+   },
+   "panel": {
+    "periodStart": 2461162.4125721874,
+    "periodEnd": 2461162.583581828,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -898,6 +914,22 @@
     "Zubenelgenubi": 2461163.5063961954,
     "Antares": 2461163.5747392382,
     "Rasalhague": 2461163.619840713
+   },
+   "panel": {
+    "periodStart": 2461163.4149410967,
+    "periodEnd": 2461163.5810652394,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1274,6 +1306,22 @@
     "Zubenelgenubi": 2461164.5036658896,
     "Antares": 2461164.5720090657,
     "Rasalhague": 2461164.6171105397
+   },
+   "panel": {
+    "periodStart": 2461164.4173574178,
+    "periodEnd": 2461164.578513404,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1598,6 +1646,22 @@
     "Zubenelgenubi": 2461165.5009355773,
     "Antares": 2461165.569278889,
     "Rasalhague": 2461165.61438036
+   },
+   "panel": {
+    "periodStart": 2461165.419826699,
+    "periodEnd": 2461165.5759221693,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1883,6 +1947,22 @@
     "Antares": 2461166.566548706,
     "Rasalhague": 2461166.611650176,
     "Altair": 2461166.7057576445
+   },
+   "panel": {
+    "periodStart": 2461166.422350546,
+    "periodEnd": 2461166.573289091,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2136,6 +2216,22 @@
     "Antares": 2461167.563818516,
     "Rasalhague": 2461167.6089199893,
     "Altair": 2461167.703027542
+   },
+   "panel": {
+    "periodStart": 2461167.4249342647,
+    "periodEnd": 2461167.5706098103,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2369,6 +2465,22 @@
     "Antares": 2461168.561088318,
     "Rasalhague": 2461168.606189802,
     "Altair": 2461168.70029744
+   },
+   "panel": {
+    "periodStart": 2461168.4275833867,
+    "periodEnd": 2461168.567879241,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2586,6 +2698,22 @@
     "Antares": 2461169.558358111,
     "Rasalhague": 2461169.603459615,
     "Altair": 2461169.697567338
+   },
+   "panel": {
+    "periodStart": 2461169.430303097,
+    "periodEnd": 2461169.565091418,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2786,6 +2914,22 @@
     "Antares": 2461170.5556278955,
     "Rasalhague": 2461170.60072943,
     "Altair": 2461170.6948372396
+   },
+   "panel": {
+    "periodStart": 2461170.4331006417,
+    "periodEnd": 2461170.562239304,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2978,6 +3122,22 @@
     "Antares": 2461171.552897673,
     "Rasalhague": 2461171.597999247,
     "Altair": 2461171.692107144
+   },
+   "panel": {
+    "periodStart": 2461171.435984525,
+    "periodEnd": 2461171.559314541,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -3158,6 +3318,22 @@
     "Antares": 2461172.550167445,
     "Rasalhague": 2461172.595269064,
     "Altair": 2461172.689377051
+   },
+   "panel": {
+    "periodStart": 2461172.4389656307,
+    "periodEnd": 2461172.5563071305,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -3330,6 +3506,22 @@
     "Antares": 2461173.5474372148,
     "Rasalhague": 2461173.5925388806,
     "Altair": 2461173.68664696
+   },
+   "panel": {
+    "periodStart": 2461173.4420579327,
+    "periodEnd": 2461173.553201893,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -3490,6 +3682,22 @@
     "Antares": 2461174.5447069844,
     "Rasalhague": 2461174.5898086918,
     "Altair": 2461174.6839168686
+   },
+   "panel": {
+    "periodStart": 2461174.445276644,
+    "periodEnd": 2461174.549984653,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -3638,6 +3846,22 @@
     "Antares": 2461175.541976757,
     "Rasalhague": 2461175.587078495,
     "Altair": 2461175.681186773
+   },
+   "panel": {
+    "periodStart": 2461175.448644704,
+    "periodEnd": 2461175.5466302214,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -3770,6 +3994,22 @@
     "Antares": 2461176.539246533,
     "Rasalhague": 2461176.5843482865,
     "Altair": 2461176.67845667
+   },
+   "panel": {
+    "periodStart": 2461176.452193168,
+    "periodEnd": 2461176.54311057,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -3936,6 +4176,22 @@
     "Antares": 2461177.5365163125,
     "Rasalhague": 2461177.581618064,
     "Altair": 2461177.675726558
+   },
+   "panel": {
+    "periodStart": 2461177.4559633406,
+    "periodEnd": 2461177.539381767,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -4138,6 +4394,22 @@
     "Antares": 2461178.53378609,
     "Rasalhague": 2461178.5788878305,
     "Altair": 2461178.6729964362
+   },
+   "panel": {
+    "periodStart": 2461178.460016503,
+    "periodEnd": 2461178.5353842233,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -4370,6 +4642,22 @@
     "Antares": 2461179.5310558616,
     "Rasalhague": 2461179.5761575885,
     "Altair": 2461179.6702663074
+   },
+   "panel": {
+    "periodStart": 2461179.4644505745,
+    "periodEnd": 2461179.5310158557,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -4646,6 +4934,22 @@
     "Antares": 2461180.5283256215,
     "Rasalhague": 2461180.573427343,
     "Altair": 2461180.667536174
+   },
+   "panel": {
+    "periodStart": 2461180.4694370455,
+    "periodEnd": 2461180.526107963,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -4950,6 +5254,22 @@
     "Antares": 2461181.525595367,
     "Rasalhague": 2461181.5706970976,
     "Altair": 2461181.6648060395
+   },
+   "panel": {
+    "periodStart": 2461181.475334698,
+    "periodEnd": 2461181.5203053,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -5274,6 +5594,22 @@
     "Antares": 2461182.5228650994,
     "Rasalhague": 2461182.567966855,
     "Altair": 2461182.6620759075
+   },
+   "panel": {
+    "periodStart": 2461182.4831720833,
+    "periodEnd": 2461182.512572997,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -5614,6 +5950,22 @@
     "Antares": 2461183.520134819,
     "Rasalhague": 2461183.5652366146,
     "Altair": 2461183.659345777
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -5962,6 +6314,22 @@
     "Antares": 2461184.5174045297,
     "Rasalhague": 2461184.562506375,
     "Altair": 2461184.656615648
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -6322,6 +6690,22 @@
     "Antares": 2461185.514674235,
     "Rasalhague": 2461185.559776133,
     "Altair": 2461185.653885519
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -6690,6 +7074,22 @@
     "Antares": 2461186.511943937,
     "Rasalhague": 2461186.5570458863,
     "Altair": 2461186.651155388
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -7066,6 +7466,22 @@
     "Antares": 2461187.509213637,
     "Rasalhague": 2461187.554315633,
     "Altair": 2461187.6484252536
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -7454,6 +7870,22 @@
     "Antares": 2461188.506483337,
     "Rasalhague": 2461188.551585372,
     "Altair": 2461188.6456951136
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -7854,6 +8286,22 @@
     "Antares": 2461189.5037530363,
     "Rasalhague": 2461189.5488551008,
     "Altair": 2461189.642964966
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -8270,6 +8718,22 @@
     "Antares": 2461190.5010227347,
     "Rasalhague": 2461190.5461248206,
     "Altair": 2461190.6402348126
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -8662,6 +9126,22 @@
     "Antares": 2461191.498292431,
     "Rasalhague": 2461191.5433945316,
     "Altair": 2461191.6375046517
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   },
   {
@@ -9030,7 +9510,39 @@
     "Antares": 2461192.495562122,
     "Rasalhague": 2461192.5406642347,
     "Altair": 2461192.6347744833
+   },
+   "panel": {
+    "periodStart": null,
+    "periodEnd": null,
+    "qualifies": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
    }
   }
- ]
+ ],
+ "panel": {
+  "title": "Astrophotography",
+  "summary": "astronomical dusk to astronomical dawn, 3:00+ above 30\u00b0",
+  "targets": [
+   "M81",
+   "M51",
+   "M3",
+   "M101",
+   "M104",
+   "M13",
+   "M57",
+   "M27",
+   "Jupiter",
+   "Saturn"
+  ]
+ }
 }

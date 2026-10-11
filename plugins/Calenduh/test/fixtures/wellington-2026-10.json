@@ -368,6 +368,23 @@
     "Altair": 2461314.8144174544,
     "Enif": 2461314.8929774207,
     "Sadalmelik": 2461314.9079771372
+   },
+   "panel": {
+    "periodStart": 2461314.833715341,
+    "periodEnd": 2461315.1805522684,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -650,6 +667,23 @@
     "Altair": 2461315.811686853,
     "Enif": 2461315.8902468984,
     "Sadalmelik": 2461315.9052466415
+   },
+   "panel": {
+    "periodStart": 2461315.834593646,
+    "periodEnd": 2461316.1792290625,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -888,6 +922,23 @@
     "Altair": 2461316.8089562473,
     "Enif": 2461316.8875163696,
     "Sadalmelik": 2461316.9025161415
+   },
+   "panel": {
+    "periodStart": 2461316.835482343,
+    "periodEnd": 2461317.1779032242,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -1090,6 +1141,23 @@
     "Altair": 2461317.80622564,
     "Enif": 2461317.884785835,
     "Sadalmelik": 2461317.8997856393
+   },
+   "panel": {
+    "periodStart": 2461317.8363816873,
+    "periodEnd": 2461318.1765750847,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -1264,6 +1332,23 @@
     "Altair": 2461318.8034950336,
     "Enif": 2461318.8820552994,
     "Sadalmelik": 2461318.897055136
+   },
+   "panel": {
+    "periodStart": 2461318.8372916244,
+    "periodEnd": 2461319.175244966,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -1414,6 +1499,23 @@
     "Altair": 2461319.8007644303,
     "Enif": 2461319.879324764,
     "Sadalmelik": 2461319.8943246305
+   },
+   "panel": {
+    "periodStart": 2461319.838212274,
+    "periodEnd": 2461320.173913189,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -1544,6 +1646,23 @@
     "Altair": 2461320.798033831,
     "Enif": 2461320.876594229,
     "Sadalmelik": 2461320.891594124
+   },
+   "panel": {
+    "periodStart": 2461320.839144019,
+    "periodEnd": 2461321.17258007,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -1658,6 +1777,23 @@
     "Altair": 2461321.7953032344,
     "Enif": 2461321.8738636966,
     "Sadalmelik": 2461321.888863615
+   },
+   "panel": {
+    "periodStart": 2461321.8400866054,
+    "periodEnd": 2461322.1712459195,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -1752,6 +1888,23 @@
     "Altair": 2461322.792572639,
     "Enif": 2461322.871133164,
     "Sadalmelik": 2461322.8861331022
+   },
+   "panel": {
+    "periodStart": 2461322.8410401773,
+    "periodEnd": 2461323.1699110502,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -1852,6 +2005,23 @@
     "Altair": 2461323.7898420435,
     "Enif": 2461323.86840263,
     "Sadalmelik": 2461323.883402586
+   },
+   "panel": {
+    "periodStart": 2461323.8420049865,
+    "periodEnd": 2461324.1685757753,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -1984,6 +2154,23 @@
     "Altair": 2461324.7871114463,
     "Enif": 2461324.8656720943,
     "Sadalmelik": 2461324.880672065
+   },
+   "panel": {
+    "periodStart": 2461324.84298073,
+    "periodEnd": 2461325.167240415,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -2154,6 +2341,23 @@
     "Altair": 2461325.7843808443,
     "Enif": 2461325.8629415524,
     "Sadalmelik": 2461325.8779415386
+   },
+   "panel": {
+    "periodStart": 2461325.8439677856,
+    "periodEnd": 2461326.1659052963,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -2376,6 +2580,23 @@
     "Altair": 2461326.781650238,
     "Enif": 2461326.8602110045,
     "Sadalmelik": 2461326.875211007
+   },
+   "panel": {
+    "periodStart": 2461326.8449659175,
+    "periodEnd": 2461327.1645707577,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -2650,6 +2871,23 @@
     "Altair": 2461327.7789196265,
     "Enif": 2461327.85748045,
     "Sadalmelik": 2461327.87248047
+   },
+   "panel": {
+    "periodStart": 2461327.8459752304,
+    "periodEnd": 2461328.163237068,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -2972,6 +3210,23 @@
     "Altair": 2461328.776189011,
     "Enif": 2461328.8547498886,
     "Sadalmelik": 2461328.8697499284
+   },
+   "panel": {
+    "periodStart": 2461328.8469957802,
+    "periodEnd": 2461329.161904638,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -3334,6 +3589,23 @@
     "Altair": 2461329.7734583924,
     "Enif": 2461329.8520193216,
     "Sadalmelik": 2461329.8670193837
+   },
+   "panel": {
+    "periodStart": 2461329.8480274137,
+    "periodEnd": 2461330.1605738634,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -3732,6 +4004,23 @@
     "Altair": 2461330.7707277723,
     "Enif": 2461330.84928875,
     "Sadalmelik": 2461330.864288836
+   },
+   "panel": {
+    "periodStart": 2461330.8490703367,
+    "periodEnd": 2461331.1592451264,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -4158,6 +4447,23 @@
     "Altair": 2461331.767997152,
     "Enif": 2461331.846558175,
     "Sadalmelik": 2461331.8615582865
+   },
+   "panel": {
+    "periodStart": 2461331.850124291,
+    "periodEnd": 2461332.1579188253,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -4612,6 +4918,23 @@
     "Altair": 2461332.7652665353,
     "Enif": 2461332.8438276,
     "Sadalmelik": 2461332.8588277367
+   },
+   "panel": {
+    "periodStart": 2461332.851189462,
+    "periodEnd": 2461333.1565953647,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -5086,6 +5409,23 @@
     "Altair": 2461333.7625359213,
     "Enif": 2461333.841097025,
     "Sadalmelik": 2461333.856097187
+   },
+   "panel": {
+    "periodStart": 2461333.852265663,
+    "periodEnd": 2461334.1552751632,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -5576,6 +5916,23 @@
     "Altair": 2461334.7598053105,
     "Enif": 2461334.8383664517,
     "Sadalmelik": 2461334.8533666357
+   },
+   "panel": {
+    "periodStart": 2461334.8533528624,
+    "periodEnd": 2461335.1539586536,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -6087,6 +6444,23 @@
     "Altair": 2461335.757074705,
     "Enif": 2461335.835635881,
     "Sadalmelik": 2461335.8506360855
+   },
+   "panel": {
+    "periodStart": 2461335.854451157,
+    "periodEnd": 2461336.1526462794,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -6614,6 +6988,23 @@
     "Altair": 2461336.7543441043,
     "Enif": 2461336.8329053135,
     "Sadalmelik": 2461336.8479055353
+   },
+   "panel": {
+    "periodStart": 2461336.8555600927,
+    "periodEnd": 2461337.151338499,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -7161,6 +7552,23 @@
     "Altair": 2461337.7516135057,
     "Enif": 2461337.8301747474,
     "Sadalmelik": 2461337.8451749827
+   },
+   "panel": {
+    "periodStart": 2461337.856680257,
+    "periodEnd": 2461338.1500356956,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -7727,6 +8135,23 @@
     "Procyon": 2461339.2396631967,
     "Enif": 2461338.8274441822,
     "Sadalmelik": 2461338.8424444282
+   },
+   "panel": {
+    "periodStart": 2461338.857810963,
+    "periodEnd": 2461339.148738298,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -8261,6 +8686,23 @@
     "Procyon": 2461340.236933131,
     "Enif": 2461339.8247136157,
     "Sadalmelik": 2461339.839713871
+   },
+   "panel": {
+    "periodStart": 2461339.8589523244,
+    "periodEnd": 2461340.147446925,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -8763,6 +9205,23 @@
     "Procyon": 2461341.2342030643,
     "Enif": 2461340.821983044,
     "Sadalmelik": 2461340.8369833096
+   },
+   "panel": {
+    "periodStart": 2461340.860104497,
+    "periodEnd": 2461341.1461620945,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -9209,6 +9668,23 @@
     "Procyon": 2461342.2314729965,
     "Enif": 2461341.8192524654,
     "Sadalmelik": 2461341.8342527435
+   },
+   "panel": {
+    "periodStart": 2461341.8612669404,
+    "periodEnd": 2461342.1448843474,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -9595,6 +10071,23 @@
     "Procyon": 2461343.2287429273,
     "Enif": 2461342.8165218784,
     "Sadalmelik": 2461342.8315221732
+   },
+   "panel": {
+    "periodStart": 2461342.8624396683,
+    "periodEnd": 2461343.1436142502,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -9933,6 +10426,23 @@
     "Procyon": 2461344.2260128586,
     "Enif": 2461343.8137912843,
     "Sadalmelik": 2461343.8287915997
+   },
+   "panel": {
+    "periodStart": 2461343.8636227353,
+    "periodEnd": 2461344.1423523966,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   },
   {
@@ -10231,7 +10741,41 @@
     "Procyon": 2461345.2232827903,
     "Enif": 2461344.8110606866,
     "Sadalmelik": 2461344.8260610243
+   },
+   "panel": {
+    "periodStart": 2461344.8648154703,
+    "periodEnd": 2461345.141099036,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
    }
   }
- ]
+ ],
+ "panel": {
+  "title": "Astrophotography",
+  "summary": "astronomical dusk to astronomical dawn, 3:00+ above 30\u00b0",
+  "targets": [
+   "NGC 55",
+   "NGC 253",
+   "47 Tuc",
+   "SMC",
+   "LMC",
+   "Tarantula Nebula",
+   "Helix Nebula",
+   "M42",
+   "M8",
+   "Carina Nebula",
+   "Saturn"
+  ]
+ }
 }

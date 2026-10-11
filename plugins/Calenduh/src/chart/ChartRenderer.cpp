@@ -83,6 +83,8 @@ void ChartRenderer::render(QPainter& painter, const QRectF& page)
 	drawStarLabels(painter, starLabels);
 	drawPhaseGraphics(painter);
 	drawLabels(painter);
+	if (model.panel)
+		drawPanel(painter);
 
 	painter.restore();
 }
@@ -98,10 +100,14 @@ void ChartRenderer::layout(const QRectF& page)
 	rowHeight = (page.height() - 2. * margin - titleHeight - 2. * hourLabelHeight) / rowCount;
 	const double leftReserve = 2.6 * em + 1.2 * rowHeight;
 	const double rightReserve = 2.6 * em;
+	// CAL-G-17: the panel is directly right of the chart; the chart's morning dates sit between them.
+	columnWidth = style.panelColumnFactor * em;
+	const double panelWidth = model.panel ? model.panel->targets.size() * columnWidth + em : 0.;
 	chart = QRectF(page.left() + margin + leftReserve,
 		       page.top() + margin + titleHeight + hourLabelHeight,
-		       page.width() - 2. * margin - leftReserve - rightReserve,
+		       page.width() - 2. * margin - leftReserve - rightReserve - panelWidth,
 		       rowCount * rowHeight);
+	panelArea = model.panel ? QRectF(chart.right() + rightReserve, chart.top(), panelWidth, chart.height()) : QRectF();
 
 	const NightRow& first = model.rows.first();
 	windowStartClock = clockMinutes(jdToDateTime(first.windowStart).toTimeZone(timeZone));
@@ -510,6 +516,101 @@ void ChartRenderer::drawLabels(QPainter& painter)
 		painter.drawText(QPointF(chart.left() - 1.2 * rowHeight - 0.3 * em - dfm.horizontalAdvance(left), baseline), left);
 		painter.drawText(QPointF(chart.right() + 0.4 * em, baseline), QString::number(evening.addDays(1).day()));
 	}
+	painter.restore();
+}
+
+void ChartRenderer::drawPanel(QPainter& painter)
+{
+	const TargetPanel& panel = *model.panel;
+	const int rowCount = model.rows.size();
+	painter.save();
+
+	// Rows: separators, and shading where the observing period does not exist (CAL-G-16).
+	bool anyShaded = false;
+	for (int r = 0; r < rowCount; ++r)
+	{
+		if (!model.rows.at(r).hasPeriod())
+		{
+			painter.fillRect(QRectF(panelArea.left(), rowTop(r), panelArea.width(), rowHeight), style.panelShadeColor);
+			anyShaded = true;
+		}
+	}
+	painter.setPen(QPen(style.panelRowColor, style.gridWidth));
+	for (int r = 1; r < rowCount; ++r)
+		painter.drawLine(QPointF(panelArea.left(), rowTop(r)), QPointF(panelArea.right(), rowTop(r)));
+	painter.setPen(QPen(style.gridColor, style.gridWidth));
+	painter.setBrush(Qt::NoBrush);
+	painter.drawRect(panelArea);
+
+	// One grey line per span of qualifying nights (CAL-G-05, CAL-G-06).
+	struct Span
+	{
+		int target, first, last;
+	};
+	QVector<Span> spans;
+	for (int k = 0; k < panel.targets.size(); ++k)
+	{
+		int r = 0;
+		auto qualifies = [&](int row) {
+			const QVector<bool>& q = model.rows.at(row).targetQualifies;
+			return k < q.size() && q.at(k);
+		};
+		while (r < rowCount)
+		{
+			if (!qualifies(r))
+			{
+				++r;
+				continue;
+			}
+			const int first = r;
+			while (r < rowCount && qualifies(r))
+				++r;
+			spans.append({ k, first, r - 1 });
+		}
+	}
+	auto columnX = [&](int k) { return panelArea.left() + 0.5 * em + (k + 0.5) * columnWidth; };
+	painter.setPen(QPen(style.panelLineColor, style.panelLineWidth, Qt::SolidLine, Qt::FlatCap));
+	for (const Span& s : spans)
+	{
+		const double x = columnX(s.target);
+		painter.drawLine(QPointF(x, rowTop(s.first) + 0.15 * rowHeight),
+				 QPointF(x, rowTop(s.last + 1) - 0.15 * rowHeight));
+	}
+
+	// Labels: black, overlaid on the line, reading upwards, near the top of each span,
+	// not cut off at the end of a short span (CAL-G-13).
+	QFont font = painter.font();
+	font.setPointSizeF(0.8 * em);
+	painter.setFont(font);
+	const QFontMetricsF fm(font);
+	painter.setPen(style.panelTextColor);
+	for (const Span& s : spans)
+	{
+		const QString& name = panel.targets.at(s.target);
+		const QPointF anchor(columnX(s.target), rowTop(s.first) + 0.15 * rowHeight + 0.2 * em + fm.horizontalAdvance(name));
+		painter.save();
+		painter.translate(anchor);
+		painter.rotate(-90.);
+		painter.drawText(QPointF(0., 0.5 * (fm.ascent() - fm.descent())), name);
+		painter.restore();
+	}
+
+	// Heading level with the chart title (CAL-G-11, CAL-G-17).
+	QFont titleFont = font;
+	titleFont.setPointSizeF(1.0 * em);
+	titleFont.setBold(true);
+	painter.setFont(titleFont);
+	painter.setPen(style.textColor);
+	const double headingTop = chart.top() - 1.6 * em - 2.4 * em;
+	painter.drawText(QPointF(panelArea.left(), headingTop + 1.1 * em), panel.title);
+	QFont summaryFont = font;
+	summaryFont.setPointSizeF(0.7 * em);
+	painter.setFont(summaryFont);
+	painter.drawText(QPointF(panelArea.left(), headingTop + 2.1 * em), panel.summary);
+
+	if (anyShaded)
+		painter.drawText(QPointF(panelArea.left(), chart.bottom() + 0.45 * em + QFontMetricsF(summaryFont).ascent()),
+				 style.panelShadeNote);
 	painter.restore();
 }
 

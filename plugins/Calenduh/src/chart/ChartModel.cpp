@@ -115,6 +115,18 @@ bool ChartModel::fromJson(const QByteArray& json, QString* errorMessage)
 	for (const QJsonValue& s : root.value("stars").toArray())
 		stars.append(s.toString());
 
+	panel.reset();
+	if (root.contains("panel"))
+	{
+		const QJsonObject p = root.value("panel").toObject();
+		TargetPanel tp;
+		tp.title = p.value("title").toString();
+		tp.summary = p.value("summary").toString();
+		for (const QJsonValue& t : p.value("targets").toArray())
+			tp.targets.append(t.toString());
+		panel = tp;
+	}
+
 	rows.clear();
 	for (const QJsonValue& rv : root.value("rows").toArray())
 	{
@@ -154,6 +166,12 @@ bool ChartModel::fromJson(const QByteArray& json, QString* errorMessage)
 		for (auto it = transits.constBegin(); it != transits.constEnd(); ++it)
 			row.transits.insert(it.key(), it.value().toDouble());
 
+		const QJsonObject panelRow = r.value("panel").toObject();
+		row.periodStart = optionalJd(panelRow.value("periodStart"));
+		row.periodEnd = optionalJd(panelRow.value("periodEnd"));
+		for (const QJsonValue& q : panelRow.value("qualifies").toArray())
+			row.targetQualifies.append(q.toBool());
+
 		rows.append(row);
 	}
 
@@ -178,6 +196,11 @@ QByteArray ChartModel::toJson() const
 		{ "timeZone", location.timeZone } });
 	root.insert("maxMoonAltitude", maxMoonAltitude);
 	root.insert("stars", QJsonArray::fromStringList(stars));
+	if (panel)
+		root.insert("panel", QJsonObject{
+			{ "title", panel->title },
+			{ "summary", panel->summary },
+			{ "targets", QJsonArray::fromStringList(panel->targets) } });
 
 	QJsonArray rowArray;
 	for (const NightRow& row : rows)
@@ -205,6 +228,10 @@ QByteArray ChartModel::toJson() const
 		for (auto it = row.transits.constBegin(); it != row.transits.constEnd(); ++it)
 			transits.insert(it.key(), it.value());
 
+		QJsonArray qualifies;
+		for (bool q : row.targetQualifies)
+			qualifies.append(q);
+
 		rowArray.append(QJsonObject{
 			{ "eveningDate", row.eveningDate.toString(Qt::ISODate) },
 			{ "windowStart", row.windowStart },
@@ -216,7 +243,11 @@ QByteArray ChartModel::toJson() const
 				{ "illumination", row.moonIllumination },
 				{ "waning", row.moonWaning },
 				{ "segments", segments } } },
-			{ "transits", transits } });
+			{ "transits", transits },
+			{ "panel", QJsonObject{
+				{ "periodStart", jsonValue(row.periodStart) },
+				{ "periodEnd", jsonValue(row.periodEnd) },
+				{ "qualifies", qualifies } } } });
 	}
 	root.insert("rows", rowArray);
 	return QJsonDocument(root).toJson(QJsonDocument::Indented);

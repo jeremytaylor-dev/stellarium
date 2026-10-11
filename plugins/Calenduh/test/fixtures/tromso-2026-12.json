@@ -575,6 +575,22 @@
     "Altair": 2461376.0795050426,
     "Enif": 2461376.158065918,
     "Sadalmelik": 2461376.173066585
+   },
+   "panel": {
+    "periodStart": 2461376.1176502905,
+    "periodEnd": 2461376.221816957,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1028,6 +1044,22 @@
     "Altair": 2461377.0767745073,
     "Enif": 2461377.1553353276,
     "Sadalmelik": 2461377.170335996
+   },
+   "panel": {
+    "periodStart": 2461377.1165885846,
+    "periodEnd": 2461377.220755251,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1385,6 +1417,22 @@
     "Altair": 2461378.0740439757,
     "Enif": 2461378.15260474,
     "Sadalmelik": 2461378.1676054066
+   },
+   "panel": {
+    "periodStart": 2461378.1155895484,
+    "periodEnd": 2461378.219756215,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1634,6 +1682,22 @@
     "Altair": 2461379.0713134455,
     "Enif": 2461379.149874153,
     "Sadalmelik": 2461379.1648748163
+   },
+   "panel": {
+    "periodStart": 2461379.1146549326,
+    "periodEnd": 2461379.218821599,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1680,6 +1744,22 @@
     "Altair": 2461380.068582916,
     "Enif": 2461380.147143565,
     "Sadalmelik": 2461380.1621442246
+   },
+   "panel": {
+    "periodStart": 2461380.113785516,
+    "periodEnd": 2461380.2179521825,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1726,6 +1806,22 @@
     "Altair": 2461381.0658523855,
     "Enif": 2461381.144412975,
     "Sadalmelik": 2461381.1594136306
+   },
+   "panel": {
+    "periodStart": 2461381.112982574,
+    "periodEnd": 2461381.2171492404,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1772,6 +1868,22 @@
     "Altair": 2461382.0631218553,
     "Enif": 2461382.1416823827,
     "Sadalmelik": 2461382.156683036
+   },
+   "panel": {
+    "periodStart": 2461382.1122473213,
+    "periodEnd": 2461382.216413988,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1818,6 +1930,22 @@
     "Altair": 2461383.060391324,
     "Enif": 2461383.1389517877,
     "Sadalmelik": 2461383.153952441
+   },
+   "panel": {
+    "periodStart": 2461383.1115807854,
+    "periodEnd": 2461383.215747452,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1864,6 +1992,22 @@
     "Altair": 2461384.057660794,
     "Enif": 2461384.1362211904,
     "Sadalmelik": 2461384.1512218458
+   },
+   "panel": {
+    "periodStart": 2461384.1109839897,
+    "periodEnd": 2461384.215150656,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1910,6 +2054,22 @@
     "Altair": 2461385.0549302665,
     "Enif": 2461385.1334905936,
     "Sadalmelik": 2461385.1484912527
+   },
+   "panel": {
+    "periodStart": 2461385.1104578413,
+    "periodEnd": 2461385.214624508,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -1956,6 +2116,22 @@
     "Altair": 2461386.0521997437,
     "Enif": 2461386.1307599978,
     "Sadalmelik": 2461386.145760662
+   },
+   "panel": {
+    "periodStart": 2461386.1100029144,
+    "periodEnd": 2461386.214169581,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2002,6 +2178,22 @@
     "Altair": 2461387.049469225,
     "Enif": 2461387.1280294033,
     "Sadalmelik": 2461387.143030073
+   },
+   "panel": {
+    "periodStart": 2461387.1096205493,
+    "periodEnd": 2461387.2137872158,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2203,6 +2395,22 @@
     "Altair": 2461388.0467387135,
     "Enif": 2461388.125298813,
     "Sadalmelik": 2461388.1402994874
+   },
+   "panel": {
+    "periodStart": 2461388.1093109394,
+    "periodEnd": 2461388.213477606,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2516,6 +2724,22 @@
     "Altair": 2461389.04400821,
     "Enif": 2461389.1225682287,
     "Sadalmelik": 2461389.1375689064
+   },
+   "panel": {
+    "periodStart": 2461389.10907521,
+    "periodEnd": 2461389.2132418766,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -2924,6 +3148,22 @@
     "Zubenelgenubi": 2461390.8309892598,
     "Enif": 2461390.11983765,
     "Sadalmelik": 2461390.134838329
+   },
+   "panel": {
+    "periodStart": 2461390.1089133443,
+    "periodEnd": 2461390.213080011,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -3420,6 +3660,22 @@
     "Zubenelgenubi": 2461391.8282591077,
     "Enif": 2461391.117107079,
     "Sadalmelik": 2461391.132107756
+   },
+   "panel": {
+    "periodStart": 2461391.1088260063,
+    "periodEnd": 2461391.212992673,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -4008,6 +4264,22 @@
     "Zubenelgenubi": 2461392.825528964,
     "Enif": 2461392.1143765147,
     "Sadalmelik": 2461392.1293771868
+   },
+   "panel": {
+    "periodStart": 2461392.108813556,
+    "periodEnd": 2461392.2129802224,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -4696,6 +4968,22 @@
     "Zubenelgenubi": 2461393.822798828,
     "Enif": 2461393.1116459556,
     "Sadalmelik": 2461393.1266466198
+   },
+   "panel": {
+    "periodStart": 2461393.108876175,
+    "periodEnd": 2461393.2130428413,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
    }
   },
   {
@@ -5526,6 +5814,22 @@
     "Zubenelgenubi": 2461394.8200687007,
     "Enif": 2461394.1089154007,
     "Sadalmelik": 2461394.123916055
+   },
+   "panel": {
+    "periodStart": 2461394.1090139975,
+    "periodEnd": 2461394.213180664,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -6542,6 +6846,22 @@
     "Zubenelgenubi": 2461395.81733858,
     "Enif": 2461395.106184848,
     "Sadalmelik": 2461395.121185492
+   },
+   "panel": {
+    "periodStart": 2461395.109226534,
+    "periodEnd": 2461395.2133932007,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -7558,6 +7878,22 @@
     "Zubenelgenubi": 2461396.8146084617,
     "Enif": 2461396.103454293,
     "Sadalmelik": 2461396.1184549276
+   },
+   "panel": {
+    "periodStart": 2461396.1095141415,
+    "periodEnd": 2461396.213680808,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -8574,6 +8910,22 @@
     "Zubenelgenubi": 2461397.8118783454,
     "Enif": 2461397.100723735,
     "Sadalmelik": 2461397.115724364
+   },
+   "panel": {
+    "periodStart": 2461397.109876414,
+    "periodEnd": 2461397.2140430803,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -9590,6 +9942,22 @@
     "Zubenelgenubi": 2461398.8091482273,
     "Enif": 2461398.0979931736,
     "Sadalmelik": 2461398.1129938
+   },
+   "panel": {
+    "periodStart": 2461398.1103129503,
+    "periodEnd": 2461398.214479617,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -10607,6 +10975,22 @@
     "Antares": 2461399.8747588987,
     "Enif": 2461399.09526261,
     "Sadalmelik": 2461399.110263239
+   },
+   "panel": {
+    "periodStart": 2461399.110823133,
+    "periodEnd": 2461399.2149897995,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -11624,6 +12008,22 @@
     "Antares": 2461400.8720287206,
     "Enif": 2461400.0925320485,
     "Sadalmelik": 2461400.1075326824
+   },
+   "panel": {
+    "periodStart": 2461400.111406713,
+    "periodEnd": 2461400.2155733793,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -12533,6 +12933,22 @@
     "Antares": 2461401.8692985373,
     "Enif": 2461401.0898014912,
     "Sadalmelik": 2461401.1048021293
+   },
+   "panel": {
+    "periodStart": 2461401.1120629767,
+    "periodEnd": 2461401.216229643,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -13306,6 +13722,22 @@
     "Antares": 2461402.8665683535,
     "Enif": 2461402.0870709415,
     "Sadalmelik": 2461402.102071581
+   },
+   "panel": {
+    "periodStart": 2461402.112791175,
+    "periodEnd": 2461402.2169578415,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -13971,6 +14403,22 @@
     "Antares": 2461403.863838173,
     "Enif": 2461403.0843404005,
     "Sadalmelik": 2461403.0993410377
+   },
+   "panel": {
+    "periodStart": 2461403.1135904957,
+    "periodEnd": 2461403.217757162,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -14540,6 +14988,22 @@
     "Antares": 2461404.8611079985,
     "Enif": 2461404.0816098675,
     "Sadalmelik": 2461404.096610497
+   },
+   "panel": {
+    "periodStart": 2461404.114460048,
+    "periodEnd": 2461404.2186267143,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -15013,6 +15477,22 @@
     "Antares": 2461405.8583778334,
     "Enif": 2461405.0788793406,
     "Sadalmelik": 2461405.09387996
+   },
+   "panel": {
+    "periodStart": 2461405.1153985206,
+    "periodEnd": 2461405.219565187,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     true
+    ]
    }
   },
   {
@@ -15354,7 +15834,39 @@
     "Antares": 2461406.855647678,
     "Enif": 2461406.076148818,
     "Sadalmelik": 2461406.091149424
+   },
+   "panel": {
+    "periodStart": 2461406.1164046745,
+    "periodEnd": 2461406.220571341,
+    "qualifies": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false,
+     true,
+     true,
+     false,
+     true
+    ]
    }
   }
- ]
+ ],
+ "panel": {
+  "title": "Visual",
+  "summary": "nautical dusk to start + 2:30, 1:00+ above 20\u00b0",
+  "targets": [
+   "M31",
+   "M33",
+   "Double Cluster",
+   "M45",
+   "M1",
+   "M42",
+   "M35",
+   "M81",
+   "Jupiter",
+   "Saturn"
+  ]
+ }
 }

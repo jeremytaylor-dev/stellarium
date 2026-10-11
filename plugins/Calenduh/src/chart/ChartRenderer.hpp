@@ -58,6 +58,8 @@ private:
 
 	// Layout, set by render().
 	QRectF chart;         //!< the chart area (rows x time window)
+	QRectF panelArea;     //!< the target-panel area (CAL-G-17); empty when the panel is off
+	double columnWidth = 0.; //!< target-panel column width
 	double rowHeight = 0.;
 	double em = 0.;       //!< base font size [pt]
 	int windowStartClock = 0;   //!< minutes after local midnight
@@ -96,6 +98,7 @@ private:
 	void drawMoonCurves(QPainter& painter, const QPainterPath& civilRegion);
 	void drawPhaseGraphics(QPainter& painter);
 	void drawLabels(QPainter& painter);
+	void drawPanel(QPainter& painter);
 
 	QString titleText() const;
 };

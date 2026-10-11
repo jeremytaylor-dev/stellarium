@@ -80,6 +80,21 @@ struct NightRow
 	QVector<MoonSegment> moonSegments;
 
 	QMap<QString, double> transits; //!< star name -> JD of upper transit inside the window
+
+	//! Target-panel observing period (CAL-G-09). Empty if it does not exist on this night.
+	std::optional<double> periodStart;
+	std::optional<double> periodEnd;
+	QVector<bool> targetQualifies;  //!< per panel target, in list order (CAL-G-08)
+
+	bool hasPeriod() const { return periodStart.has_value() && periodEnd.has_value(); }
+};
+
+//! Target panel (requirements section 8).
+struct TargetPanel
+{
+	QString title;          //!< CAL-G-11
+	QString summary;        //!< one-line summary of the settings (CAL-G-11)
+	QStringList targets;    //!< list order = column order (CAL-G-14)
 };
 
 struct ChartLocation
@@ -97,6 +112,7 @@ struct ChartModel
 	double maxMoonAltitude = 0.;  //!< degrees; the top of every row (CAL-M-04)
 	QStringList stars;            //!< star names in display order
 	QVector<NightRow> rows;
+	std::optional<TargetPanel> panel; //!< absent when the panel is off (CAL-G-17)
 
 	//! Read a model from JSON (schema 1). Returns false and sets errorMessage on failure.
 	bool fromJson(const QByteArray& json, QString* errorMessage = nullptr);

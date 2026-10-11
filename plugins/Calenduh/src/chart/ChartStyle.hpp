@@ -49,6 +49,14 @@ struct ChartStyle
 	double moonMinWidth = 0.5;                    //!< CAL-M-03, thinnest crescent
 	double moonMaxWidthFactor = 0.45;             //!< CAL-M-03, full Moon, as a fraction of row height
 
+	QColor panelLineColor  { 0xA8, 0xA8, 0xA8 };  //!< CAL-G-06, grey target lines
+	double panelLineWidth = 1.2;
+	QColor panelTextColor  { 0x00, 0x00, 0x00 };  //!< CAL-G-06, black labels
+	QColor panelRowColor   { 0xE0, 0xE0, 0xE0 };  //!< panel row separators
+	QColor panelShadeColor { 0xED, 0xED, 0xED };  //!< CAL-G-16, rows without a period
+	double panelColumnFactor = 2.3;               //!< CAL-G-14, column width in units of the base text size
+	QString panelShadeNote = QStringLiteral("Shaded rows: the period does not exist");
+
 	QColor textColor       { 0x20, 0x20, 0x20 };
 	QColor phaseOutline    { 0x80, 0x80, 0x80 };
 };
