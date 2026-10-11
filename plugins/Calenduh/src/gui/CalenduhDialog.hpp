@@ -21,10 +21,12 @@
 #define CALENDUHDIALOG_HPP
 
 #include "StelDialog.hpp"
+#include "ChartModel.hpp"
 
 class Ui_calenduhDialogForm;
+namespace calenduh { class ChartJob; }
 
-//! Main window of the Calenduh plug-in.
+//! Main window of the Calenduh plug-in: chart generation and preview.
 //! @ingroup calenduh
 class CalenduhDialog : public StelDialog
 {
@@ -36,12 +38,28 @@ public:
 
 public slots:
 	void retranslate() override;
+	//! Shows the window; generates the chart the first time (CAL-I-03).
+	void setVisible(bool visible) override;
+	//! Calculate the chart for the current settings.
+	void generate();
+	//! Development check: show the window, wait for the chart, save an image of
+	//! the window to @p pngPath, and quit Stellarium if @p quit.
+	void runDialogCheck(const QString& pngPath, bool quit);
 
 protected:
 	void createDialogContent() override;
 
+private slots:
+	void jobProgress(int nightsDone, int nights);
+	void jobFinished(const calenduh::ChartModel& model, const QStringList& unresolvedNames);
+	void jobCancelled();
+	void jobFailed(const QString& message);
+
 private:
 	Ui_calenduhDialogForm* ui;
+	calenduh::ChartJob* job;
+
+	void setRunning(bool running);
 };
 
 #endif /* CALENDUHDIALOG_HPP */

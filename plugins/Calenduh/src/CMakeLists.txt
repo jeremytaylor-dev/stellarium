@@ -32,11 +32,15 @@ SET(CALENDUH_SRCS
      Calenduh.cpp
      EphemerisSampler.hpp
      EphemerisSampler.cpp
+     ChartJob.hpp
+     ChartJob.cpp
 )
 IF (STELLARIUM_GUI_MODE STREQUAL "Standard")
 LIST(APPEND CALENDUH_SRCS
      gui/CalenduhDialog.hpp
      gui/CalenduhDialog.cpp
+     gui/ChartPreview.hpp
+     gui/ChartPreview.cpp
 )
 
 SET(CALENDUH_UIS
