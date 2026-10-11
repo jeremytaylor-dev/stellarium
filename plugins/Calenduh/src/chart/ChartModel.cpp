@@ -77,7 +77,7 @@ double thresholdAltitude(Threshold t)
 QDateTime jdToDateTime(double jd)
 {
 	const qint64 ms = static_cast<qint64>(std::llround((jd - JD_UNIX_EPOCH) * MS_PER_DAY));
-	return QDateTime::fromMSecsSinceEpoch(ms, QTimeZone::UTC);
+	return QDateTime::fromMSecsSinceEpoch(ms, QTimeZone::utc());
 }
 
 double dateTimeToJd(const QDateTime& dateTime)
@@ -89,10 +89,10 @@ double localClockToJd(const QDate& date, int minutes, const QTimeZone& timeZone)
 {
 	// Local wall-clock time expressed as if it were UTC, then corrected by the zone offset.
 	// The second pass handles a guess that falls on the other side of a transition.
-	const qint64 wall = QDateTime(date, QTime(0, 0), QTimeZone::UTC).toMSecsSinceEpoch() + qint64(minutes) * 60000;
-	const int guess = timeZone.offsetFromUtc(QDateTime::fromMSecsSinceEpoch(wall, QTimeZone::UTC));
+	const qint64 wall = QDateTime(date, QTime(0, 0), QTimeZone::utc()).toMSecsSinceEpoch() + qint64(minutes) * 60000;
+	const int guess = timeZone.offsetFromUtc(QDateTime::fromMSecsSinceEpoch(wall, QTimeZone::utc()));
 	qint64 utc = wall - qint64(guess) * 1000;
-	const int actual = timeZone.offsetFromUtc(QDateTime::fromMSecsSinceEpoch(utc, QTimeZone::UTC));
+	const int actual = timeZone.offsetFromUtc(QDateTime::fromMSecsSinceEpoch(utc, QTimeZone::utc()));
 	if (actual != guess)
 		utc = wall - qint64(actual) * 1000;
 	return JD_UNIX_EPOCH + static_cast<double>(utc) / MS_PER_DAY;

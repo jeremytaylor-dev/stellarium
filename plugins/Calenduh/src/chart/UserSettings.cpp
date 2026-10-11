@@ -57,7 +57,7 @@ void readClock(const QSettings& conf, const QString& key, int& minutes)
 
 void readColor(const QSettings& conf, const QString& key, QColor& color)
 {
-	const QColor c = QColor::fromString(conf.value(key).toString());
+	const QColor c(conf.value(key).toString());
 	if (c.isValid())
 		color = c;
 }
