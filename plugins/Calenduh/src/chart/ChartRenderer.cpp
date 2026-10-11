@@ -634,9 +634,12 @@ QString ChartRenderer::titleText() const
 	else
 		range = QString("%1 – %2").arg(english.toString(first, "d MMMM yyyy"), english.toString(last, "d MMMM yyyy"));
 
-	return QString("%1, %2, %3 (%4, %5)")
-		.arg(style.title, range, model.location.name,
-		     formatLatitude(model.location.latitude), formatLongitude(model.location.longitude));
+	const QString coordinates = QString("%1, %2").arg(formatLatitude(model.location.latitude),
+							  formatLongitude(model.location.longitude));
+	// A location without a name (for example a position from the network) shows the coordinates only.
+	if (model.location.name.trimmed().isEmpty())
+		return QString("%1, %2, %3").arg(style.title, range, coordinates);
+	return QString("%1, %2, %3 (%4)").arg(style.title, range, model.location.name, coordinates);
 }
 
 } // namespace calenduh

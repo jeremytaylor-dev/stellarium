@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>400</height>
+    <width>900</width>
+    <height>680</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -34,17 +34,53 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="labelPlaceholder">
-     <property name="text">
-      <string>Calenduh observation planning calendar. The chart is not implemented yet.</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
+    <widget class="QFrame" name="frameControls">
+     <layout class="QHBoxLayout" name="horizontalLayoutControls">
+      <item>
+       <widget class="QPushButton" name="pushButtonGenerate">
+        <property name="toolTip">
+         <string>Calculate the chart for the current settings</string>
+        </property>
+        <property name="text">
+         <string>Generate</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonCancel">
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="format">
+         <string>%p%</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelStatus">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
+   </item>
+   <item>
+    <widget class="ChartPreview" name="preview" native="true"/>
    </item>
   </layout>
  </widget>
@@ -53,6 +89,12 @@
    <class>TitleBar</class>
    <extends>QFrame</extends>
    <header>Dialog.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ChartPreview</class>
+   <extends>QWidget</extends>
+   <header>ChartPreview.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

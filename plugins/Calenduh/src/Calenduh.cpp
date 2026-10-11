@@ -107,6 +107,14 @@ void Calenduh::init()
 		QTimer::singleShot(5000, this, &Calenduh::runUpdateBenchmark);
 	if (qEnvironmentVariableIsSet("CALENDUH_SAMPLE"))
 		QTimer::singleShot(3000, this, &Calenduh::runSamplerCheck);
+#ifndef NO_GUI
+	// Development check of the window: CALENDUH_DIALOG_CHECK=<image.png>.
+	if (qEnvironmentVariableIsSet("CALENDUH_DIALOG_CHECK"))
+		QTimer::singleShot(3000, this, [this]() {
+			dialog->runDialogCheck(qEnvironmentVariable("CALENDUH_DIALOG_CHECK"),
+					       qEnvironmentVariableIntValue("CALENDUH_SAMPLE_QUIT") == 1);
+		});
+#endif
 }
 
 namespace {

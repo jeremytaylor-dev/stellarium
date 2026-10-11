@@ -20,6 +20,7 @@
 #include "EphemerisSampler.hpp"
 
 #include "StelApp.hpp"
+#include "StelTranslator.hpp"
 #include "StelCore.hpp"
 #include "StelModuleMgr.hpp"
 #include "StelObjectMgr.hpp"
@@ -97,16 +98,33 @@ EphemerisSampler::EphemerisSampler(const ChartSettings& settings)
 
 bool EphemerisSampler::prepare(QString* error)
 {
+	if (!begin(error))
+		return false;
+	for (int i = 0; i < nightCount(); ++i)
+		computeSunNight(i);
+	chooseWindow();
+	return true;
+}
+
+void EphemerisSampler::computeSunNight(int index)
+{
+	NightRow& row = model_.rows[index];
+	setNight(row.eveningDate);
+	computeSunEvents(row);
+}
+
+bool EphemerisSampler::begin(QString* error)
+{
 	auto fail = [error](const QString& message) {
 		if (error)
 			*error = message;
 		return false;
 	};
 	if (!timeZone.isValid())
-		return fail(QString("Unknown time zone: %1").arg(settings.location.timeZone));
+		return fail(q_("Unknown time zone: %1").arg(settings.location.timeZone));
 	const qint64 nights = settings.firstEvening.daysTo(settings.lastEvening) + 1;
 	if (!settings.firstEvening.isValid() || !settings.lastEvening.isValid() || nights < 1 || nights > MAX_NIGHTS)
-		return fail(QString("The date range must have 1 to %1 nights.").arg(MAX_NIGHTS));
+		return fail(q_("The date range must have 1 to %1 nights.").arg(MAX_NIGHTS));
 
 	model_ = ChartModel();
 	model_.location = settings.location;
@@ -127,16 +145,7 @@ bool EphemerisSampler::prepare(QString* error)
 	const double scale = EARTH_EQUATORIAL_RADIUS_KM / ASTRONOMICAL_UNIT_KM;
 	observerShape.set(rhoCos * scale, 0., rhoSin * scale);
 
-	if (!resolveBodies(error))
-		return false;
-
-	for (NightRow& row : model_.rows)
-	{
-		setNight(row.eveningDate);
-		computeSunEvents(row);
-	}
-	chooseWindow();
-	return true;
+	return resolveBodies(error);
 }
 
 bool EphemerisSampler::resolveBodies(QString* error)
@@ -147,7 +156,7 @@ bool EphemerisSampler::resolveBodies(QString* error)
 	if (!core || !solarSystem || !objectMgr)
 	{
 		if (error)
-			*error = QStringLiteral("Stellarium modules are not available.");
+			*error = q_("Stellarium modules are not available.");
 		return false;
 	}
 	earth = solarSystem->getEarth();
