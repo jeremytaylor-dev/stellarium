@@ -22,16 +22,20 @@
 
 #include "UserSettings.hpp"
 
+#include <QDate>
 #include <QList>
 #include <QObject>
 #include <QPair>
+#include <QStringList>
 #include <functional>
 
-class QAbstractButton;
+class QBoxLayout;
 class QCheckBox;
 class QComboBox;
 class QDateEdit;
 class QDoubleSpinBox;
+class QFormLayout;
+class QGroupBox;
 class QLabel;
 class QLineEdit;
 class QListWidget;
@@ -64,6 +68,16 @@ signals:
 	void changed(const calenduh::UserSettings& settings);
 
 private:
+	//! A list of names with Add, Remove and optional Up and Down buttons.
+	struct ListEditor
+	{
+		QListWidget* list = nullptr;
+		QLineEdit* add = nullptr;
+		QLabel* status = nullptr;
+		QStringList checked;        //!< the names of the last check
+		bool warnAboveTwenty = false;
+	};
+
 	calenduh::UserSettings current;
 	bool loading = false;
 	QList<std::function<void()>> texts;   //!< set the translated texts
@@ -78,17 +92,17 @@ private:
 	QDoubleSpinBox* longitude = nullptr;
 	QDoubleSpinBox* elevation = nullptr;
 	QComboBox* timeZone = nullptr;
+	QLabel* locationStatus = nullptr;
 	QCheckBox* currentMonth = nullptr;
 	QDateEdit* firstEvening = nullptr;
 	QDateEdit* lastEvening = nullptr;
+	QLabel* dateStatus = nullptr;
 	QCheckBox* autoWindow = nullptr;
 	QTimeEdit* windowStart = nullptr;
 	QTimeEdit* windowEnd = nullptr;
 
 	// Stars
-	QListWidget* starList = nullptr;
-	QLineEdit* starAdd = nullptr;
-	QLabel* starStatus = nullptr;
+	ListEditor stars;
 
 	// Target panel
 	QCheckBox* panelEnabled = nullptr;
@@ -106,9 +120,7 @@ private:
 	QSpinBox* minAltitude = nullptr;
 	QTimeEdit* minDuration = nullptr;
 	QLabel* panelSummary = nullptr;
-	QListWidget* targetList = nullptr;
-	QLineEdit* targetAdd = nullptr;
-	QLabel* targetStatus = nullptr;
+	ListEditor targets;
 
 	// Appearance
 	QToolButton* bandColor[4] = {};
@@ -123,20 +135,23 @@ private:
 	QWidget* buildStarsPage();
 	QWidget* buildPanelPage();
 	QWidget* buildAppearancePage();
-	void buildEdge(EdgeWidgets& edge, bool isEnd, class QFormLayout* form, const char* label);
+	void buildEdge(EdgeWidgets& edge, bool isEnd, QFormLayout* form, const char* label);
+	void buildListEditor(ListEditor& editor, QBoxLayout* layout, bool upDown);
 
 	//! Register a translated text for a widget with setText() and set it.
 	template <class W> W* text(W* widget, const char* source);
 	QLabel* label(const char* source);
+	QGroupBox* group(const char* title);
 	void fillEventCombos();
 	void fillKindCombos();
 	void fillPresetCombo();
 
+	void onChanged() { if (!loading) store(); }
 	void load();            //!< settings -> widgets
-	void refreshDerived();  //!< preset, heading, enabled fields, name checks
 	void store();           //!< widgets -> settings, then changed()
+	void refreshDerived();  //!< preset, heading, enabled fields, checks
 	void updateEnabled();
-	void checkNames(QListWidget* list, QLabel* status, bool warnAboveTwenty);
+	void checkNames(ListEditor& editor);
 	void setColorButton(QToolButton* button, const QColor& color);
 	QColor colorOf(const QToolButton* button) const;
 	void chooseColor(QToolButton* button);
@@ -144,6 +159,8 @@ private:
 	int presetIndex() const;
 	void setEdge(EdgeWidgets& edge, const calenduh::PeriodEdge& value);
 	calenduh::PeriodEdge readEdge(const EdgeWidgets& edge) const;
+	//! Stellarium's current local date (CAL-L-06).
+	static QDate stellariumDate();
 };
 
 #endif // CALENDUH_SETTINGSEDITOR_HPP

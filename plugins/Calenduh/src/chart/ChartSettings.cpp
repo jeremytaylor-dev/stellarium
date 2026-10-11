@@ -31,9 +31,13 @@ const char* const eventKeys[SunEventCount] = {
 	"sunset", "civilDusk", "nauticalDusk", "astronomicalDusk",
 	"astronomicalDawn", "nauticalDawn", "civilDawn", "sunrise" };
 
+// N_() marks the names for translation; the plugin window translates them.
+#ifndef N_
+#define N_(str) str
+#endif
 const char* const eventNames[SunEventCount] = {
-	"sunset", "civil dusk", "nautical dusk", "astronomical dusk",
-	"astronomical dawn", "nautical dawn", "civil dawn", "sunrise" };
+	N_("sunset"), N_("civil dusk"), N_("nautical dusk"), N_("astronomical dusk"),
+	N_("astronomical dawn"), N_("nautical dawn"), N_("civil dawn"), N_("sunrise") };
 
 QString hoursAndMinutes(double hours)
 {

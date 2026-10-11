@@ -94,6 +94,7 @@ struct PanelSettings
 //! All inputs of chart generation.
 struct ChartSettings
 {
+	static constexpr int MaxNights = 400;  //!< longest date range
 	ChartLocation location;         //!< CAL-L-09
 	QDate firstEvening;             //!< CAL-L-06
 	QDate lastEvening;

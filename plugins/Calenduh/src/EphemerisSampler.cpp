@@ -45,7 +45,6 @@ constexpr double SIDEREAL_DEGREES_PER_DAY = 360.98564736629;
 constexpr double EARTH_EQUATORIAL_RADIUS_KM = 6378.137;
 constexpr double EARTH_FLATTENING = 1. / 298.257223563;
 constexpr double ASTRONOMICAL_UNIT_KM = 149597870.7;
-constexpr int MAX_NIGHTS = 400;
 
 //! Apparent minus geometric altitude [degrees] for standard conditions (10 C, 1010 hPa).
 //! Same formula and iteration as Skyfield's altaz('standard'), so that fixtures compare directly.
@@ -124,8 +123,8 @@ bool EphemerisSampler::begin(QString* error)
 	if (!isValidTimeZone(settings.location.timeZone))
 		return fail(q_("Unknown time zone: %1").arg(settings.location.timeZone));
 	const qint64 nights = settings.firstEvening.daysTo(settings.lastEvening) + 1;
-	if (!settings.firstEvening.isValid() || !settings.lastEvening.isValid() || nights < 1 || nights > MAX_NIGHTS)
-		return fail(q_("The date range must have 1 to %1 nights.").arg(MAX_NIGHTS));
+	if (!settings.firstEvening.isValid() || !settings.lastEvening.isValid() || nights < 1 || nights > ChartSettings::MaxNights)
+		return fail(q_("The date range must have 1 to %1 nights.").arg(ChartSettings::MaxNights));
 
 	model_ = ChartModel();
 	model_.location = settings.location;

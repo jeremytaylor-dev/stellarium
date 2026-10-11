@@ -25,6 +25,7 @@
 #include "ChartStyle.hpp"
 
 #include <QSizeF>
+#include <QTimer>
 #include <functional>
 
 class Ui_calenduhDialogForm;
@@ -65,6 +66,9 @@ private:
 	Ui_calenduhDialogForm* ui;
 	calenduh::ChartJob* job;
 	SettingsEditor* editor = nullptr;
+	QTimer* saveTimer = nullptr;          //!< saves the settings when the edits pause
+	bool savePending = false;
+	bool changedDuringJob = false;
 	bool generatedOnce = false;       //!< the first opening has started a chart
 	calenduh::ChartStyle jobStyle;    //!< style and page in force when the job started
 	QSizeF jobPage;
@@ -72,6 +76,7 @@ private:
 	QStringList shownUnresolved;      //!< names left out of the chart shown (CAL-S-07, CAL-G-12)
 
 	void setRunning(bool running);
+	void saveSettingsNow();
 	void setStatus(std::function<QString()> text);
 };
 

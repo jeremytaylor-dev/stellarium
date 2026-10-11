@@ -20,10 +20,12 @@
 #include "SettingsEditor.hpp"
 
 #include "StelApp.hpp"
+#include "StelCore.hpp"
 #include "StelLocationMgr.hpp"
 #include "StelModuleMgr.hpp"
 #include "StelObjectMgr.hpp"
 #include "StelTranslator.hpp"
+#include "StelUtils.hpp"
 
 #include <QCheckBox>
 #include <QColorDialog>
@@ -87,6 +89,13 @@ QWidget* scrolled(QWidget* page)
 	return area;
 }
 
+QLabel* statusLabel()
+{
+	auto* l = new QLabel();
+	l->setWordWrap(true);
+	return l;
+}
+
 } // namespace
 
 SettingsEditor::SettingsEditor(QObject* parent)
@@ -104,6 +113,23 @@ template <class W> W* SettingsEditor::text(W* widget, const char* source)
 QLabel* SettingsEditor::label(const char* source)
 {
 	return text(new QLabel(), source);
+}
+
+QGroupBox* SettingsEditor::group(const char* title)
+{
+	auto* box = new QGroupBox();
+	texts.append([box, title]() { box->setTitle(q_(title)); });
+	box->setTitle(q_(title));
+	return box;
+}
+
+QDate SettingsEditor::stellariumDate()
+{
+	const StelCore* core = StelApp::getInstance().getCore();
+	const double jd = core->getJD();
+	int year, month, day;
+	StelUtils::getDateFromJulianDay(jd + core->getUTCOffset(jd) / 24., &year, &month, &day);
+	return QDate(year, month, day);
 }
 
 QList<QPair<QString, QWidget*>> SettingsEditor::pages()
@@ -133,7 +159,8 @@ void SettingsEditor::retranslate()
 	loading = wasLoading;
 	for (int i = 0; i < pageList.size(); ++i)
 		pageList[i].first = q_(pageTitles.at(i));
-	load();
+	if (!pageList.isEmpty())
+		load();
 }
 
 void SettingsEditor::setSettings(const UserSettings& settings)
@@ -151,15 +178,13 @@ QWidget* SettingsEditor::buildLocationPage()
 	auto* layout = new QVBoxLayout(page);
 
 	// CAL-L-09, CAL-I-09
-	auto* locationBox = new QGroupBox();
-	texts.append([locationBox]() { locationBox->setTitle(q_("Location")); });
-	locationBox->setTitle(q_("Location"));
+	auto* locationBox = group(N_("Location"));
 	auto* locationForm = new QFormLayout(locationBox);
 	followLocation = text(new QCheckBox(), N_("Use Stellarium's location"));
 	locationForm->addRow(followLocation);
 	locationSearch = new QLineEdit();
 	texts.append([this]() { locationSearch->setPlaceholderText(q_("Type a place name from the Stellarium list")); });
-	locationSearch->setPlaceholderText(q_("Type a place name from the Stellarium list"));
+	texts.last()();
 	{
 		const LocationMap all = StelApp::getInstance().getLocationMgr().getAllMap();
 		QStringList ids;
@@ -212,12 +237,12 @@ QWidget* SettingsEditor::buildLocationPage()
 		timeZone->addItems(zones);
 	}
 	locationForm->addRow(label(N_("Time zone")), timeZone);
+	locationStatus = statusLabel();
+	locationForm->addRow(locationStatus);
 	layout->addWidget(locationBox);
 
 	// CAL-L-06
-	auto* datesBox = new QGroupBox();
-	texts.append([datesBox]() { datesBox->setTitle(q_("Dates")); });
-	datesBox->setTitle(q_("Dates"));
+	auto* datesBox = group(N_("Dates"));
 	auto* datesForm = new QFormLayout(datesBox);
 	currentMonth = text(new QCheckBox(), N_("The month of Stellarium's current date"));
 	datesForm->addRow(currentMonth);
@@ -229,12 +254,12 @@ QWidget* SettingsEditor::buildLocationPage()
 	lastEvening->setCalendarPopup(true);
 	lastEvening->setDisplayFormat("yyyy-MM-dd");
 	datesForm->addRow(label(N_("Last evening")), lastEvening);
+	dateStatus = statusLabel();
+	datesForm->addRow(dateStatus);
 	layout->addWidget(datesBox);
 
 	// CAL-L-07
-	auto* windowBox = new QGroupBox();
-	texts.append([windowBox]() { windowBox->setTitle(q_("Time window")); });
-	windowBox->setTitle(q_("Time window"));
+	auto* windowBox = group(N_("Time window"));
 	auto* windowForm = new QFormLayout(windowBox);
 	autoWindow = text(new QCheckBox(), N_("Automatic: from the hour before the earliest sunset to the hour after the latest sunrise"));
 	windowForm->addRow(autoWindow);
@@ -247,20 +272,79 @@ QWidget* SettingsEditor::buildLocationPage()
 	layout->addWidget(windowBox);
 	layout->addStretch(1);
 
-	auto changed = [this]() { if (!loading) store(); };
-	connect(followLocation, &QCheckBox::toggled, this, changed);
-	connect(locationName, &QLineEdit::editingFinished, this, changed);
-	connect(latitude, &QDoubleSpinBox::valueChanged, this, changed);
-	connect(longitude, &QDoubleSpinBox::valueChanged, this, changed);
-	connect(elevation, &QDoubleSpinBox::valueChanged, this, changed);
-	connect(timeZone, &QComboBox::currentTextChanged, this, changed);
-	connect(currentMonth, &QCheckBox::toggled, this, changed);
-	connect(firstEvening, &QDateEdit::dateChanged, this, changed);
-	connect(lastEvening, &QDateEdit::dateChanged, this, changed);
-	connect(autoWindow, &QCheckBox::toggled, this, changed);
-	connect(windowStart, &QTimeEdit::timeChanged, this, changed);
-	connect(windowEnd, &QTimeEdit::timeChanged, this, changed);
+	connect(followLocation, &QCheckBox::toggled, this, &SettingsEditor::onChanged);
+	connect(locationName, &QLineEdit::editingFinished, this, &SettingsEditor::onChanged);
+	connect(latitude, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
+	connect(longitude, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
+	connect(elevation, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
+	connect(timeZone, &QComboBox::currentTextChanged, this, &SettingsEditor::onChanged);
+	connect(currentMonth, &QCheckBox::toggled, this, &SettingsEditor::onChanged);
+	connect(firstEvening, &QDateEdit::dateChanged, this, &SettingsEditor::onChanged);
+	connect(lastEvening, &QDateEdit::dateChanged, this, &SettingsEditor::onChanged);
+	connect(autoWindow, &QCheckBox::toggled, this, &SettingsEditor::onChanged);
+	connect(windowStart, &QTimeEdit::timeChanged, this, &SettingsEditor::onChanged);
+	connect(windowEnd, &QTimeEdit::timeChanged, this, &SettingsEditor::onChanged);
 	return page;
+}
+
+void SettingsEditor::buildListEditor(ListEditor& editor, QBoxLayout* layout, bool upDown)
+{
+	editor.list = new QListWidget();
+	editor.list->setDragDropMode(QAbstractItemView::InternalMove);
+	editor.list->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	layout->addWidget(editor.list, 1);
+	editor.status = statusLabel();
+	layout->addWidget(editor.status);
+
+	auto* row = new QHBoxLayout();
+	editor.add = new QLineEdit();
+	row->addWidget(editor.add, 1);
+	auto* add = text(new QPushButton(), N_("Add"));
+	auto* remove = text(new QPushButton(), N_("Remove"));
+	row->addWidget(add);
+	row->addWidget(remove);
+	QListWidget* list = editor.list;
+	QLineEdit* addEdit = editor.add;
+	if (upDown)
+	{
+		auto* up = text(new QPushButton(), N_("Up"));
+		auto* down = text(new QPushButton(), N_("Down"));
+		row->addWidget(up);
+		row->addWidget(down);
+		auto move = [this, list](int step) {
+			const int from = list->currentRow();
+			const int to = from + step;
+			if (from < 0 || to < 0 || to >= list->count())
+				return;
+			list->insertItem(to, list->takeItem(from));
+			list->setCurrentRow(to);
+			store();
+		};
+		connect(up, &QPushButton::clicked, this, [move]() { move(-1); });
+		connect(down, &QPushButton::clicked, this, [move]() { move(1); });
+	}
+	layout->addLayout(row);
+
+	auto addName = [this, list, addEdit]() {
+		const QString name = addEdit->text().trimmed();
+		if (name.isEmpty())
+			return;
+		if (listItems(list).contains(name, Qt::CaseInsensitive))
+		{
+			addEdit->clear();
+			return;
+		}
+		list->addItem(name);
+		addEdit->clear();
+		store();
+	};
+	connect(add, &QPushButton::clicked, this, addName);
+	connect(addEdit, &QLineEdit::returnPressed, this, addName);
+	connect(remove, &QPushButton::clicked, this, [this, list]() {
+		qDeleteAll(list->selectedItems());
+		store();
+	});
+	connect(list->model(), &QAbstractItemModel::rowsMoved, this, &SettingsEditor::onChanged);
 }
 
 QWidget* SettingsEditor::buildStarsPage()
@@ -269,44 +353,16 @@ QWidget* SettingsEditor::buildStarsPage()
 	auto* page = new QWidget();
 	auto* layout = new QVBoxLayout(page);
 	layout->addWidget(label(N_("Stars whose meridian transits are drawn. Any name that Stellarium finds is accepted.")));
-	starList = new QListWidget();
-	starList->setDragDropMode(QAbstractItemView::InternalMove);
-	starList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	layout->addWidget(starList, 1);
-	starStatus = new QLabel();
-	starStatus->setWordWrap(true);
-	layout->addWidget(starStatus);
-
-	auto* row = new QHBoxLayout();
-	starAdd = new QLineEdit();
-	row->addWidget(starAdd, 1);
-	auto* add = text(new QPushButton(), N_("Add"));
-	auto* remove = text(new QPushButton(), N_("Remove"));
+	buildListEditor(stars, layout, false);
 	auto* reset = text(new QPushButton(), N_("Reset to default"));
-	row->addWidget(add);
-	row->addWidget(remove);
+	auto* row = new QHBoxLayout();
+	row->addStretch(1);
 	row->addWidget(reset);
 	layout->addLayout(row);
-
-	auto addName = [this]() {
-		const QString name = starAdd->text().trimmed();
-		if (name.isEmpty())
-			return;
-		starList->addItem(name);
-		starAdd->clear();
-		store();
-	};
-	connect(add, &QPushButton::clicked, this, addName);
-	connect(starAdd, &QLineEdit::returnPressed, this, addName);
-	connect(remove, &QPushButton::clicked, this, [this]() {
-		qDeleteAll(starList->selectedItems());
-		store();
-	});
 	connect(reset, &QPushButton::clicked, this, [this]() {
-		setListItems(starList, ChartSettings::defaultStars());
+		setListItems(stars.list, ChartSettings::defaultStars());
 		store();
 	});
-	connect(starList->model(), &QAbstractItemModel::rowsMoved, this, [this]() { if (!loading) store(); });
 	return page;
 }
 
@@ -337,13 +393,12 @@ void SettingsEditor::buildEdge(EdgeWidgets& edge, bool isEnd, QFormLayout* form,
 	layout->addStretch(1);
 	form->addRow(label(source), row);
 
-	auto changed = [this]() { if (!loading) store(); };
-	connect(edge.kind, &QComboBox::currentIndexChanged, this, changed);
-	connect(edge.clock, &QTimeEdit::timeChanged, this, changed);
-	connect(edge.event, &QComboBox::currentIndexChanged, this, changed);
-	connect(edge.offset, &QSpinBox::valueChanged, this, changed);
+	connect(edge.kind, &QComboBox::currentIndexChanged, this, &SettingsEditor::onChanged);
+	connect(edge.clock, &QTimeEdit::timeChanged, this, &SettingsEditor::onChanged);
+	connect(edge.event, &QComboBox::currentIndexChanged, this, &SettingsEditor::onChanged);
+	connect(edge.offset, &QSpinBox::valueChanged, this, &SettingsEditor::onChanged);
 	if (edge.duration)
-		connect(edge.duration, &QTimeEdit::timeChanged, this, changed);
+		connect(edge.duration, &QTimeEdit::timeChanged, this, &SettingsEditor::onChanged);
 }
 
 QWidget* SettingsEditor::buildPanelPage()
@@ -368,69 +423,23 @@ QWidget* SettingsEditor::buildPanelPage()
 	minDuration = new QTimeEdit();
 	minDuration->setDisplayFormat("H:mm");
 	form->addRow(label(N_("Minimum duration (0:00: at any time)")), minDuration);
-	panelSummary = new QLabel();
-	panelSummary->setWordWrap(true);
+	panelSummary = statusLabel();
 	form->addRow(label(N_("Heading")), panelSummary);
 	layout->addLayout(form);
 
 	layout->addWidget(label(N_("Targets, in column order (drag to reorder):")));
-	targetList = new QListWidget();
-	targetList->setDragDropMode(QAbstractItemView::InternalMove);
-	targetList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	layout->addWidget(targetList, 1);
-	targetStatus = new QLabel();
-	targetStatus->setWordWrap(true);
-	layout->addWidget(targetStatus);
-
-	auto* row = new QHBoxLayout();
-	targetAdd = new QLineEdit();
-	row->addWidget(targetAdd, 1);
-	auto* add = text(new QPushButton(), N_("Add"));
-	auto* remove = text(new QPushButton(), N_("Remove"));
-	auto* up = text(new QPushButton(), N_("Up"));
-	auto* down = text(new QPushButton(), N_("Down"));
-	row->addWidget(add);
-	row->addWidget(remove);
-	row->addWidget(up);
-	row->addWidget(down);
-	layout->addLayout(row);
+	targets.warnAboveTwenty = true;
+	buildListEditor(targets, layout, true);
 
 	fillKindCombos();
 	fillEventCombos();
 	fillPresetCombo();
 
-	auto changed = [this]() { if (!loading) store(); };
-	connect(panelEnabled, &QCheckBox::toggled, this, changed);
-	connect(panelPreset, &QComboBox::activated, this, [this](int index) { applyPreset(index); });
-	connect(panelTitle, &QLineEdit::editingFinished, this, changed);
-	connect(minAltitude, &QSpinBox::valueChanged, this, changed);
-	connect(minDuration, &QTimeEdit::timeChanged, this, changed);
-	auto addName = [this]() {
-		const QString name = targetAdd->text().trimmed();
-		if (name.isEmpty())
-			return;
-		targetList->addItem(name);
-		targetAdd->clear();
-		store();
-	};
-	connect(add, &QPushButton::clicked, this, addName);
-	connect(targetAdd, &QLineEdit::returnPressed, this, addName);
-	connect(remove, &QPushButton::clicked, this, [this]() {
-		qDeleteAll(targetList->selectedItems());
-		store();
-	});
-	auto move = [this](int step) {
-		const int row = targetList->currentRow();
-		const int to = row + step;
-		if (row < 0 || to < 0 || to >= targetList->count())
-			return;
-		targetList->insertItem(to, targetList->takeItem(row));
-		targetList->setCurrentRow(to);
-		store();
-	};
-	connect(up, &QPushButton::clicked, this, [move]() { move(-1); });
-	connect(down, &QPushButton::clicked, this, [move]() { move(1); });
-	connect(targetList->model(), &QAbstractItemModel::rowsMoved, this, [this]() { if (!loading) store(); });
+	connect(panelEnabled, &QCheckBox::toggled, this, &SettingsEditor::onChanged);
+	connect(panelPreset, &QComboBox::activated, this, &SettingsEditor::applyPreset);
+	connect(panelTitle, &QLineEdit::editingFinished, this, &SettingsEditor::onChanged);
+	connect(minAltitude, &QSpinBox::valueChanged, this, &SettingsEditor::onChanged);
+	connect(minDuration, &QTimeEdit::timeChanged, this, &SettingsEditor::onChanged);
 	return page;
 }
 
@@ -484,10 +493,9 @@ QWidget* SettingsEditor::buildAppearancePage()
 	layout->addLayout(row);
 	layout->addStretch(1);
 
-	auto changed = [this]() { if (!loading) store(); };
-	connect(starWidth, &QDoubleSpinBox::valueChanged, this, changed);
-	connect(moonMinWidth, &QDoubleSpinBox::valueChanged, this, changed);
-	connect(moonMaxWidth, &QDoubleSpinBox::valueChanged, this, changed);
+	connect(starWidth, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
+	connect(moonMinWidth, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
+	connect(moonMaxWidth, &QDoubleSpinBox::valueChanged, this, &SettingsEditor::onChanged);
 	connect(reset, &QPushButton::clicked, this, [this]() {
 		const ChartStyle defaults;
 		ChartStyle& s = current.style;
@@ -586,7 +594,8 @@ void SettingsEditor::load()
 	elevation->setValue(c.location.elevation);
 	timeZone->setCurrentText(c.location.timeZone);
 	currentMonth->setChecked(current.currentMonth);
-	const QDate today = QDate::currentDate();
+	// Without saved dates, show the month of Stellarium's date (CAL-L-06).
+	const QDate today = stellariumDate();
 	const QDate monthStart(today.year(), today.month(), 1);
 	firstEvening->setDate(c.firstEvening.isValid() ? c.firstEvening : monthStart);
 	lastEvening->setDate(c.lastEvening.isValid() ? c.lastEvening : monthStart.addMonths(1).addDays(-1));
@@ -594,7 +603,7 @@ void SettingsEditor::load()
 	windowStart->setTime(timeOf(c.windowStartClock));
 	windowEnd->setTime(timeOf(c.windowEndClock));
 
-	setListItems(starList, c.stars);
+	setListItems(stars.list, c.stars);
 
 	const PanelSettings& p = c.panel;
 	panelEnabled->setChecked(p.enabled);
@@ -603,7 +612,7 @@ void SettingsEditor::load()
 	setEdge(periodEnd, p.end);
 	minAltitude->setValue(static_cast<int>(std::lround(p.minAltitude)));
 	minDuration->setTime(timeOfHours(p.minDurationHours));
-	setListItems(targetList, p.targets);
+	setListItems(targets.list, p.targets);
 
 	for (int k = 0; k < 4; ++k)
 		setColorButton(bandColor[k], current.style.bandColor[k]);
@@ -614,49 +623,34 @@ void SettingsEditor::load()
 	moonMinWidth->setValue(current.style.moonMinWidth);
 	moonMaxWidth->setValue(current.style.moonMaxWidthFactor);
 
+	// The lists were refilled: check all names again.
+	stars.checked.clear();
+	targets.checked.clear();
 	refreshDerived();
 	loading = false;
-}
-
-void SettingsEditor::refreshDerived()
-{
-	const bool wasLoading = loading;
-	loading = true;
-	const PanelSettings& p = current.chart.panel;
-	panelPreset->setCurrentIndex(presetIndex());
-	// CAL-G-11: the heading as the chart shows it.
-	panelSummary->setText(p.title.isEmpty() ? p.summary() : QString("%1 — %2").arg(p.title, p.summary()));
-	updateEnabled();
-	checkNames(starList, starStatus, false);
-	checkNames(targetList, targetStatus, true);
-	loading = wasLoading;
 }
 
 void SettingsEditor::store()
 {
 	ChartSettings& c = current.chart;
 
+	// A custom location is kept even while its time zone is not valid; the page says so.
 	current.followStellariumLocation = followLocation->isChecked();
 	if (!current.followStellariumLocation)
 	{
-		const QString tz = timeZone->currentText().trimmed();
-		c.location = { locationName->text().trimmed(), latitude->value(), longitude->value(), elevation->value(), tz };
-		current.hasSavedLocation = isValidTimeZone(tz);
+		c.location = { locationName->text().trimmed(), latitude->value(), longitude->value(),
+			       elevation->value(), timeZone->currentText().trimmed() };
+		current.hasSavedLocation = true;
 	}
+	// The dates are stored as entered; the page reports an invalid range.
 	current.currentMonth = currentMonth->isChecked();
 	c.firstEvening = firstEvening->date();
 	c.lastEvening = lastEvening->date();
-	if (c.lastEvening < c.firstEvening)
-	{
-		c.lastEvening = c.firstEvening;
-		const QSignalBlocker block(lastEvening);
-		lastEvening->setDate(c.lastEvening);
-	}
 	c.autoWindow = autoWindow->isChecked();
 	c.windowStartClock = minutesOf(windowStart->time());
 	c.windowEndClock = minutesOf(windowEnd->time());
 
-	c.stars = listItems(starList);
+	c.stars = listItems(stars.list);
 
 	PanelSettings& p = c.panel;
 	p.enabled = panelEnabled->isChecked();
@@ -665,7 +659,7 @@ void SettingsEditor::store()
 	p.end = readEdge(periodEnd);
 	p.minAltitude = minAltitude->value();
 	p.minDurationHours = hoursOf(minDuration->time());
-	p.targets = listItems(targetList);
+	p.targets = listItems(targets.list);
 
 	for (int k = 0; k < 4; ++k)
 		current.style.bandColor[k] = colorOf(bandColor[k]);
@@ -679,6 +673,35 @@ void SettingsEditor::store()
 	// The widgets keep their state (lists are not refilled, which could disturb a drag).
 	refreshDerived();
 	emit changed(current);
+}
+
+void SettingsEditor::refreshDerived()
+{
+	const bool wasLoading = loading;
+	loading = true;
+	const ChartSettings& c = current.chart;
+	const PanelSettings& p = c.panel;
+	panelPreset->setCurrentIndex(presetIndex());
+	// CAL-G-11: the heading as the chart shows it.
+	panelSummary->setText(p.title.isEmpty() ? p.summary() : QString("%1 — %2").arg(p.title, p.summary()));
+
+	locationStatus->setText(!current.followStellariumLocation && !isValidTimeZone(c.location.timeZone)
+		? q_("Unknown time zone. Select one from the list.") : QString());
+	QString dates;
+	if (!current.currentMonth)
+	{
+		const qint64 nights = c.firstEvening.daysTo(c.lastEvening) + 1;
+		if (nights < 1)
+			dates = q_("The last evening is before the first evening.");
+		else if (nights > ChartSettings::MaxNights)
+			dates = q_("The date range has more than %1 nights.").arg(ChartSettings::MaxNights);
+	}
+	dateStatus->setText(dates);
+
+	updateEnabled();
+	checkNames(stars);
+	checkNames(targets);
+	loading = wasLoading;
 }
 
 void SettingsEditor::updateEnabled()
@@ -704,16 +727,20 @@ void SettingsEditor::updateEnabled()
 
 // ---------------------------------------------------------------- names
 
-void SettingsEditor::checkNames(QListWidget* list, QLabel* status, bool warnAboveTwenty)
+void SettingsEditor::checkNames(ListEditor& editor)
 {
-	// CAL-S-07, CAL-G-12: report names that Stellarium cannot find.
+	// CAL-S-07, CAL-G-12: report names that Stellarium cannot find. Only when the list changed.
+	const QStringList names = listItems(editor.list);
+	if (names == editor.checked)
+		return;
+	editor.checked = names;
 	const StelObjectMgr* objectMgr = GETSTELMODULE(StelObjectMgr);
 	QStringList missing;
-	for (int i = 0; i < list->count(); ++i)
+	for (int i = 0; i < editor.list->count(); ++i)
 	{
-		QListWidgetItem* item = list->item(i);
+		QListWidgetItem* item = editor.list->item(i);
 		const bool found = !objectMgr || objectMgr->searchByName(item->text());
-		item->setForeground(found ? list->palette().color(QPalette::Text) : NOT_FOUND_COLOR);
+		item->setForeground(found ? editor.list->palette().color(QPalette::Text) : NOT_FOUND_COLOR);
 		item->setToolTip(found ? QString() : q_("Stellarium cannot find this name. It is left out of the chart."));
 		if (!found)
 			missing.append(item->text());
@@ -722,9 +749,9 @@ void SettingsEditor::checkNames(QListWidget* list, QLabel* status, bool warnAbov
 	if (!missing.isEmpty())
 		lines.append(q_("Not found, left out: %1").arg(missing.join(", ")));
 	// CAL-G-14
-	if (warnAboveTwenty && list->count() > MANY_TARGETS)
+	if (editor.warnAboveTwenty && editor.list->count() > MANY_TARGETS)
 		lines.append(q_("More than %1 targets: the chart may become too narrow.").arg(MANY_TARGETS));
-	status->setText(lines.join("\n"));
+	editor.status->setText(lines.join("\n"));
 }
 
 // ---------------------------------------------------------------- presets
@@ -747,8 +774,16 @@ void SettingsEditor::applyPreset(int index)
 {
 	if (index == CUSTOM_PRESET || loading)
 		return;
+	// The preset gives the period, altitude and duration. The panel switch, the
+	// targets and a title that the user entered are kept (CAL-G-11).
+	const PanelSettings old = current.chart.panel;
 	PanelSettings p = (index == 0) ? PanelSettings::visualPreset() : PanelSettings::astrophotographyPreset();
-	p.targets = current.chart.panel.targets;
+	const bool presetTitle = old.title.isEmpty() || old.title == PanelSettings::visualPreset().title
+				 || old.title == PanelSettings::astrophotographyPreset().title;
+	if (!presetTitle)
+		p.title = old.title;
+	p.enabled = old.enabled;
+	p.targets = old.targets;
 	current.chart.panel = p;
 	load();
 	emit changed(current);

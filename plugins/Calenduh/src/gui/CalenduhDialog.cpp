@@ -28,7 +28,8 @@
 #include "StelTranslator.hpp"
 
 #include <QCoreApplication>
-#include <QRegularExpression>
+#include <QDir>
+#include <QFileInfo>
 #include <QTimer>
 #include <memory>
 
@@ -63,6 +64,8 @@ void CalenduhDialog::retranslate()
 
 void CalenduhDialog::setVisible(bool visible)
 {
+	if (!visible)
+		saveSettingsNow();
 	StelDialog::setVisible(visible);
 	if (visible && dialog && !generatedOnce)
 	{
@@ -90,6 +93,10 @@ void CalenduhDialog::createDialogContent()
 	connect(ui->listWidgetPages, &QListWidget::currentRowChanged, ui->stackedWidget, &QStackedWidget::setCurrentIndex);
 	ui->listWidgetPages->setCurrentRow(0);
 	connect(editor, &SettingsEditor::changed, this, &CalenduhDialog::settingsChanged);
+	saveTimer = new QTimer(this);
+	saveTimer->setSingleShot(true);
+	saveTimer->setInterval(500);
+	connect(saveTimer, &QTimer::timeout, this, &CalenduhDialog::saveSettingsNow);
 
 	connect(ui->pushButtonGenerate, &QPushButton::clicked, this, &CalenduhDialog::generate);
 	connect(ui->pushButtonCancel, &QPushButton::clicked, job, &calenduh::ChartJob::cancel);
@@ -100,6 +107,8 @@ void CalenduhDialog::generate()
 {
 	if (!dialog)
 		return;
+	saveSettingsNow();
+	changedDuringJob = false;
 	Calenduh* plugin = GETSTELMODULE(Calenduh);
 	calenduh::ChartSettings settings;
 	QString error;
@@ -134,8 +143,8 @@ void CalenduhDialog::runDialogCheck(const QString& pngPath, bool quit)
 			{
 				ui->listWidgetPages->setCurrentRow(i);
 				QCoreApplication::processEvents();
-				QString pagePath = pngPath;
-				pagePath.replace(QRegularExpression("\\.png$"), QString("-page%1.png").arg(i));
+				const QFileInfo info(pngPath);
+				const QString pagePath = info.dir().filePath(QString("%1-page%2.png").arg(info.completeBaseName()).arg(i));
 				dialog->grab().save(pagePath);
 			}
 			if (dialog)
@@ -163,9 +172,14 @@ void CalenduhDialog::jobFinished(const calenduh::ChartModel& model, const QStrin
 	ui->preview->setChart(model, jobStyle, jobPage);
 	// CAL-S-07, CAL-G-12: names that Stellarium cannot find are left out and reported.
 	shownUnresolved = unresolvedNames;
-	setStatus([unresolvedNames]() {
-		return unresolvedNames.isEmpty() ? QString()
-			: q_("Not found, left out: %1").arg(unresolvedNames.join(", "));
+	const bool outOfDate = changedDuringJob;
+	setStatus([unresolvedNames, outOfDate]() {
+		QStringList lines;
+		if (outOfDate)
+			lines.append(q_("Settings changed during the calculation. Generate the chart again to apply them."));
+		if (!unresolvedNames.isEmpty())
+			lines.append(q_("Not found, left out: %1").arg(unresolvedNames.join(", ")));
+		return lines.join(" ");
 	});
 }
 
@@ -195,11 +209,23 @@ void CalenduhDialog::jobFailed(const QString& message)
 	setStatus([message]() { return message; });
 }
 
-void CalenduhDialog::settingsChanged(const calenduh::UserSettings& settings)
+void CalenduhDialog::settingsChanged(const calenduh::UserSettings&)
 {
-	GETSTELMODULE(Calenduh)->setUserSettings(settings);
-	if (ui->preview->hasChart() && !job->isRunning())
+	savePending = true;
+	saveTimer->start();
+	if (job->isRunning())
+		changedDuringJob = true;
+	else if (ui->preview->hasChart())
 		setStatus([]() { return q_("Settings changed. Generate the chart again to apply them."); });
+}
+
+void CalenduhDialog::saveSettingsNow()
+{
+	if (!savePending)
+		return;
+	savePending = false;
+	saveTimer->stop();
+	GETSTELMODULE(Calenduh)->setUserSettings(editor->settings());
 }
 
 void CalenduhDialog::setStatus(std::function<QString()> text)
