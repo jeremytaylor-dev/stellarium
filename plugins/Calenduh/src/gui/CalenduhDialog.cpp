@@ -28,6 +28,7 @@
 
 #include <QCoreApplication>
 #include <QTimer>
+#include <memory>
 
 CalenduhDialog::CalenduhDialog()
 	: StelDialog("Calenduh")
@@ -48,14 +49,20 @@ CalenduhDialog::~CalenduhDialog()
 void CalenduhDialog::retranslate()
 {
 	if (dialog)
+	{
 		ui->retranslateUi(dialog);
+		setStatus(statusText);
+	}
 }
 
 void CalenduhDialog::setVisible(bool visible)
 {
 	StelDialog::setVisible(visible);
-	if (visible && dialog && !ui->preview->hasChart() && !job->isRunning())
+	if (visible && dialog && !generatedOnce)
+	{
+		generatedOnce = true;
 		generate();
+	}
 }
 
 void CalenduhDialog::createDialogContent()
@@ -83,13 +90,20 @@ void CalenduhDialog::generate()
 		jobFailed(error);
 		return;
 	}
-	ui->labelStatus->setText(q_("Calculating..."));
+	jobStyle = plugin->getUserSettings().style;
+	jobPage = plugin->getUserSettings().exportOptions.pagePoints();
+	setStatus([]() { return q_("Calculating..."); });
 	setRunning(true);
 }
 
 void CalenduhDialog::runDialogCheck(const QString& pngPath, bool quit)
 {
-	auto save = [this, pngPath, quit]() {
+	// Connections that end at the first finish or failure (no Qt::SingleShotConnection: Qt 5).
+	auto connections = std::make_shared<QList<QMetaObject::Connection>>();
+	auto save = [this, pngPath, quit, connections]() {
+		for (const QMetaObject::Connection& c : std::as_const(*connections))
+			disconnect(c);
+		connections->clear();
 		// Let the preview paint before the grab.
 		QTimer::singleShot(500, this, [this, pngPath, quit]() {
 			const bool ok = dialog && dialog->grab().save(pngPath);
@@ -99,40 +113,51 @@ void CalenduhDialog::runDialogCheck(const QString& pngPath, bool quit)
 				QTimer::singleShot(0, qApp, &QCoreApplication::quit);
 		});
 	};
-	connect(job, &calenduh::ChartJob::finished, this, save, Qt::SingleShotConnection);
-	connect(job, &calenduh::ChartJob::failed, this, save, Qt::SingleShotConnection);
+	connections->append(connect(job, &calenduh::ChartJob::finished, this, save));
+	connections->append(connect(job, &calenduh::ChartJob::failed, this, save));
 	setVisible(true);
 	if (!job->isRunning())
 		save();
 }
 
-void CalenduhDialog::jobProgress(int nightsDone, int nights)
+void CalenduhDialog::jobProgress(int stepsDone, int steps)
 {
-	ui->progressBar->setMaximum(nights);
-	ui->progressBar->setValue(nightsDone);
+	ui->progressBar->setMaximum(steps);
+	ui->progressBar->setValue(stepsDone);
 }
 
 void CalenduhDialog::jobFinished(const calenduh::ChartModel& model, const QStringList& unresolvedNames)
 {
 	setRunning(false);
-	const calenduh::UserSettings& settings = GETSTELMODULE(Calenduh)->getUserSettings();
-	ui->preview->setChart(model, settings.style, settings.exportOptions.pagePoints());
+	ui->preview->setChart(model, jobStyle, jobPage);
 	// CAL-S-07, CAL-G-12: names that Stellarium cannot find are left out and reported.
-	ui->labelStatus->setText(unresolvedNames.isEmpty()
-		? QString()
-		: q_("Not found, left out: %1").arg(unresolvedNames.join(", ")));
+	setStatus([unresolvedNames]() {
+		return unresolvedNames.isEmpty() ? QString()
+			: q_("Not found, left out: %1").arg(unresolvedNames.join(", "));
+	});
 }
 
 void CalenduhDialog::jobCancelled()
 {
 	setRunning(false);
-	ui->labelStatus->setText(q_("Calculation cancelled."));
+	const bool previous = ui->preview->hasChart();
+	setStatus([previous]() {
+		return previous ? q_("Calculation cancelled. The chart shown is the previous one.")
+				: q_("Calculation cancelled.");
+	});
 }
 
 void CalenduhDialog::jobFailed(const QString& message)
 {
 	setRunning(false);
-	ui->labelStatus->setText(message);
+	ui->preview->clearChart();
+	setStatus([message]() { return message; });
+}
+
+void CalenduhDialog::setStatus(std::function<QString()> text)
+{
+	statusText = std::move(text);
+	ui->labelStatus->setText(statusText ? statusText() : QString());
 }
 
 void CalenduhDialog::setRunning(bool running)

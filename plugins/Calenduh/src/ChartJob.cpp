@@ -45,11 +45,11 @@ bool ChartJob::start(const ChartSettings& settings, QString* error)
 	if (SolarSystem* solarSystem = GETSTELMODULE(SolarSystem))
 		connect(solarSystem, &SolarSystem::solarSystemDataReloaded, this, &ChartJob::solarSystemReloaded, Qt::UniqueConnection);
 	auto s = std::make_unique<EphemerisSampler>(settings);
-	if (!s->prepare(error))
+	if (!s->begin(error))
 		return false;
 	sampler = std::move(s);
 	next = 0;
-	emit progress(0, sampler->nightCount());
+	emit progress(0, 2 * sampler->nightCount());
 	timer.start();
 	return true;
 }
@@ -67,10 +67,18 @@ void ChartJob::step()
 {
 	if (!isRunning())
 		return;
-	sampler->computeNight(next++);
 	const int nights = sampler->nightCount();
-	emit progress(next, nights);
 	if (next < nights)
+	{
+		sampler->computeSunNight(next);
+		if (next == nights - 1)
+			sampler->chooseTimeWindow();
+	}
+	else
+		sampler->computeNight(next - nights);
+	++next;
+	emit progress(next, 2 * nights);
+	if (next < 2 * nights)
 	{
 		timer.start();
 		return;

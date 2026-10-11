@@ -33,9 +33,9 @@ namespace calenduh {
 class EphemerisSampler;
 
 //! Computes a chart model without blocking the user interface (CAL-I-07,
-//! architecture section 5.6): one night per event-loop turn, with progress and
-//! cancel. A reload of the Solar System data stops the job, because the sampler
-//! holds pointers into that data.
+//! architecture section 5.6): one step per event-loop turn (the Sun events of a
+//! night, then the rest of a night), with progress and cancel. A reload of the
+//! Solar System data stops the job, because the sampler holds pointers into it.
 class ChartJob : public QObject
 {
 	Q_OBJECT
@@ -52,7 +52,7 @@ public:
 	bool isRunning() const { return sampler != nullptr; }
 
 signals:
-	void progress(int nightsDone, int nights);
+	void progress(int stepsDone, int steps);
 	void finished(const calenduh::ChartModel& model, const QStringList& unresolvedNames);
 	void cancelled();
 	void failed(const QString& message);
@@ -63,7 +63,7 @@ private slots:
 
 private:
 	std::unique_ptr<EphemerisSampler> sampler;
-	int next = 0;
+	int next = 0;           //!< next step: 0..n-1 Sun events, n..2n-1 nights
 	QTimer timer;
 };
 

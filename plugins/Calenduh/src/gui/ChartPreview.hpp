@@ -25,6 +25,7 @@
 
 #include <QImage>
 #include <QSizeF>
+#include <QTimer>
 #include <QWidget>
 #include <optional>
 
@@ -49,6 +50,7 @@ public:
 
 protected:
 	void paintEvent(QPaintEvent* event) override;
+	void resizeEvent(QResizeEvent* event) override;
 
 private:
 	std::optional<calenduh::ChartModel> model;
@@ -57,6 +59,7 @@ private:
 	QString message;
 	QImage cache;           //!< rendered page at the current widget size
 	QSize cacheKey;         //!< device-pixel size the cache was made for
+	QTimer settleTimer;     //!< renders again when a resize has stopped
 	QRectF pageRect() const;
 };
 

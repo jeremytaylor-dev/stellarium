@@ -22,6 +22,7 @@
 
 #include <QPainter>
 #include <algorithm>
+#include <cmath>
 
 namespace {
 constexpr double MARGIN = 8.;  // pixels around the page
@@ -32,6 +33,15 @@ ChartPreview::ChartPreview(QWidget* parent)
 	, page(calenduh::ChartExporter::defaultPageSize())
 {
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	settleTimer.setSingleShot(true);
+	settleTimer.setInterval(150);
+	connect(&settleTimer, &QTimer::timeout, this, [this]() { cacheKey = QSize(); update(); });
+}
+
+void ChartPreview::resizeEvent(QResizeEvent* event)
+{
+	QWidget::resizeEvent(event);
+	settleTimer.start();
 }
 
 void ChartPreview::setChart(const calenduh::ChartModel& m, const calenduh::ChartStyle& s, const QSizeF& pagePoints)
@@ -59,7 +69,7 @@ QRectF ChartPreview::pageRect() const
 		return QRectF();
 	const double scale = std::min(area.width() / page.width(), area.height() / page.height());
 	const QSizeF size = page * scale;
-	return QRectF(QPointF((width() - size.width()) / 2., (height() - size.height()) / 2.), size);
+	return QRectF(QPointF(std::round((width() - size.width()) / 2.), std::round((height() - size.height()) / 2.)), size);
 }
 
 void ChartPreview::paintEvent(QPaintEvent*)
@@ -74,8 +84,15 @@ void ChartPreview::paintEvent(QPaintEvent*)
 	}
 
 	// Render at device pixels; the image keeps the renderer's 72-dpi font metrics.
+	// While a resize is in progress, the old image is scaled.
 	const double ratio = devicePixelRatioF();
 	const QSize pixels = (target.size() * ratio).toSize();
+	if (!cache.isNull() && cacheKey != pixels && settleTimer.isActive())
+	{
+		painter.setRenderHint(QPainter::SmoothPixmapTransform);
+		painter.drawImage(target, cache);
+		return;
+	}
 	if (cache.isNull() || cacheKey != pixels)
 	{
 		const double dpi = 72. * pixels.width() / page.width();

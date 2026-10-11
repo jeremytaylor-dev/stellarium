@@ -43,8 +43,10 @@ namespace calenduh {
 //! (CAL-I-06), and it does not depend on the planet of the Stellarium observer
 //! (CAL-I-09). Must run on the GUI thread (catalogue lookups).
 //!
-//! Use: prepare(), then computeNight(i) for each night (one per event-loop turn,
-//! architecture section 5.6), then model().
+//! Use: prepare(), then computeNight(i) for each night, then model(). To keep
+//! the user interface responsive (architecture section 5.6), call the stages of
+//! prepare() one per event-loop turn instead: begin(), computeSunNight(i) for
+//! each night, chooseTimeWindow(); then computeNight(i) one per turn.
 class EphemerisSampler
 {
 public:
@@ -53,6 +55,13 @@ public:
 	//! Resolve names, compute the Sun events of all nights and the time window.
 	//! Returns false and sets @p error on failure.
 	bool prepare(QString* error = nullptr);
+
+	//! First stage of prepare(): check the settings, make the rows, resolve names.
+	bool begin(QString* error = nullptr);
+	//! Second stage of prepare(): the Sun events of night @p index.
+	void computeSunNight(int index);
+	//! Last stage of prepare(): the time window, from the Sun events of all nights.
+	void chooseTimeWindow() { chooseWindow(); }
 
 	int nightCount() const { return model_.rows.size(); }
 

@@ -22,6 +22,10 @@
 
 #include "StelDialog.hpp"
 #include "ChartModel.hpp"
+#include "ChartStyle.hpp"
+
+#include <QSizeF>
+#include <functional>
 
 class Ui_calenduhDialogForm;
 namespace calenduh { class ChartJob; }
@@ -50,7 +54,7 @@ protected:
 	void createDialogContent() override;
 
 private slots:
-	void jobProgress(int nightsDone, int nights);
+	void jobProgress(int stepsDone, int steps);
 	void jobFinished(const calenduh::ChartModel& model, const QStringList& unresolvedNames);
 	void jobCancelled();
 	void jobFailed(const QString& message);
@@ -58,8 +62,13 @@ private slots:
 private:
 	Ui_calenduhDialogForm* ui;
 	calenduh::ChartJob* job;
+	bool generatedOnce = false;       //!< the first opening has started a chart
+	calenduh::ChartStyle jobStyle;    //!< style and page in force when the job started
+	QSizeF jobPage;
+	std::function<QString()> statusText;  //!< status line, built again after a language change
 
 	void setRunning(bool running);
+	void setStatus(std::function<QString()> text);
 };
 
 #endif /* CALENDUHDIALOG_HPP */
