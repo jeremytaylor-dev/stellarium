@@ -630,6 +630,13 @@ ELSE()
      MESSAGE(STATUS "Found Qt${QT_VERSION_MAJOR}: ${QMAKE_LOCATION} (found suitable version ${QT_VERSION})")
 ENDIF()
 
+# The Calenduh plugin uses Qt 6 API. With Qt 5 it is left out; the cache value is kept,
+# so that a later Qt 6 configure in the same build folder builds it again.
+IF(USE_PLUGIN_CALENDUH AND QT_VERSION_MAJOR LESS 6)
+     MESSAGE(STATUS "The Calenduh plugin needs Qt 6. It is not built with Qt ${QT_VERSION}.")
+     SET(USE_PLUGIN_CALENDUH 0)
+ENDIF()
+
 FIND_PACKAGE(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent Gui Network Widgets Charts Positioning REQUIRED)
 IF(Qt6_FOUND)
      FIND_PACKAGE(Qt6 COMPONENTS SvgWidgets REQUIRED)

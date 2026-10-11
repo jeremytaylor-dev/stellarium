@@ -236,10 +236,11 @@ private slots:
 		QCOMPARE(fixedOffsetTimeZone(-(9 * 60 + 30)), QString("UTC-09:30"));
 		for (int minutes : { 0, 699, -37, 12 * 60 + 45, -(9 * 60 + 30) })
 		{
-			const QTimeZone tz(fixedOffsetTimeZone(minutes).toUtf8());
+			const QTimeZone tz = chartTimeZone(fixedOffsetTimeZone(minutes));
 			QVERIFY2(tz.isValid(), qPrintable(fixedOffsetTimeZone(minutes)));
 			QCOMPARE(tz.offsetFromUtc(QDateTime::currentDateTimeUtc()), minutes * 60);
 		}
+		QVERIFY(chartTimeZone("Pacific/Auckland").isValid());
 	}
 
 	void pagePoints()

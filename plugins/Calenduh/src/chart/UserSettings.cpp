@@ -57,7 +57,7 @@ void readClock(const QSettings& conf, const QString& key, int& minutes)
 
 void readColor(const QSettings& conf, const QString& key, QColor& color)
 {
-	const QColor c = QColor::fromString(conf.value(key).toString());
+	const QColor c(conf.value(key).toString());
 	if (c.isValid())
 		color = c;
 }
@@ -94,7 +94,7 @@ QString edgeText(const PeriodEdge& edge)
 
 bool isValidTimeZone(const QString& id)
 {
-	return !id.trimmed().isEmpty() && QTimeZone(id.toUtf8()).isValid();
+	return !id.trimmed().isEmpty() && chartTimeZone(id).isValid();
 }
 
 QString fixedOffsetTimeZone(int minutesAheadOfUtc)

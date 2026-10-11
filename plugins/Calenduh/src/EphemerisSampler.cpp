@@ -92,7 +92,7 @@ Mat4d earthJ2000ToDate(double jde)
 
 EphemerisSampler::EphemerisSampler(const ChartSettings& settings)
 	: settings(settings)
-	, timeZone(settings.location.timeZone.toUtf8())
+	, timeZone(chartTimeZone(settings.location.timeZone))
 {
 }
 

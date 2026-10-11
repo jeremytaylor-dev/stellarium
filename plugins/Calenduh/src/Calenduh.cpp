@@ -266,7 +266,7 @@ void Calenduh::runSamplerCheck()
 	QString autoWindow;
 	if (autoSampler.prepare())
 	{
-		const QTimeZone tz(settings.location.timeZone.toUtf8());
+		const QTimeZone tz = calenduh::chartTimeZone(settings.location.timeZone);
 		const auto& r = autoSampler.model().rows.first();
 		autoWindow = calenduh::jdToDateTime(r.windowStart).toTimeZone(tz).toString("HH:mm") + "-"
 			     + calenduh::jdToDateTime(r.windowEnd).toTimeZone(tz).toString("HH:mm");
