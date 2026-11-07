@@ -256,6 +256,7 @@ void Calenduh::runSamplerCheck()
 	}
 	for (int i = 0; i < sampler.nightCount(); ++i)
 		sampler.computeNight(i);
+	sampler.computeEvents();
 	const qint64 elapsed = timer.elapsed();
 
 	// Also report the automatic window (CAL-L-07) for comparison with the fixture's window.

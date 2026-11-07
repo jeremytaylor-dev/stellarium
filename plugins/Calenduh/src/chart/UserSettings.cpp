@@ -32,6 +32,9 @@ namespace {
 
 const QString GROUP = QStringLiteral("Calenduh");
 const char* const BAND_KEYS[4] = { "color_band_sunset", "color_band_civil", "color_band_nautical", "color_band_astronomical" };
+//! CAL-E-01, CAL-E-11: one switch per EventKind, in its order.
+const char* const EVENT_KEYS[EventKindCount] = { "event_solar_eclipses", "event_lunar_eclipses",
+						 "event_oppositions", "event_greatest_elongations" };
 
 QString clockText(int minutes)
 {
@@ -183,6 +186,10 @@ void UserSettings::load(QSettings& conf)
 	if (conf.contains("panel_targets"))
 		p.targets = conf.value("panel_targets").toStringList();
 
+	// Notable events (CAL-E-01)
+	for (int k = 0; k < EventKindCount; ++k)
+		chart.events[k] = conf.value(EVENT_KEYS[k], chart.events[k]).toBool();
+
 	// Colours and line weights (CAL-T-08, CAL-S-05, CAL-M-02, CAL-M-03, CAL-M-10)
 	for (int k = 0; k < 4; ++k)
 		readColor(conf, BAND_KEYS[k], style.bandColor[k]);
@@ -193,6 +200,7 @@ void UserSettings::load(QSettings& conf)
 	readPositive(conf, "moon_min_width", style.moonMinWidth);
 	readPositive(conf, "moon_max_width_factor", style.moonMaxWidthFactor);
 	style.moonMaxWidthFactor = std::min(style.moonMaxWidthFactor, 1.);
+	readColor(conf, "color_event", style.eventColor);
 
 	// Export (CAL-I-05)
 	const QString format = conf.value("export_format").toString();
@@ -256,6 +264,9 @@ void UserSettings::save(QSettings& conf) const
 	conf.setValue("panel_min_duration", p.minDurationHours);
 	conf.setValue("panel_targets", p.targets);
 
+	for (int k = 0; k < EventKindCount; ++k)
+		conf.setValue(EVENT_KEYS[k], chart.events[k]);
+
 	for (int k = 0; k < 4; ++k)
 		conf.setValue(BAND_KEYS[k], style.bandColor[k].name());
 	conf.setValue("color_star_line", style.starLineColor.name());
@@ -264,6 +275,7 @@ void UserSettings::save(QSettings& conf) const
 	conf.setValue("color_moon_day", style.moonDayColor.name());
 	conf.setValue("moon_min_width", style.moonMinWidth);
 	conf.setValue("moon_max_width_factor", style.moonMaxWidthFactor);
+	conf.setValue("color_event", style.eventColor.name());
 
 	conf.setValue("export_format", ExportOptions::formatSuffix(exportOptions.format));
 	conf.setValue("export_page_size", QPageSize::key(exportOptions.pageSize));

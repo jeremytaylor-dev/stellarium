@@ -68,6 +68,10 @@ public:
 	//! Moon, star transits and target panel of night @p index.
 	void computeNight(int index);
 
+	//! Notable events of all nights (requirements section 8a). Needs the time
+	//! window and the Moon curves, so call it after computeNight() for every night.
+	void computeEvents();
+
 	//! The chart model; complete after computeNight() for every night.
 	const ChartModel& model() const { return model_; }
 
@@ -95,6 +99,8 @@ private:
 	Body sunBody, moonBody;
 	QVector<Body> stars;
 	QVector<Body> targets;
+	QVector<Body> outerPlanets;             //!< oppositions (CAL-E-02)
+	QVector<Body> innerPlanets;             //!< greatest elongations (CAL-E-02)
 
 	double latitude = 0.;                   //!< radians
 	Vec3d observerShape;                    //!< (rho cos phi', 0, rho sin phi') in AU
@@ -114,6 +120,20 @@ private:
 	Vec3d topocentricEquatorial(const Body& body, double jd, double theta) const;
 	double altitude(const Body& body, double jd, bool refraction) const;
 	double findCrossing(const Body& body, bool refraction, double jdA, double jdB, double level) const;
+
+	// Notable events (EphemerisSampler.cpp, requirements section 8a).
+	void setEpoch(double jd);
+	//! Geocentric position [AU] in the VSOP87 J2000 ecliptic frame. Planets: corrected
+	//! for light time; with @p apparent also for aberration. The Moon is geometric.
+	Vec3d eventGeocentric(const Body& body, double jd, bool apparent) const;
+	//! Topocentric position [AU] in the equatorial frame of the epoch set by setEpoch().
+	Vec3d eventTopocentric(const Body& body, double jd, bool apparent) const;
+	double eclipticLongitude(const Body& body, double jd, bool apparent) const;
+	//! CAL-E-09: the time of the smallest @p separation in [c1, c4] with @p body above
+	//! @p level; empty if the body is below it all the time.
+	template <class Separation>
+	std::optional<double> visibleBest(double c1, double c4, double tMax, Separation separation,
+					  const Body& body, bool refraction, double level);
 };
 
 } // namespace calenduh

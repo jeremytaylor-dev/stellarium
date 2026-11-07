@@ -52,7 +52,7 @@ bool ChartJob::start(const ChartSettings& settings, QString* error)
 		return false;
 	sampler = std::move(s);
 	next = 0;
-	emit progress(0, 2 * sampler->nightCount());
+	emit progress(0, 2 * sampler->nightCount() + 1);
 	timer.start();
 	return true;
 }
@@ -77,13 +77,15 @@ void ChartJob::step()
 		if (next == nights - 1)
 			sampler->chooseTimeWindow();
 	}
-	else
+	else if (next < 2 * nights)
 		sampler->computeNight(next - nights);
+	else
+		sampler->computeEvents();
 	++next;
-	if (next < 2 * nights)
+	if (next <= 2 * nights)
 	{
 		const quint64 current = generation;
-		emit progress(next, 2 * nights);
+		emit progress(next, 2 * nights + 1);
 		// A receiver can have cancelled this job or started another one.
 		if (isRunning() && generation == current)
 			timer.start();
@@ -91,7 +93,7 @@ void ChartJob::step()
 	}
 	// Release the sampler before the signals, so that a receiver can start a new job.
 	const std::unique_ptr<EphemerisSampler> done = std::move(sampler);
-	emit progress(next, 2 * nights);
+	emit progress(next, 2 * nights + 1);
 	emit finished(done->model(), done->unresolvedNames());
 }
 

@@ -45,7 +45,7 @@ class QToolButton;
 class QWidget;
 
 //! The settings pages of the Calenduh window: location and dates, stars,
-//! target panel, appearance. Edits UserSettings; every change emits changed().
+//! target panel, events, appearance, page and export. Edits UserSettings; every change emits changed().
 //! Names of stars and targets are checked with Stellarium's object search
 //! (CAL-S-07, CAL-G-12).
 class SettingsEditor : public QObject
@@ -128,6 +128,9 @@ private:
 	QLabel* panelSummary = nullptr;
 	ListEditor targets;
 
+	// Notable events (CAL-E-01, CAL-E-11)
+	QCheckBox* eventEnabled[calenduh::EventKindCount] = {};
+
 	// Appearance
 	QToolButton* bandColor[4] = {};
 	QToolButton* starColor = nullptr;
@@ -136,6 +139,7 @@ private:
 	QToolButton* moonDayColor = nullptr;
 	QDoubleSpinBox* moonMinWidth = nullptr;
 	QDoubleSpinBox* moonMaxWidth = nullptr;
+	QToolButton* eventColor = nullptr;
 
 	// Page and export (CAL-I-05)
 	QComboBox* pageSize = nullptr;
@@ -145,6 +149,7 @@ private:
 	QWidget* buildLocationPage();
 	QWidget* buildStarsPage();
 	QWidget* buildPanelPage();
+	QWidget* buildEventsPage();
 	QWidget* buildAppearancePage();
 	QWidget* buildExportPage();
 	void buildEdge(EdgeWidgets& edge, bool isEnd, QFormLayout* form, const char* label);
