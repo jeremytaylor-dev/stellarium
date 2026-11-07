@@ -35,6 +35,7 @@ constexpr double MS_PER_DAY = 86400000.;
 
 const char* const duskKeys[ThresholdCount] = { "sunset", "civilDusk", "nauticalDusk", "astronomicalDusk" };
 const char* const dawnKeys[ThresholdCount] = { "sunrise", "civilDawn", "nauticalDawn", "astronomicalDawn" };
+const char* const eventKindKeys[EventKindCount] = { "solarEclipse", "lunarEclipse", "opposition", "greatestElongation" };
 
 std::optional<double> optionalJd(const QJsonValue& v)
 {
@@ -62,6 +63,31 @@ QJsonObject writeExtreme(const SunExtreme& e)
 }
 
 } // namespace
+
+QString eventKindKey(EventKind kind)
+{
+	return QString::fromLatin1(eventKindKeys[static_cast<int>(kind)]);
+}
+
+std::optional<EventKind> eventKindFromKey(const QString& key)
+{
+	for (int i = 0; i < EventKindCount; ++i)
+		if (key == QLatin1String(eventKindKeys[i]))
+			return static_cast<EventKind>(i);
+	return std::nullopt;
+}
+
+QVector<double> eventRowBoundaries(const QVector<NightRow>& rows)
+{
+	QVector<double> b;
+	if (rows.isEmpty())
+		return b;
+	b.append(0.5 * (rows.first().windowStart + rows.first().windowEnd) - 0.5);
+	for (int i = 1; i < rows.size(); ++i)
+		b.append(0.5 * (rows.at(i - 1).windowEnd + rows.at(i).windowStart));
+	b.append(0.5 * (rows.last().windowStart + rows.last().windowEnd) + 0.5);
+	return b;
+}
 
 double thresholdAltitude(Threshold t)
 {
@@ -209,6 +235,14 @@ bool ChartModel::fromJson(const QByteArray& json, QString* errorMessage)
 		for (const QJsonValue& q : panelRow.value("qualifies").toArray())
 			row.targetQualifies.append(q.toBool());
 
+		for (const QJsonValue& ev : r.value("notableEvents").toArray())
+		{
+			const QJsonObject e = ev.toObject();
+			const std::optional<EventKind> kind = eventKindFromKey(e.value("kind").toString());
+			if (kind && e.value("jd").isDouble())
+				row.notableEvents.append(NotableEvent{ *kind, e.value("jd").toDouble(), e.value("label").toString() });
+		}
+
 		rows.append(row);
 	}
 
@@ -269,6 +303,10 @@ QByteArray ChartModel::toJson() const
 		for (bool q : row.targetQualifies)
 			qualifies.append(q);
 
+		QJsonArray notable;
+		for (const NotableEvent& e : row.notableEvents)
+			notable.append(QJsonObject{ { "kind", eventKindKey(e.kind) }, { "jd", e.jd }, { "label", e.label } });
+
 		rowArray.append(QJsonObject{
 			{ "eveningDate", row.eveningDate.toString(Qt::ISODate) },
 			{ "windowStart", row.windowStart },
@@ -284,7 +322,8 @@ QByteArray ChartModel::toJson() const
 			{ "panel", QJsonObject{
 				{ "periodStart", jsonValue(row.periodStart) },
 				{ "periodEnd", jsonValue(row.periodEnd) },
-				{ "qualifies", qualifies } } } });
+				{ "qualifies", qualifies } } },
+			{ "notableEvents", notable } });
 	}
 	root.insert("rows", rowArray);
 	return QJsonDocument(root).toJson(QJsonDocument::Indented);

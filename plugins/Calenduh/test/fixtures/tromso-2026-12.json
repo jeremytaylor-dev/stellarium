@@ -591,7 +591,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-02",
@@ -1060,7 +1061,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-03",
@@ -1433,7 +1435,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-04",
@@ -1698,7 +1701,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-05",
@@ -1760,7 +1764,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-06",
@@ -1822,7 +1827,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-07",
@@ -1884,7 +1890,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-08",
@@ -1946,7 +1953,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-09",
@@ -2008,7 +2016,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-10",
@@ -2070,7 +2079,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-11",
@@ -2132,7 +2142,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-12",
@@ -2194,7 +2205,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-13",
@@ -2411,7 +2423,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-14",
@@ -2740,7 +2753,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-15",
@@ -3164,7 +3178,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-16",
@@ -3676,7 +3691,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-17",
@@ -4280,7 +4296,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-18",
@@ -4984,7 +5001,8 @@
      false,
      false
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-19",
@@ -5830,7 +5848,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-20",
@@ -6862,7 +6881,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-21",
@@ -7894,7 +7914,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-22",
@@ -8926,7 +8947,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-23",
@@ -9958,7 +9980,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-24",
@@ -10991,7 +11014,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-25",
@@ -12024,7 +12048,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-26",
@@ -12949,7 +12974,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-27",
@@ -13738,7 +13764,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-28",
@@ -14419,7 +14446,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-29",
@@ -15004,7 +15032,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-30",
@@ -15493,7 +15522,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-12-31",
@@ -15850,7 +15880,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   }
  ],
  "panel": {

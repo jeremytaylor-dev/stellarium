@@ -385,7 +385,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-02",
@@ -684,7 +685,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-03",
@@ -939,7 +941,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-04",
@@ -1158,7 +1161,14 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": [
+    {
+     "kind": "opposition",
+     "jd": 2461318.009435391,
+     "label": "Saturn opposition"
+    }
+   ]
   },
   {
    "eveningDate": "2026-10-05",
@@ -1349,7 +1359,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-06",
@@ -1516,7 +1527,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-07",
@@ -1663,7 +1675,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-08",
@@ -1794,7 +1807,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-09",
@@ -1905,7 +1919,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-10",
@@ -2022,7 +2037,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-11",
@@ -2171,7 +2187,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-12",
@@ -2358,7 +2375,14 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": [
+    {
+     "kind": "greatestElongation",
+     "jd": 2461325.918971504,
+     "label": "Mercury greatest elongation E"
+    }
+   ]
   },
   {
    "eveningDate": "2026-10-13",
@@ -2597,7 +2621,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-14",
@@ -2888,7 +2913,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-15",
@@ -3227,7 +3253,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-16",
@@ -3606,7 +3633,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-17",
@@ -4021,7 +4049,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-18",
@@ -4464,7 +4493,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-19",
@@ -4935,7 +4965,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-20",
@@ -5426,7 +5457,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-21",
@@ -5933,7 +5965,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-22",
@@ -6461,7 +6494,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-23",
@@ -7005,7 +7039,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-24",
@@ -7569,7 +7604,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-25",
@@ -8152,7 +8188,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-26",
@@ -8703,7 +8740,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-27",
@@ -9222,7 +9260,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-28",
@@ -9685,7 +9724,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-29",
@@ -10088,7 +10128,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-30",
@@ -10443,7 +10484,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-10-31",
@@ -10758,7 +10800,8 @@
      false,
      true
     ]
-   }
+   },
+   "notableEvents": []
   }
  ],
  "panel": {
