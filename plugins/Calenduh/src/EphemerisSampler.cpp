@@ -51,7 +51,6 @@ constexpr double SPEED_OF_LIGHT_AU_PER_DAY = 173.1446326846693;
 constexpr double SHADOW_EARTH_RADIUS_KM = 6378.1366;
 constexpr double SUN_RADIUS_KM = 696340.;
 constexpr double MOON_RADIUS_KM = 1737.1;
-constexpr double SUNSET_ALTITUDE = -0.8333;  //!< CAL-T-02, the Sun's horizon for CAL-E-09
 
 //! Apparent minus geometric altitude [degrees] for standard conditions (10 C, 1010 hPa).
 //! Same formula and iteration as Skyfield's altaz('standard'), so that fixtures compare directly.
@@ -95,14 +94,17 @@ Mat4d earthJ2000ToDate(double jde)
 	return (StelCore::matVsop87ToJ2000 * dateToVsop87).transpose();
 }
 
+//! Angle [radians] between two vectors. The atan2 form keeps its precision at small
+//! angles, where Vec3d::angle() (acos) loses it; eclipse contacts need small angles.
 double angleBetween(const Vec3d& a, const Vec3d& b)
 {
 	return std::atan2((a ^ b).norm(), a.dot(b));
 }
 
-//! Root of @p f in [a, b]; f(a) and f(b) have opposite signs.
+//! Root of @p f in [a, b]; f(a) and f(b) have opposite signs. The default
+//! iterations give 0.01 s for an interval of one day.
 template <class F>
-double bisect(F f, double a, double b, int iterations = 40)
+double bisect(F f, double a, double b, int iterations = 24)
 {
 	double fa = f(a);
 	for (int i = 0; i < iterations; ++i)
@@ -120,9 +122,10 @@ double bisect(F f, double a, double b, int iterations = 40)
 	return 0.5 * (a + b);
 }
 
-//! Minimum of @p f in [a, b] by golden-section search.
+//! Minimum of @p f in [a, b] by golden-section search. The default iterations
+//! give 0.1 s for an interval of two days.
 template <class F>
-double goldenMin(F f, double a, double b, int iterations = 50)
+double goldenMin(F f, double a, double b, int iterations = 32)
 {
 	const double r = (std::sqrt(5.) - 1.) / 2.;
 	double c = b - r * (b - a), d = a + r * (b - a);
@@ -325,7 +328,7 @@ Vec3d EphemerisSampler::topocentricEquatorial(const Body& body, double jd, doubl
 {
 	Vec3d v = geocentricEquatorial(body, jd);
 	if (body.planet)
-		v -= Vec3d(observerShape[0] * std::cos(theta), observerShape[0] * std::sin(theta), observerShape[2]);
+		v -= observerOffset(theta);
 	v.normalize();
 	return v;
 }
@@ -341,22 +344,15 @@ double EphemerisSampler::altitude(const Body& body, double jd, bool refraction) 
 	return refraction ? refracted(alt) : alt;
 }
 
+Vec3d EphemerisSampler::observerOffset(double theta) const
+{
+	return Vec3d(observerShape[0] * std::cos(theta), observerShape[0] * std::sin(theta), observerShape[2]);
+}
+
 double EphemerisSampler::findCrossing(const Body& body, bool refraction, double jdA, double jdB, double level) const
 {
-	double fa = altitude(body, jdA, refraction) - level;
-	for (int i = 0; i < 14; ++i) // 10 minutes / 2^14 < 0.05 s
-	{
-		const double mid = 0.5 * (jdA + jdB);
-		const double fm = altitude(body, mid, refraction) - level;
-		if ((fa < 0.) == (fm < 0.))
-		{
-			jdA = mid;
-			fa = fm;
-		}
-		else
-			jdB = mid;
-	}
-	return 0.5 * (jdA + jdB);
+	// 10 minutes / 2^14 < 0.05 s
+	return bisect([&](double jd) { return altitude(body, jd, refraction) - level; }, jdA, jdB, 14);
 }
 
 double EphemerisSampler::sunCulmination(const QDate& date) const
@@ -630,7 +626,9 @@ Vec3d EphemerisSampler::eventGeocentric(const Body& body, double jd, bool appare
 		moon->computePosition(jde, v, vel);
 		return v;
 	}
-	const Vec3d earthPos = heliocentric(earth, jde);
+	// The Earth's parent is the Sun, so its position is heliocentric (as heliocentric(earth, jde)).
+	Vec3d earthPos, earthVel;
+	earth->computePosition(jde, earthPos, earthVel);
 	double lightTime = 0.;
 	for (int i = 0; i < 3; ++i)
 	{
@@ -640,10 +638,8 @@ Vec3d EphemerisSampler::eventGeocentric(const Body& body, double jd, bool appare
 	if (apparent)
 	{
 		// Annual aberration, first order, from the Earth's heliocentric velocity.
-		Vec3d pos;
-		earth->computePosition(jde, pos, vel);
 		const double d = v.norm();
-		Vec3d u = v * (1. / d) + vel * (1. / SPEED_OF_LIGHT_AU_PER_DAY);
+		Vec3d u = v * (1. / d) + earthVel * (1. / SPEED_OF_LIGHT_AU_PER_DAY);
 		u.normalize();
 		v = u * d;
 	}
@@ -655,7 +651,7 @@ Vec3d EphemerisSampler::eventTopocentric(const Body& body, double jd, bool appar
 	const Vec3d geo = j2000ToDate.multiplyWithoutTranslation(
 		StelCore::matVsop87ToJ2000.multiplyWithoutTranslation(eventGeocentric(body, jd, apparent)));
 	const double theta = localSiderealRadians(jd);
-	return geo - Vec3d(observerShape[0] * std::cos(theta), observerShape[0] * std::sin(theta), observerShape[2]);
+	return geo - observerOffset(theta);
 }
 
 double EphemerisSampler::eclipticLongitude(const Body& body, double jd, bool apparent) const
@@ -694,179 +690,168 @@ std::optional<double> EphemerisSampler::visibleBest(double c1, double c4, double
 				 [&](double a, double b) { return separation(a) < separation(b); });
 }
 
-void EphemerisSampler::computeEvents()
+int EphemerisSampler::eventStepCount() const
 {
-	for (NightRow& row : model_.rows)
-		row.notableEvents.clear();
-	const auto& on = settings.events;
-	if (model_.rows.isEmpty() || std::none_of(on.cbegin(), on.cend(), [](bool b) { return b; }))
-		return;
-	auto enabled = [&](EventKind k) { return on[static_cast<size_t>(k)]; };
+	// Start, one per planet, lunar eclipses, solar eclipses, rows.
+	return outerPlanets.size() + innerPlanets.size() + 4;
+}
 
-	// CAL-E-10: events between the first and the last row boundary. Daily samples from
-	// one day before to one day after, so that extremes near the ends are found.
-	const QVector<double> bounds = eventRowBoundaries(model_.rows);
-	QVector<double> days;
-	const int dayCount = static_cast<int>(std::ceil(bounds.last() - bounds.first())) + 3;
-	for (int k = 0; k < dayCount; ++k)
-		days.append(bounds.first() - 1. + k);
-
-	struct Found
-	{
-		NotableEvent event;
-		const Body* planet; //!< checked for visibility in its row (CAL-E-03)
-	};
-	QVector<Found> found;
-
+template <class F>
+QVector<double> EphemerisSampler::signChanges(F f) const
+{
 	// Roots of f between daily samples; a jump of f by 360 degrees is not a root.
-	auto signChanges = [&](auto f) {
-		QVector<double> roots;
-		QVector<double> v;
-		for (double d : std::as_const(days))
-			v.append(f(d));
-		for (int i = 1; i < days.size(); ++i)
-			if ((v[i - 1] < 0.) != (v[i] < 0.) && std::fabs(v[i - 1]) < 90. && std::fabs(v[i]) < 90.)
-				roots.append(bisect(f, days[i - 1], days[i]));
-		return roots;
+	QVector<double> roots;
+	QVector<double> v;
+	for (double d : std::as_const(eventDays))
+		v.append(f(d));
+	for (int i = 1; i < eventDays.size(); ++i)
+		if ((v[i - 1] < 0.) != (v[i] < 0.) && std::fabs(v[i - 1]) < 90. && std::fabs(v[i]) < 90.)
+			roots.append(bisect(f, eventDays[i - 1], eventDays[i]));
+	return roots;
+}
+
+double EphemerisSampler::apparentLongitudeDifference(const Body& body, double jd) const
+{
+	return wrap180(eclipticLongitude(body, jd, true) - eclipticLongitude(sunBody, jd, true));
+}
+
+void EphemerisSampler::findOppositions(const Body& p)
+{
+	// CAL-E-04: the apparent ecliptic longitudes of planet and Sun differ by 180 degrees.
+	for (double t : signChanges([&](double jd) { return wrap180(apparentLongitudeDifference(p, jd) - 180.); }))
+		eventsFound.append({ { EventKind::Opposition, t, QString("%1 opposition").arg(p.name) }, &p });
+}
+
+void EphemerisSampler::findGreatestElongations(const Body& p)
+{
+	// CAL-E-04: the largest apparent angle between planet and Sun.
+	auto elongation = [&](double jd) {
+		return angleBetween(eventGeocentric(p, jd, true), eventGeocentric(sunBody, jd, true));
 	};
-	auto apparentLongitudeDifference = [&](const Body& a, double jd) {
-		return wrap180(eclipticLongitude(a, jd, true) - eclipticLongitude(sunBody, jd, true));
+	QVector<double> v;
+	for (double d : std::as_const(eventDays))
+		v.append(elongation(d));
+	for (int i = 1; i + 1 < eventDays.size(); ++i)
+	{
+		if (!(v[i] > v[i - 1] && v[i] >= v[i + 1]))
+			continue;
+		const double t = goldenMin([&](double jd) { return -elongation(jd); }, eventDays[i - 1], eventDays[i + 1]);
+		const QString side = apparentLongitudeDifference(p, t) > 0. ? QStringLiteral("E") : QStringLiteral("W");
+		eventsFound.append({ { EventKind::GreatestElongation, t, QString("%1 greatest elongation %2").arg(p.name, side) }, &p });
+	}
+}
+
+void EphemerisSampler::findLunarEclipses()
+{
+	// CAL-E-09: around each full Moon. Geocentric; the shadow axis points away from the
+	// apparent Sun; Earth's shadow by Danjon's rule.
+	auto shadowSeparation = [&](double jd) {
+		return angleBetween(eventGeocentric(moonBody, jd, false), -eventGeocentric(sunBody, jd, true));
 	};
-
-	// CAL-E-04: opposition, the apparent ecliptic longitudes of planet and Sun differ by 180 degrees.
-	if (enabled(EventKind::Opposition))
-		for (const Body& p : std::as_const(outerPlanets))
-			for (double t : signChanges([&](double jd) { return wrap180(apparentLongitudeDifference(p, jd) - 180.); }))
-				found.append({ { EventKind::Opposition, t, QString("%1 opposition").arg(p.name) }, &p });
-
-	// CAL-E-04: greatest elongation, the largest apparent angle between planet and Sun.
-	if (enabled(EventKind::GreatestElongation))
-		for (const Body& p : std::as_const(innerPlanets))
-		{
-			auto elongation = [&](double jd) {
-				return angleBetween(eventGeocentric(p, jd, true), eventGeocentric(sunBody, jd, true));
-			};
-			QVector<double> v;
-			for (double d : std::as_const(days))
-				v.append(elongation(d));
-			for (int i = 1; i + 1 < days.size(); ++i)
-			{
-				if (!(v[i] > v[i - 1] && v[i] >= v[i + 1]))
-					continue;
-				const double t = goldenMin([&](double jd) { return -elongation(jd); }, days[i - 1], days[i + 1]);
-				const QString side = apparentLongitudeDifference(p, t) > 0. ? QStringLiteral("E") : QStringLiteral("W");
-				found.append({ { EventKind::GreatestElongation, t, QString("%1 greatest elongation %2").arg(p.name, side) }, &p });
-			}
-		}
-
-	// CAL-E-09: lunar eclipses around each full Moon. Geocentric; the shadow axis points away
-	// from the apparent Sun; Earth's shadow by Danjon's rule.
-	if (enabled(EventKind::LunarEclipse))
+	const QVector<double> fullMoons = signChanges([&](double jd) {
+		return wrap180(eclipticLongitude(moonBody, jd, false) - eclipticLongitude(sunBody, jd, true) - 180.);
+	});
+	for (double full : fullMoons)
 	{
-		auto shadowSeparation = [&](double jd) {
-			return angleBetween(eventGeocentric(moonBody, jd, false), -eventGeocentric(sunBody, jd, true));
-		};
-		const QVector<double> fullMoons = signChanges([&](double jd) {
-			return wrap180(eclipticLongitude(moonBody, jd, false) - eclipticLongitude(sunBody, jd, true) - 180.);
-		});
-		for (double full : fullMoons)
+		const double tMax = goldenMin(shadowSeparation, full - 0.25, full + 0.25);
+		const double dm = eventGeocentric(moonBody, tMax, false).norm() * ASTRONOMICAL_UNIT_KM;
+		const double ds = eventGeocentric(sunBody, tMax, true).norm() * ASTRONOMICAL_UNIT_KM;
+		const double pi1 = 1.01 * SHADOW_EARTH_RADIUS_KM / dm;
+		const double piS = SHADOW_EARTH_RADIUS_KM / ds;
+		const double sS = SUN_RADIUS_KM / ds;
+		const double moonRadius = std::asin(MOON_RADIUS_KM / dm);
+		const double penumbra = pi1 + piS + sS;
+		const double umbra = pi1 + piS - sS;
+		const double sep = shadowSeparation(tMax);
+		QString type;
+		double limit = 0.;
+		if (sep < umbra - moonRadius)
 		{
-			const double tMax = goldenMin(shadowSeparation, full - 0.25, full + 0.25);
-			const double dm = eventGeocentric(moonBody, tMax, false).norm() * ASTRONOMICAL_UNIT_KM;
-			const double ds = eventGeocentric(sunBody, tMax, true).norm() * ASTRONOMICAL_UNIT_KM;
-			const double pi1 = 1.01 * SHADOW_EARTH_RADIUS_KM / dm;
-			const double piS = SHADOW_EARTH_RADIUS_KM / ds;
-			const double sS = SUN_RADIUS_KM / ds;
-			const double moonRadius = std::asin(MOON_RADIUS_KM / dm);
-			const double penumbra = pi1 + piS + sS;
-			const double umbra = pi1 + piS - sS;
-			const double sep = shadowSeparation(tMax);
-			QString type;
-			double limit = 0.;
-			if (sep < umbra - moonRadius)
-			{
-				type = QStringLiteral("Total");
-				limit = umbra + moonRadius;
-			}
-			else if (sep < umbra + moonRadius)
-			{
-				type = QStringLiteral("Partial");
-				limit = umbra + moonRadius;
-			}
-			else if (sep < penumbra + moonRadius)
-			{
-				type = QStringLiteral("Penumbral");
-				limit = penumbra + moonRadius;
-			}
-			else
-				continue;
-			auto contact = [&](double jd) { return shadowSeparation(jd) - limit; };
-			const double c1 = bisect(contact, tMax - 0.3, tMax);
-			const double c4 = bisect(contact, tMax, tMax + 0.3);
-			setEpoch(tMax);
-			const std::optional<double> t = visibleBest(c1, c4, tMax, shadowSeparation, moonBody, true, 0.);
-			if (t)
-				found.append({ { EventKind::LunarEclipse, *t, QString("%1 lunar eclipse").arg(type) }, nullptr });
+			type = QStringLiteral("Total");
+			limit = umbra + moonRadius;
 		}
+		else if (sep < umbra + moonRadius)
+		{
+			type = QStringLiteral("Partial");
+			limit = umbra + moonRadius;
+		}
+		else if (sep < penumbra + moonRadius)
+		{
+			type = QStringLiteral("Penumbral");
+			limit = penumbra + moonRadius;
+		}
+		else
+			continue;
+		auto contact = [&](double jd) { return shadowSeparation(jd) - limit; };
+		const double c1 = bisect(contact, tMax - 0.3, tMax);
+		const double c4 = bisect(contact, tMax, tMax + 0.3);
+		setEpoch(tMax);
+		const std::optional<double> t = visibleBest(c1, c4, tMax, shadowSeparation, moonBody, true, 0.);
+		if (t)
+			eventsFound.append({ { EventKind::LunarEclipse, *t, QString("%1 lunar eclipse").arg(type) }, nullptr });
 	}
+}
 
-	// CAL-E-09: solar eclipses around each new Moon, topocentric.
-	if (enabled(EventKind::SolarEclipse))
+void EphemerisSampler::findSolarEclipses()
+{
+	// CAL-E-09: around each new Moon, topocentric.
+	struct Disc
 	{
-		struct Disc
+		double separation, sunRadius, moonRadius;
+	};
+	auto discs = [&](double jd) {
+		const Vec3d s = eventTopocentric(sunBody, jd, true);
+		const Vec3d m = eventTopocentric(moonBody, jd, false);
+		return Disc{ angleBetween(s, m), std::asin(SUN_RADIUS_KM / (s.norm() * ASTRONOMICAL_UNIT_KM)),
+			     std::asin(MOON_RADIUS_KM / (m.norm() * ASTRONOMICAL_UNIT_KM)) };
+	};
+	auto separation = [&](double jd) { return discs(jd).separation; };
+	auto overlap = [&](double jd) {
+		const Disc d = discs(jd);
+		return d.separation - d.sunRadius - d.moonRadius;
+	};
+	const QVector<double> newMoons = signChanges([&](double jd) {
+		return wrap180(eclipticLongitude(moonBody, jd, false) - eclipticLongitude(sunBody, jd, true));
+	});
+	for (double newMoon : newMoons)
+	{
+		setEpoch(newMoon);
+		const double a = newMoon - 0.3, b = newMoon + 0.3;
+		const int n = static_cast<int>(std::lround((b - a) / SAMPLE_STEP));
+		QVector<double> grid, sep;
+		for (int i = 0; i <= n; ++i)
 		{
-			double separation, sunRadius, moonRadius;
-		};
-		auto discs = [&](double jd) {
-			const Vec3d s = eventTopocentric(sunBody, jd, true);
-			const Vec3d m = eventTopocentric(moonBody, jd, false);
-			return Disc{ angleBetween(s, m), std::asin(SUN_RADIUS_KM / (s.norm() * ASTRONOMICAL_UNIT_KM)),
-				     std::asin(MOON_RADIUS_KM / (m.norm() * ASTRONOMICAL_UNIT_KM)) };
-		};
-		auto separation = [&](double jd) { return discs(jd).separation; };
-		auto overlap = [&](double jd) {
-			const Disc d = discs(jd);
-			return d.separation - d.sunRadius - d.moonRadius;
-		};
-		const QVector<double> newMoons = signChanges([&](double jd) {
-			return wrap180(eclipticLongitude(moonBody, jd, false) - eclipticLongitude(sunBody, jd, true));
-		});
-		for (double newMoon : newMoons)
-		{
-			setEpoch(newMoon);
-			const double a = newMoon - 0.3, b = newMoon + 0.3;
-			const int n = static_cast<int>(std::lround((b - a) / SAMPLE_STEP));
-			QVector<double> grid, sep;
-			for (int i = 0; i <= n; ++i)
-			{
-				grid.append(a + i * (b - a) / n);
-				sep.append(separation(grid.last()));
-			}
-			const int i = static_cast<int>(std::min_element(sep.cbegin() + 1, sep.cend() - 1) - sep.cbegin());
-			const double tMax = goldenMin(separation, grid[i - 1], grid[i + 1]);
-			if (overlap(tMax) >= 0.)
-				continue;
-			const double c1 = bisect(overlap, a, tMax);
-			const double c4 = bisect(overlap, tMax, b);
-			const std::optional<double> t = visibleBest(c1, c4, tMax, separation, sunBody, false, SUNSET_ALTITUDE);
-			if (!t)
-				continue;
-			const Disc d = discs(*t);
-			const QString type = (d.moonRadius > d.sunRadius && d.separation <= d.moonRadius - d.sunRadius) ? QStringLiteral("Total")
-				: (d.sunRadius > d.moonRadius && d.separation <= d.sunRadius - d.moonRadius) ? QStringLiteral("Annular")
-				: QStringLiteral("Partial");
-			found.append({ { EventKind::SolarEclipse, *t, QString("%1 solar eclipse").arg(type) }, nullptr });
+			grid.append(a + i * (b - a) / n);
+			sep.append(separation(grid.last()));
 		}
+		const int i = static_cast<int>(std::min_element(sep.cbegin() + 1, sep.cend() - 1) - sep.cbegin());
+		const double tMax = goldenMin(separation, grid[i - 1], grid[i + 1]);
+		if (overlap(tMax) >= 0.)
+			continue;
+		const double c1 = bisect(overlap, a, tMax);
+		const double c4 = bisect(overlap, tMax, b);
+		const std::optional<double> t = visibleBest(c1, c4, tMax, separation, sunBody, false, thresholdAltitude(Threshold::Sunset));
+		if (!t)
+			continue;
+		const Disc d = discs(*t);
+		const QString type = (d.moonRadius > d.sunRadius && d.separation <= d.moonRadius - d.sunRadius) ? QStringLiteral("Total")
+			: (d.sunRadius > d.moonRadius && d.separation <= d.sunRadius - d.moonRadius) ? QStringLiteral("Annular")
+			: QStringLiteral("Partial");
+		eventsFound.append({ { EventKind::SolarEclipse, *t, QString("%1 solar eclipse").arg(type) }, nullptr });
 	}
+}
 
+void EphemerisSampler::assignEventRows()
+{
 	// CAL-E-10: the row of each event; CAL-E-03: a planet must be above the horizon in its window.
-	std::stable_sort(found.begin(), found.end(), [](const Found& x, const Found& y) { return x.event.jd < y.event.jd; });
-	for (const Found& f : std::as_const(found))
+	std::stable_sort(eventsFound.begin(), eventsFound.end(),
+			 [](const EventFound& x, const EventFound& y) { return x.event.jd < y.event.jd; });
+	for (const EventFound& f : std::as_const(eventsFound))
 	{
 		const double t = f.event.jd;
 		int row = -1;
-		for (int k = 0; k + 1 < bounds.size(); ++k)
-			if (bounds[k] <= t && t < bounds[k + 1])
+		for (int k = 0; k + 1 < eventBounds.size(); ++k)
+			if (eventBounds[k] <= t && t < eventBounds[k + 1])
 				row = k;
 		if (row < 0)
 			continue;
@@ -887,6 +872,58 @@ void EphemerisSampler::computeEvents()
 		}
 		r.notableEvents.append(f.event);
 	}
+	eventsFound.clear();
+}
+
+void EphemerisSampler::computeEventStep(int index)
+{
+	auto enabled = [&](EventKind k) { return settings.events[static_cast<size_t>(k)]; };
+	if (index == 0)
+	{
+		for (NightRow& row : model_.rows)
+			row.notableEvents.clear();
+		eventsFound.clear();
+		eventDays.clear();
+		eventBounds.clear();
+		if (model_.rows.isEmpty())
+			return;
+		// CAL-E-10: events between the first and the last row boundary. Daily samples from
+		// one day before to one day after, so that extremes near the ends are found.
+		eventBounds = eventRowBoundaries(model_.rows);
+		const int dayCount = static_cast<int>(std::ceil(eventBounds.last() - eventBounds.first())) + 3;
+		for (int k = 0; k < dayCount; ++k)
+			eventDays.append(eventBounds.first() - 1. + k);
+		return;
+	}
+	if (eventDays.isEmpty())
+		return;
+	int i = index - 1;
+	if (i < outerPlanets.size())
+	{
+		if (enabled(EventKind::Opposition))
+			findOppositions(outerPlanets[i]);
+		return;
+	}
+	i -= outerPlanets.size();
+	if (i < innerPlanets.size())
+	{
+		if (enabled(EventKind::GreatestElongation))
+			findGreatestElongations(innerPlanets[i]);
+		return;
+	}
+	i -= innerPlanets.size();
+	if (i == 0 && enabled(EventKind::LunarEclipse))
+		findLunarEclipses();
+	else if (i == 1 && enabled(EventKind::SolarEclipse))
+		findSolarEclipses();
+	else if (i == 2)
+		assignEventRows();
+}
+
+void EphemerisSampler::computeEvents()
+{
+	for (int i = 0; i < eventStepCount(); ++i)
+		computeEventStep(i);
 }
 
 } // namespace calenduh

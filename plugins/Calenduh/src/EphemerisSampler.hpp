@@ -70,7 +70,13 @@ public:
 
 	//! Notable events of all nights (requirements section 8a). Needs the time
 	//! window and the Moon curves, so call it after computeNight() for every night.
+	//! Same as computeEventStep(i) for i = 0 .. eventStepCount() - 1, in order.
 	void computeEvents();
+	//! Number of event steps; known after begin().
+	int eventStepCount() const;
+	//! One part of computeEvents(): the start, one planet, one eclipse type, or
+	//! the assignment to rows (the last step).
+	void computeEventStep(int index);
 
 	//! The chart model; complete after computeNight() for every night.
 	const ChartModel& model() const { return model_; }
@@ -118,10 +124,29 @@ private:
 	Vec3d heliocentric(const QSharedPointer<Planet>& p, double jde) const;
 	Vec3d geocentricEquatorial(const Body& body, double jd) const;
 	Vec3d topocentricEquatorial(const Body& body, double jd, double theta) const;
+	//! Observer's position from the Earth's centre [AU], equatorial of date, at local sidereal angle @p theta.
+	Vec3d observerOffset(double theta) const;
 	double altitude(const Body& body, double jd, bool refraction) const;
 	double findCrossing(const Body& body, bool refraction, double jdA, double jdB, double level) const;
 
 	// Notable events (EphemerisSampler.cpp, requirements section 8a).
+	struct EventFound
+	{
+		NotableEvent event;
+		const Body* planet;                 //!< checked for visibility in its row (CAL-E-03)
+	};
+	QVector<double> eventBounds;            //!< eventRowBoundaries() of the rows
+	QVector<double> eventDays;              //!< daily search samples
+	QVector<EventFound> eventsFound;        //!< before the assignment to rows
+
+	template <class F>
+	QVector<double> signChanges(F f) const;
+	double apparentLongitudeDifference(const Body& body, double jd) const;
+	void findOppositions(const Body& planet);
+	void findGreatestElongations(const Body& planet);
+	void findLunarEclipses();
+	void findSolarEclipses();
+	void assignEventRows();
 	void setEpoch(double jd);
 	//! Geocentric position [AU] in the VSOP87 J2000 ecliptic frame. Planets: corrected
 	//! for light time; with @p apparent also for aberration. The Moon is geometric.
