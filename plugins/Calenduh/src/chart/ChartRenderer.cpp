@@ -128,6 +128,7 @@ void ChartRenderer::render(QPainter& painter, const QRectF& page)
 	drawLabels(painter);
 	if (model.panel)
 		drawPanel(painter);
+	drawEvents(painter); // CAL-E-07: above all other chart content
 
 	painter.restore();
 }
@@ -443,10 +444,48 @@ void ChartRenderer::drawStarLabels(QPainter& painter, const QVector<StarLabel>& 
 	painter.restore();
 }
 
+double ChartRenderer::moonLineWidth(int row) const
+{
+	// CAL-M-03: width linear from the minimum width to the full-Moon width.
+	const double maxWidth = style.moonMaxWidthFactor * rowHeight;
+	return style.moonMinWidth + (maxWidth - style.moonMinWidth) * model.rows.at(row).moonIllumination;
+}
+
+double ChartRenderer::moonY(int row, double altitude, double w) const
+{
+	// CAL-M-05: the stroke touches the row bottom at 0 degrees and the row top at the maximum.
+	const double maxAltitude = model.maxMoonAltitude > 0. ? model.maxMoonAltitude : 90.;
+	return rowTop(row) + rowHeight - 0.5 * w - altitude / maxAltitude * (rowHeight - w);
+}
+
+std::optional<double> ChartRenderer::moonAltitudeAt(int row, double jd) const
+{
+	// A time within one minute outside a curve end is on that end: an eclipse seen only
+	// until moonset (CAL-E-09) has its time at the set, found by a separate root search.
+	constexpr double TOLERANCE = 1. / 1440.;
+	for (const MoonSegment& seg : model.rows.at(row).moonSegments)
+	{
+		if (seg.samples.isEmpty())
+			continue;
+		const MoonSample& first = seg.samples.first();
+		const MoonSample& last = seg.samples.last();
+		if (jd < first.jd && jd >= first.jd - TOLERANCE)
+			return first.altitude;
+		if (jd > last.jd && jd <= last.jd + TOLERANCE)
+			return last.altitude;
+		for (int i = 1; i < seg.samples.size(); ++i)
+		{
+			const MoonSample& a = seg.samples.at(i - 1);
+			const MoonSample& b = seg.samples.at(i);
+			if (jd >= a.jd && jd <= b.jd)
+				return (b.jd > a.jd) ? a.altitude + (jd - a.jd) / (b.jd - a.jd) * (b.altitude - a.altitude) : a.altitude;
+		}
+	}
+	return std::nullopt;
+}
+
 void ChartRenderer::drawMoonCurves(QPainter& painter, const QPainterPath& civilRegion)
 {
-	const double maxAltitude = model.maxMoonAltitude > 0. ? model.maxMoonAltitude : 90.;
-
 	struct Curve
 	{
 		QPainterPath path;
@@ -457,14 +496,8 @@ void ChartRenderer::drawMoonCurves(QPainter& painter, const QPainterPath& civilR
 	for (int row = 0; row < model.rows.size(); ++row)
 	{
 		const NightRow& r = model.rows.at(row);
-		// CAL-M-03: width linear from the minimum width to the full-Moon width.
-		const double maxWidth = style.moonMaxWidthFactor * rowHeight;
-		const double w = style.moonMinWidth + (maxWidth - style.moonMinWidth) * r.moonIllumination;
-		const double bottom = rowTop(row) + rowHeight;
-		// CAL-M-05: the stroke touches the row bottom at 0 degrees and the row top at the maximum.
-		auto yOf = [&](double altitude) {
-			return bottom - 0.5 * w - altitude / maxAltitude * (rowHeight - w);
-		};
+		const double w = moonLineWidth(row);
+		auto yOf = [&](double altitude) { return moonY(row, altitude, w); };
 
 		for (const MoonSegment& seg : r.moonSegments)
 		{
@@ -548,6 +581,116 @@ void ChartRenderer::drawPhaseGraphics(QPainter& painter)
 		painter.setBrush(Qt::NoBrush);
 		painter.setPen(QPen(style.phaseOutline, 0.4));
 		painter.drawEllipse(disc);
+	}
+	painter.restore();
+}
+
+void ChartRenderer::drawEvents(QPainter& painter)
+{
+	// Requirements section 8a: an open ring at the event time, with a label next to it.
+	const double radius = 0.5 * style.eventRingFactor * rowHeight;
+	const double gap = 0.3 * em;
+	painter.save();
+	painter.setClipRect(chart);
+	painter.setBrush(Qt::NoBrush);
+	QFont font = painter.font();
+	font.setBold(false);
+	font.setItalic(false);
+	font.setPointSizeF(std::min(0.8 * em, 0.9 * rowHeight));
+	const QFontMetricsF fm(font, painter.device());
+
+	for (int row = 0; row < model.rows.size(); ++row)
+	{
+		const NightRow& r = model.rows.at(row);
+		struct Mark
+		{
+			QPointF centre;
+			QString text;
+		};
+		QVector<Mark> marks;
+		for (const NotableEvent& e : r.notableEvents)
+		{
+			Mark m;
+			m.text = e.label;
+			double x = 0.;
+			double y = rowCentre(row);
+			if (e.jd < r.windowStart || e.jd > r.windowEnd)
+			{
+				// CAL-E-06: at the nearer edge, with the local time in the label.
+				x = (e.jd < r.windowStart) ? chart.left() : chart.right();
+				// Local time h:mm, rounded to the minute.
+				m.text += QLatin1Char(' ') + jdToDateTime(e.jd).addSecs(30).toTimeZone(timeZone).toString(QStringLiteral("H:mm"));
+			}
+			else
+			{
+				x = xOf(row, e.jd);
+				// CAL-E-05: a lunar eclipse is on the Moon curve.
+				if (e.kind == EventKind::LunarEclipse)
+					if (const std::optional<double> alt = moonAltitudeAt(row, e.jd))
+						y = moonY(row, *alt, moonLineWidth(row));
+			}
+			m.centre = QPointF(std::clamp(x, chart.left() + radius, chart.right() - radius), y);
+			marks.append(m);
+		}
+		if (marks.isEmpty())
+			continue;
+
+		// Rings of one row must not overlap: move them apart, left to right, then
+		// back from the right edge if the last one is pushed past it.
+		std::stable_sort(marks.begin(), marks.end(), [](const Mark& a, const Mark& b) { return a.centre.x() < b.centre.x(); });
+		const double step = 2. * radius + 0.2 * em;
+		for (int i = 1; i < marks.size(); ++i)
+			marks[i].centre.setX(std::max(marks[i].centre.x(), marks[i - 1].centre.x() + step));
+		marks.last().centre.setX(std::min(marks.last().centre.x(), chart.right() - radius));
+		for (int i = marks.size() - 2; i >= 0; --i)
+			marks[i].centre.setX(std::min(marks[i].centre.x(), marks[i + 1].centre.x() - step));
+		// More rings than the row can hold: keep them inside the chart; they then overlap.
+		for (Mark& m : marks)
+			m.centre.setX(std::max(m.centre.x(), chart.left() + radius));
+
+		painter.setPen(QPen(style.eventColor, style.eventLineWidth));
+		for (const Mark& m : std::as_const(marks))
+			painter.drawEllipse(m.centre, radius, radius);
+
+		// Labels inside the row. Rings that touch form one group with one label, the
+		// texts joined by commas. The label goes right of the group if it fits before the
+		// next ring (or the chart edge), else left of it if it fits after the previous ring
+		// and its label, else on the wider side, shortened.
+		painter.setFont(font);
+		const double textHeight = fm.ascent() + fm.descent();
+		double usedUpTo = chart.left(); // right end of the previous ring or label
+		for (int first = 0; first < marks.size();)
+		{
+			int last = first;
+			QString text = marks.at(first).text;
+			while (last + 1 < marks.size() && marks.at(last + 1).centre.x() - marks.at(last).centre.x() <= step + 1e-6)
+				text += QStringLiteral(", ") + marks.at(++last).text;
+			const QPointF left = marks.at(first).centre;
+			const QPointF right = marks.at(last).centre;
+			const double rightStart = right.x() + radius + gap;
+			const double rightEnd = (last + 1 < marks.size()) ? marks.at(last + 1).centre.x() - radius - gap : chart.right() - gap;
+			const double leftEnd = left.x() - radius - gap;
+			const double leftStart = usedUpTo + gap;
+			usedUpTo = right.x() + radius;
+			first = last + 1;
+
+			const double width = fm.horizontalAdvance(text);
+			bool onRight = true;
+			if (width > rightEnd - rightStart)
+				onRight = (width <= leftEnd - leftStart) ? false : (rightEnd - rightStart >= leftEnd - leftStart);
+			const double space = onRight ? rightEnd - rightStart : leftEnd - leftStart;
+			if (space <= 0.)
+				continue;
+			const QString shown = fm.elidedText(text, Qt::ElideRight, space);
+			const double ringY = onRight ? right.y() : left.y();
+			const double centreY = (textHeight >= rowHeight) ? rowCentre(row)
+				: std::clamp(ringY, rowTop(row) + 0.5 * textHeight, rowTop(row) + rowHeight - 0.5 * textHeight);
+			const double baseline = centreY + 0.5 * (fm.ascent() - fm.descent());
+			const double x = onRight ? rightStart : leftEnd - fm.horizontalAdvance(shown);
+			painter.drawText(QPointF(x, baseline), shown);
+			if (onRight)
+				usedUpTo = rightStart + fm.horizontalAdvance(shown);
+		}
 	}
 	painter.restore();
 }

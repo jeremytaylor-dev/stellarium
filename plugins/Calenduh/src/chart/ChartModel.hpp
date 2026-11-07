@@ -61,6 +61,23 @@ struct MoonSegment
 	QVector<MoonSample> samples;  //!< in time order; includes the 0-degree points at rise and set
 };
 
+//! Notable event types (CAL-E-01), in settings order.
+enum class EventKind { SolarEclipse = 0, LunarEclipse = 1, Opposition = 2, GreatestElongation = 3 };
+constexpr int EventKindCount = 4;
+
+//! JSON key of an event kind, e.g. "lunarEclipse".
+QString eventKindKey(EventKind kind);
+//! The event kind of a JSON key; empty if unknown.
+std::optional<EventKind> eventKindFromKey(const QString& key);
+
+//! One notable event, marked by a ring on its row (requirements section 8a).
+struct NotableEvent
+{
+	EventKind kind = EventKind::Opposition;
+	double jd = 0.;     //!< event time (CAL-E-04); can be outside the time window (CAL-E-06)
+	QString label;      //!< CAL-E-08, without the time
+};
+
 //! One night (one chart row).
 struct NightRow
 {
@@ -86,6 +103,8 @@ struct NightRow
 	std::optional<double> periodStart;
 	std::optional<double> periodEnd;
 	QVector<bool> targetQualifies;  //!< per panel target, in list order (CAL-G-08)
+
+	QVector<NotableEvent> notableEvents; //!< in time order (requirements section 8a)
 
 	bool hasPeriod() const { return periodStart.has_value() && periodEnd.has_value(); }
 };
@@ -126,6 +145,12 @@ struct ChartModel
 	bool fromJson(const QByteArray& json, QString* errorMessage = nullptr);
 	QByteArray toJson() const;
 };
+
+//! Row boundaries for notable events (CAL-E-10): element i is the start of row i, and the
+//! last element is the end of the last row. A boundary between two rows is the midpoint
+//! between the end of one window and the start of the next; the outer boundaries are half a
+//! day before the first window centre and after the last window centre. Needs the windows.
+QVector<double> eventRowBoundaries(const QVector<NightRow>& rows);
 
 //! Conversion between UTC Julian Day and QDateTime.
 QDateTime jdToDateTime(double jd);

@@ -103,6 +103,13 @@ private:
 	void drawStarLabels(QPainter& painter, const QVector<StarLabel>& labels);
 	void drawMoonCurves(QPainter& painter, const QPainterPath& civilRegion);
 	void drawPhaseGraphics(QPainter& painter);
+	void drawEvents(QPainter& painter);
+
+	//! Moon line width of a row (CAL-M-03) and the y of the curve centre for an altitude (CAL-M-05).
+	double moonLineWidth(int row) const;
+	double moonY(int row, double altitude, double width) const;
+	//! Moon altitude at @p jd on the curve of @p row, interpolated; empty where there is no curve.
+	std::optional<double> moonAltitudeAt(int row, double jd) const;
 	void drawLabels(QPainter& painter);
 	void drawPanel(QPainter& painter);
 

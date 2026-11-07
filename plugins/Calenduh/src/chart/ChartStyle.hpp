@@ -57,6 +57,10 @@ struct ChartStyle
 	double panelColumnFactor = 2.3;               //!< CAL-G-14, column width in units of the base text size
 	QString panelShadeNote = QStringLiteral("Shaded rows: the period does not exist");
 
+	QColor eventColor      { 0xE0, 0x00, 0x00 };  //!< CAL-E-07, notable-event rings and labels
+	double eventLineWidth = 1.0;
+	double eventRingFactor = 0.8;                 //!< CAL-E-07, ring diameter as a fraction of row height
+
 	QColor textColor       { 0x20, 0x20, 0x20 };
 	QColor phaseOutline    { 0x80, 0x80, 0x80 };
 
@@ -72,7 +76,8 @@ struct ChartStyle
 		       && panelLineColor == o.panelLineColor && panelLineWidth == o.panelLineWidth
 		       && panelTextColor == o.panelTextColor && panelRowColor == o.panelRowColor
 		       && panelShadeColor == o.panelShadeColor && panelColumnFactor == o.panelColumnFactor
-		       && panelShadeNote == o.panelShadeNote && textColor == o.textColor && phaseOutline == o.phaseOutline;
+		       && panelShadeNote == o.panelShadeNote && eventColor == o.eventColor
+		       && eventLineWidth == o.eventLineWidth && eventRingFactor == o.eventRingFactor && textColor == o.textColor && phaseOutline == o.phaseOutline;
 	}
 	bool operator!=(const ChartStyle& o) const { return !(*this == o); }
 };

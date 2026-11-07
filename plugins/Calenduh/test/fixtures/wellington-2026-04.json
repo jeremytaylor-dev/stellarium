@@ -699,7 +699,8 @@
     "Zubenelgenubi": 2461132.1065156357,
     "Antares": 2461132.174854815,
     "Rasalhague": 2461132.219956206
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-02",
@@ -1380,7 +1381,8 @@
     "Zubenelgenubi": 2461133.103785461,
     "Antares": 2461133.172124743,
     "Rasalhague": 2461133.2172261397
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-03",
@@ -2041,7 +2043,14 @@
     "Zubenelgenubi": 2461134.101055285,
     "Antares": 2461134.1693946733,
     "Rasalhague": 2461134.214496067
-   }
+   },
+   "notableEvents": [
+    {
+     "kind": "greatestElongation",
+     "jd": 2461134.439985184,
+     "label": "Mercury greatest elongation W"
+    }
+   ]
   },
   {
    "eveningDate": "2026-04-04",
@@ -2735,7 +2744,8 @@
     "Antares": 2461135.166664605,
     "Rasalhague": 2461135.211765988,
     "Altair": 2461135.305871956
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-05",
@@ -3403,7 +3413,8 @@
     "Antares": 2461136.1639345377,
     "Rasalhague": 2461136.209035902,
     "Altair": 2461136.3031418826
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-06",
@@ -4043,7 +4054,8 @@
     "Antares": 2461137.1612044694,
     "Rasalhague": 2461137.2063058093,
     "Altair": 2461137.3004118055
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-07",
@@ -4651,7 +4663,8 @@
     "Antares": 2461138.1584743983,
     "Rasalhague": 2461138.2035757126,
     "Altair": 2461138.297681726
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-08",
@@ -5219,7 +5232,8 @@
     "Antares": 2461139.1557443235,
     "Rasalhague": 2461139.200845613,
     "Altair": 2461139.294951645
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-09",
@@ -5743,7 +5757,8 @@
     "Antares": 2461140.153014243,
     "Rasalhague": 2461140.1981155123,
     "Altair": 2461140.2922215643
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-10",
@@ -6215,7 +6230,8 @@
     "Antares": 2461141.1502841553,
     "Rasalhague": 2461141.195385412,
     "Altair": 2461141.289491486
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-11",
@@ -6634,7 +6650,8 @@
     "Antares": 2461142.1475540604,
     "Rasalhague": 2461142.192655314,
     "Altair": 2461142.28676141
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-12",
@@ -7001,7 +7018,8 @@
     "Antares": 2461143.144823958,
     "Rasalhague": 2461143.18992522,
     "Altair": 2461143.284031339
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-13",
@@ -7312,7 +7330,8 @@
     "Antares": 2461144.14209385,
     "Rasalhague": 2461144.1871951297,
     "Altair": 2461144.281301274
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-14",
@@ -7567,7 +7586,8 @@
     "Antares": 2461145.1393637373,
     "Rasalhague": 2461145.1844650423,
     "Altair": 2461145.2785712145
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-15",
@@ -7766,7 +7786,8 @@
     "Antares": 2461146.1366336234,
     "Rasalhague": 2461146.181734955,
     "Altair": 2461146.275841159
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-16",
@@ -7905,7 +7926,8 @@
     "Antares": 2461147.13390351,
     "Rasalhague": 2461147.1790048643,
     "Altair": 2461147.273111105
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-17",
@@ -8002,7 +8024,8 @@
     "Antares": 2461148.1311734016,
     "Rasalhague": 2461148.1762747667,
     "Altair": 2461148.270381049
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-18",
@@ -8089,7 +8112,8 @@
     "Antares": 2461149.128443297,
     "Rasalhague": 2461149.173544658,
     "Altair": 2461149.2676509866
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-19",
@@ -8204,7 +8228,8 @@
     "Antares": 2461150.125713196,
     "Rasalhague": 2461150.170814538,
     "Altair": 2461150.264920918
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-20",
@@ -8359,7 +8384,8 @@
     "Antares": 2461151.1229830943,
     "Rasalhague": 2461151.1680844077,
     "Altair": 2461151.2621908416
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-21",
@@ -8558,7 +8584,8 @@
     "Antares": 2461152.120252986,
     "Rasalhague": 2461152.165354271,
     "Altair": 2461152.2594607603
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-22",
@@ -8813,7 +8840,8 @@
     "Antares": 2461153.117522869,
     "Rasalhague": 2461153.162624132,
     "Altair": 2461153.2567306766
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-23",
@@ -9129,7 +9157,8 @@
     "Rasalhague": 2461154.1598939938,
     "Altair": 2461154.2540005944,
     "Enif": 2461154.3325468753
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-24",
@@ -9505,7 +9534,8 @@
     "Rasalhague": 2461155.157163859,
     "Altair": 2461155.2512705144,
     "Enif": 2461155.3298167745
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-25",
@@ -9937,7 +9967,8 @@
     "Rasalhague": 2461156.1544337277,
     "Altair": 2461156.248540439,
     "Enif": 2461156.3270866796
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-26",
@@ -10425,7 +10456,8 @@
     "Rasalhague": 2461157.151703598,
     "Altair": 2461157.2458103667,
     "Enif": 2461157.3243565904
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-27",
@@ -10969,7 +11001,8 @@
     "Rasalhague": 2461158.148973468,
     "Altair": 2461158.243080297,
     "Enif": 2461158.3216265053
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-28",
@@ -11565,7 +11598,8 @@
     "Rasalhague": 2461159.1462433357,
     "Altair": 2461159.2403502283,
     "Enif": 2461159.318896425
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-29",
@@ -12210,7 +12244,8 @@
     "Altair": 2461160.237620157,
     "Enif": 2461160.3161663455,
     "Sadalmelik": 2461160.331163371
-   }
+   },
+   "notableEvents": []
   },
   {
    "eveningDate": "2026-04-30",
@@ -12907,7 +12942,8 @@
     "Altair": 2461161.2348900833,
     "Enif": 2461161.313436266,
     "Sadalmelik": 2461161.3284332743
-   }
+   },
+   "notableEvents": []
   }
  ]
 }
