@@ -527,7 +527,7 @@
    "notableEvents": [
     {
      "kind": "greatestElongation",
-     "jd": 2461254.8385328697,
+     "jd": 2461254.8385250242,
      "label": "Mercury greatest elongation W"
     }
    ]
@@ -4506,7 +4506,7 @@
    "notableEvents": [
     {
      "kind": "solarEclipse",
-     "jd": 2461265.259274439,
+     "jd": 2461265.2592744464,
      "label": "Partial solar eclipse"
     }
    ]
@@ -4792,7 +4792,7 @@
    "notableEvents": [
     {
      "kind": "greatestElongation",
-     "jd": 2461267.7720749564,
+     "jd": 2461267.771919001,
      "label": "Venus greatest elongation E"
     }
    ]
@@ -8748,7 +8748,7 @@
    "notableEvents": [
     {
      "kind": "lunarEclipse",
-     "jd": 2461280.675622602,
+     "jd": 2461280.6756225666,
      "label": "Partial lunar eclipse"
     }
    ]

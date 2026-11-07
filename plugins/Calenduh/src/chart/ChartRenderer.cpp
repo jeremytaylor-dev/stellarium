@@ -460,8 +460,19 @@ double ChartRenderer::moonY(int row, double altitude, double w) const
 
 std::optional<double> ChartRenderer::moonAltitudeAt(int row, double jd) const
 {
+	// A time within one minute outside a curve end is on that end: an eclipse seen only
+	// until moonset (CAL-E-09) has its time at the set, found by a separate root search.
+	constexpr double TOLERANCE = 1. / 1440.;
 	for (const MoonSegment& seg : model.rows.at(row).moonSegments)
 	{
+		if (seg.samples.isEmpty())
+			continue;
+		const MoonSample& first = seg.samples.first();
+		const MoonSample& last = seg.samples.last();
+		if (jd < first.jd && jd >= first.jd - TOLERANCE)
+			return first.altitude;
+		if (jd > last.jd && jd <= last.jd + TOLERANCE)
+			return last.altitude;
 		for (int i = 1; i < seg.samples.size(); ++i)
 		{
 			const MoonSample& a = seg.samples.at(i - 1);
@@ -607,7 +618,8 @@ void ChartRenderer::drawEvents(QPainter& painter)
 			{
 				// CAL-E-06: at the nearer edge, with the local time in the label.
 				x = (e.jd < r.windowStart) ? chart.left() : chart.right();
-				m.text += QLatin1Char(' ') + jdToDateTime(e.jd).toTimeZone(timeZone).toString(QStringLiteral("HH:mm"));
+				// Local time h:mm, rounded to the minute.
+				m.text += QLatin1Char(' ') + jdToDateTime(e.jd).addSecs(30).toTimeZone(timeZone).toString(QStringLiteral("H:mm"));
 			}
 			else
 			{
