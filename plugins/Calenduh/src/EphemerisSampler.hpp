@@ -43,10 +43,11 @@ namespace calenduh {
 //! (CAL-I-06), and it does not depend on the planet of the Stellarium observer
 //! (CAL-I-09). Must run on the GUI thread (catalogue lookups).
 //!
-//! Use: prepare(), then computeNight(i) for each night, then model(). To keep
-//! the user interface responsive (architecture section 5.6), call the stages of
-//! prepare() one per event-loop turn instead: begin(), computeSunNight(i) for
-//! each night, chooseTimeWindow(); then computeNight(i) one per turn.
+//! Use: prepare(), then computeNight(i) for each night, then computeEvents(),
+//! then model(). To keep the user interface responsive (architecture section
+//! 5.6), call the stages one per event-loop turn instead: begin(),
+//! computeSunNight(i) for each night, chooseTimeWindow(); then computeNight(i)
+//! one per turn; then computeEventStep(i) one per turn.
 class EphemerisSampler
 {
 public:
@@ -78,7 +79,7 @@ public:
 	//! the assignment to rows (the last step).
 	void computeEventStep(int index);
 
-	//! The chart model; complete after computeNight() for every night.
+	//! The chart model; complete after computeNight() for every night and computeEvents().
 	const ChartModel& model() const { return model_; }
 
 	//! Star and target names that Stellarium could not find (CAL-S-07, CAL-G-12).

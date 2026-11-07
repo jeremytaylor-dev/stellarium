@@ -850,7 +850,7 @@ void EphemerisSampler::assignEventRows()
 	{
 		const double t = f.event.jd;
 		int row = -1;
-		for (int k = 0; k + 1 < eventBounds.size(); ++k)
+		for (int k = 0; row < 0 && k + 1 < eventBounds.size(); ++k)
 			if (eventBounds[k] <= t && t < eventBounds[k + 1])
 				row = k;
 		if (row < 0)
