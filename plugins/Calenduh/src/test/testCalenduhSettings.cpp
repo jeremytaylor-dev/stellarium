@@ -49,6 +49,9 @@ private slots:
 		QCOMPARE(s.chart.stars, d.chart.stars);
 		QCOMPARE(s.chart.autoWindow, d.chart.autoWindow);
 		QCOMPARE(s.style.starLineColor, d.style.starLineColor);
+		QCOMPARE(s.style.eventColor, QColor("#e00000"));
+		for (bool on : s.chart.events)
+			QVERIFY(on); // CAL-E-01: all event types on by default
 		QCOMPARE(s.exportOptions.pageSize, QPageSize::A4);
 		QCOMPARE(s.exportOptions.orientation, QPageLayout::Landscape);
 	}
@@ -97,6 +100,8 @@ private slots:
 		s.style.starLineColor = QColor("#00ff00");
 		s.style.starLineWidth = 0.8;
 		s.style.moonMinWidth = 0.7;
+		s.style.eventColor = QColor("#ff00ff");
+		s.chart.events = { true, false, false, true };
 		s.exportOptions.format = ExportOptions::Format::Png;
 		s.exportOptions.pageSize = QPageSize::A3;
 		s.exportOptions.orientation = QPageLayout::Portrait;
@@ -132,6 +137,8 @@ private slots:
 		QCOMPARE(r.style.starLineColor, s.style.starLineColor);
 		QCOMPARE(r.style.starLineWidth, s.style.starLineWidth);
 		QCOMPARE(r.style.moonMinWidth, s.style.moonMinWidth);
+		QCOMPARE(r.style.eventColor, s.style.eventColor);
+		QVERIFY(r.chart.events == s.chart.events);
 		QCOMPARE(r.exportOptions.format, ExportOptions::Format::Png);
 		QCOMPARE(r.exportOptions.pageSize, QPageSize::A3);
 		QCOMPARE(r.exportOptions.orientation, QPageLayout::Portrait);

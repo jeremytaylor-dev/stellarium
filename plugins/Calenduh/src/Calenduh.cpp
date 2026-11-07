@@ -256,6 +256,8 @@ void Calenduh::runSamplerCheck()
 	}
 	for (int i = 0; i < sampler.nightCount(); ++i)
 		sampler.computeNight(i);
+	const qint64 nightsElapsed = timer.elapsed();
+	sampler.computeEvents();
 	const qint64 elapsed = timer.elapsed();
 
 	// Also report the automatic window (CAL-L-07) for comparison with the fixture's window.
@@ -275,8 +277,9 @@ void Calenduh::runSamplerCheck()
 	QFile out(paths.at(1));
 	if (out.open(QIODevice::WriteOnly | QIODevice::Truncate))
 		out.write(sampler.model().toJson());
-	qInfo().noquote() << QString("[Calenduh] sampler check: %1 nights in %2 ms; automatic window %3; unresolved: %4; written %5")
-			     .arg(sampler.nightCount()).arg(elapsed).arg(autoWindow, sampler.unresolvedNames().join(", "), paths.at(1));
+	qInfo().noquote() << QString("[Calenduh] sampler check: %1 nights in %2 ms (notable events %3 ms); automatic window %4; unresolved: %5; written %6")
+			     .arg(sampler.nightCount()).arg(elapsed).arg(elapsed - nightsElapsed)
+			     .arg(autoWindow, sampler.unresolvedNames().join(", "), paths.at(1));
 
 	if (qEnvironmentVariableIntValue("CALENDUH_SAMPLE_QUIT") == 1)
 		QTimer::singleShot(0, qApp, &QCoreApplication::quit);

@@ -29,6 +29,7 @@
 #include <QTimeZone>
 #include <QString>
 #include <QStringList>
+#include <array>
 #include <optional>
 #include <utility>
 
@@ -103,6 +104,8 @@ struct ChartSettings
 	int windowEndClock = 6 * 60;
 	QStringList stars = defaultStars();  //!< CAL-S-07
 	PanelSettings panel;
+	//! Notable event types shown, indexed by EventKind (CAL-E-01). All on by default.
+	std::array<bool, EventKindCount> events { true, true, true, true };
 
 	//! Default star list (CAL-S-08), in order of right ascension.
 	static QStringList defaultStars();

@@ -50,7 +50,7 @@ bool sameChartInputs(const calenduh::UserSettings& a, const calenduh::UserSettin
 	const calenduh::ChartSettings& y = b.chart;
 	if (a.followStellariumLocation != b.followStellariumLocation || a.currentMonth != b.currentMonth
 	    || x.autoWindow != y.autoWindow || x.stars != y.stars || x.panel.toJson() != y.panel.toJson()
-	    || x.location != y.location)
+	    || x.location != y.location || x.events != y.events)
 		return false;
 	if (!a.currentMonth && (x.firstEvening != y.firstEvening || x.lastEvening != y.lastEvening))
 		return false;

@@ -137,10 +137,11 @@ QList<QPair<QString, QWidget*>> SettingsEditor::pages()
 {
 	if (pageList.isEmpty())
 	{
-		pageTitles = { N_("Location and dates"), N_("Stars"), N_("Target panel"), N_("Appearance"), N_("Page and export") };
+		pageTitles = { N_("Location and dates"), N_("Stars"), N_("Target panel"), N_("Events"), N_("Appearance"), N_("Page and export") };
 		// No change handling while the widgets are made: store() needs all of them.
 		loading = true;
-		const QList<QWidget*> widgets = { buildLocationPage(), buildStarsPage(), buildPanelPage(), buildAppearancePage(), buildExportPage() };
+		const QList<QWidget*> widgets = { buildLocationPage(), buildStarsPage(), buildPanelPage(), buildEventsPage(),
+						  buildAppearancePage(), buildExportPage() };
 		for (int i = 0; i < widgets.size(); ++i)
 			pageList.append({ q_(pageTitles.at(i)), scrolled(widgets.at(i)) });
 		load();
@@ -446,6 +447,26 @@ QWidget* SettingsEditor::buildPanelPage()
 	return page;
 }
 
+QWidget* SettingsEditor::buildEventsPage()
+{
+	// Requirements section 8a: one switch per event type, in EventKind order.
+	auto* page = new QWidget();
+	auto* layout = new QVBoxLayout(page);
+	layout->addWidget(label(N_("Mark these events with a ring on the chart, if they can be seen from the chart location:")));
+	const char* names[EventKindCount] = { N_("Solar eclipses"), N_("Lunar eclipses"),
+					      N_("Outer planet oppositions (Mars to Neptune)"),
+					      N_("Inner planet greatest elongations (Mercury, Venus)") };
+	for (int k = 0; k < EventKindCount; ++k)
+	{
+		eventEnabled[k] = text(new QCheckBox(), names[k]);
+		layout->addWidget(eventEnabled[k]);
+		connect(eventEnabled[k], &QCheckBox::toggled, this, &SettingsEditor::onChanged);
+	}
+	layout->addWidget(label(N_("The ring colour is on the Appearance page.")));
+	layout->addStretch(1);
+	return page;
+}
+
 QWidget* SettingsEditor::buildAppearancePage()
 {
 	auto* page = new QWidget();
@@ -487,6 +508,9 @@ QWidget* SettingsEditor::buildAppearancePage()
 	moonMaxWidth->setRange(0.1, 1.);
 	moonMaxWidth->setSingleStep(0.05);
 	form->addRow(label(N_("Moon curve width, full Moon (fraction of row height)")), moonMaxWidth);
+	// CAL-E-07
+	eventColor = colorButton();
+	form->addRow(label(N_("Event rings and labels")), eventColor);
 	layout->addLayout(form);
 
 	auto* reset = text(new QPushButton(), N_("Reset to defaults"));
@@ -509,6 +533,7 @@ QWidget* SettingsEditor::buildAppearancePage()
 		s.moonDayColor = defaults.moonDayColor;
 		s.moonMinWidth = defaults.moonMinWidth;
 		s.moonMaxWidthFactor = defaults.moonMaxWidthFactor;
+		s.eventColor = defaults.eventColor;
 		load();
 		store();
 	});
@@ -662,6 +687,9 @@ void SettingsEditor::load()
 	minDuration->setTime(timeOfHours(p.minDurationHours));
 	setListItems(targets.list, p.targets);
 
+	for (int k = 0; k < EventKindCount; ++k)
+		eventEnabled[k]->setChecked(c.events[k]);
+
 	for (int k = 0; k < 4; ++k)
 		setColorButton(bandColor[k], current.style.bandColor[k]);
 	setColorButton(starColor, current.style.starLineColor);
@@ -670,6 +698,7 @@ void SettingsEditor::load()
 	setColorButton(moonDayColor, current.style.moonDayColor);
 	moonMinWidth->setValue(current.style.moonMinWidth);
 	moonMaxWidth->setValue(current.style.moonMaxWidthFactor);
+	setColorButton(eventColor, current.style.eventColor);
 
 	const ExportOptions& e = current.exportOptions;
 	const int pageIndex = pageSize->findData(static_cast<int>(e.pageSize));
@@ -717,6 +746,9 @@ void SettingsEditor::store()
 	p.minDurationHours = hoursOf(minDuration->time());
 	p.targets = listItems(targets.list);
 
+	for (int k = 0; k < EventKindCount; ++k)
+		c.events[k] = eventEnabled[k]->isChecked();
+
 	for (int k = 0; k < 4; ++k)
 		current.style.bandColor[k] = colorOf(bandColor[k]);
 	current.style.starLineColor = colorOf(starColor);
@@ -725,6 +757,7 @@ void SettingsEditor::store()
 	current.style.moonDayColor = colorOf(moonDayColor);
 	current.style.moonMinWidth = moonMinWidth->value();
 	current.style.moonMaxWidthFactor = moonMaxWidth->value();
+	current.style.eventColor = colorOf(eventColor);
 
 	ExportOptions& e = current.exportOptions;
 	e.pageSize = static_cast<QPageSize::PageSizeId>(pageSize->currentData().toInt());

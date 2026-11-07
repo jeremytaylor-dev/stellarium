@@ -34,7 +34,7 @@ class EphemerisSampler;
 
 //! Computes a chart model without blocking the user interface (CAL-I-07,
 //! architecture section 5.6): one step per event-loop turn (the Sun events of a
-//! night, then the rest of a night), with progress and cancel. A reload of the
+//! night, then the rest of a night, then one part of the notable events), with progress and cancel. A reload of the
 //! Solar System data stops the job, because the sampler holds pointers into it.
 class ChartJob : public QObject
 {
@@ -63,7 +63,8 @@ private slots:
 
 private:
 	std::unique_ptr<EphemerisSampler> sampler;
-	int next = 0;           //!< next step: 0..n-1 Sun events, n..2n-1 nights
+	int next = 0;           //!< next step: 0..n-1 Sun events, n..2n-1 nights, then event steps
+	int stepCount() const;  //!< all steps of the running job
 	QTimer timer;
 	quint64 generation = 0; //!< counts start() calls
 };
