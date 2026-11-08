@@ -364,6 +364,19 @@ private slots:
 		QVERIFY(e.at(1).kind == EventKind::LunarEclipse);
 		QVERIFY(e.at(1).detail == EventDetail::Partial);
 		QVERIFY(e.at(1).body.isEmpty());
+
+		// A model file from before body and detail: both come from the English label.
+		const QByteArray old = R"({"schema": 1, "location": {"timeZone": "UTC"}, "rows": [{"eveningDate": "2026-08-01",
+			"notableEvents": [{"kind": "lunarEclipse", "jd": 1.0, "label": "Total lunar eclipse"},
+					  {"kind": "opposition", "jd": 2.0, "label": "Jupiter opposition"},
+					  {"kind": "greatestElongation", "jd": 3.0, "label": "Venus greatest elongation W"}]}]})";
+		QVERIFY2(r.fromJson(old, &error), qPrintable(error));
+		const ChartText text;
+		const QVector<NotableEvent>& o = r.rows.first().notableEvents;
+		QCOMPARE(o.size(), 3);
+		QCOMPARE(text.eventLabel(o.at(0)), QString("Total lunar eclipse"));
+		QCOMPARE(text.eventLabel(o.at(1)), QString("Jupiter opposition"));
+		QCOMPARE(text.eventLabel(o.at(2)), QString("Venus greatest elongation W"));
 	}
 
 private:

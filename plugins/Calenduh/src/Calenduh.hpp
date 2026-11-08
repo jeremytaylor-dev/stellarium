@@ -69,7 +69,7 @@ public:
 	//! @p error if no Earth location is available; the user must then select one.
 	bool resolveChartSettings(calenduh::ChartSettings& settings, QString* error = nullptr);
 
-	//! The chart text in the Stellarium language (CAL-I-10): Calenduh's texts translated,
+	//! The chart text in the Stellarium app language (CAL-I-10): Calenduh's texts translated,
 	//! Stellarium's planet names, and the dates and numbers of the language.
 	static calenduh::ChartText chartText();
 

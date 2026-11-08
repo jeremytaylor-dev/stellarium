@@ -112,10 +112,12 @@ template <class W> W* SettingsEditor::text(W* widget, const char* source)
 	return widget;
 }
 
-template <class W> void SettingsEditor::unit(W* box, const char* source)
+template <class W> void SettingsEditor::unit(W* box, const char* source, const char* context)
 {
 	// CAL-I-10: the unit follows the Stellarium language.
-	auto set = [box, source]() { box->setSuffix(QStringLiteral(" ") + q_(source)); };
+	auto set = [box, source, context]() {
+		box->setSuffix(QStringLiteral(" ") + (context ? qc_(source, context) : q_(source)));
+	};
 	texts.append(set);
 	set();
 }
@@ -238,8 +240,8 @@ QWidget* SettingsEditor::buildLocationPage()
 	elevation = new QDoubleSpinBox();
 	elevation->setRange(-500., 9000.);
 	elevation->setDecimals(0);
-	// TRANSLATORS: Calenduh: unit after a value in the settings window, metres.
-	unit(elevation, N_("m"));
+	// The context of Stellarium's own "m" for metres; without it, "m" is minutes.
+	unit(elevation, NC_("m", "distance"), "distance");
 	locationForm->addRow(label(N_("Elevation")), elevation);
 	timeZone = new QComboBox();
 	timeZone->setEditable(true);

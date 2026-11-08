@@ -60,6 +60,21 @@ SunExtreme readExtreme(const QJsonObject& o)
 	return e;
 }
 
+//! Planet and detail of an event from its English label (CAL-E-08), for model files written
+//! before the label was made at drawing time.
+void fromEnglishLabel(NotableEvent& event, const QString& label)
+{
+	const QStringList words = label.split(QLatin1Char(' '), Qt::SkipEmptyParts);
+	if (words.isEmpty())
+		return;
+	if (event.kind == EventKind::SolarEclipse || event.kind == EventKind::LunarEclipse)
+		event.detail = eventDetailFromKey(words.first().toLower());
+	else
+		event.body = words.first();
+	if (event.kind == EventKind::GreatestElongation)
+		event.detail = words.last() == QLatin1String("W") ? EventDetail::West : EventDetail::East;
+}
+
 QJsonObject writeExtreme(const SunExtreme& e)
 {
 	return QJsonObject{ { "jd", e.jd }, { "alt", e.altitude } };
@@ -255,9 +270,13 @@ bool ChartModel::fromJson(const QByteArray& json, QString* errorMessage)
 		{
 			const QJsonObject e = ev.toObject();
 			const std::optional<EventKind> kind = eventKindFromKey(e.value("kind").toString());
-			if (kind && e.value("jd").isDouble())
-				row.notableEvents.append(NotableEvent{ *kind, e.value("jd").toDouble(), e.value("body").toString(),
-								       eventDetailFromKey(e.value("detail").toString()) });
+			if (!kind || !e.value("jd").isDouble())
+				continue;
+			NotableEvent event{ *kind, e.value("jd").toDouble(), e.value("body").toString(),
+					    eventDetailFromKey(e.value("detail").toString()) };
+			if (!e.contains("body") && !e.contains("detail"))
+				fromEnglishLabel(event, e.value("label").toString());
+			row.notableEvents.append(event);
 		}
 
 		rows.append(row);

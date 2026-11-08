@@ -158,7 +158,7 @@ private:
 	//! Register a translated text for a widget with setText() and set it.
 	template <class W> W* text(W* widget, const char* source);
 	//! Set the unit suffix of a spin box, translated now and after a language change.
-	template <class W> void unit(W* box, const char* source);
+	template <class W> void unit(W* box, const char* source, const char* context = nullptr);
 	QLabel* label(const char* source);
 	QGroupBox* group(const char* title);
 	void fillEventCombos();

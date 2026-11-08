@@ -169,7 +169,7 @@ QString ChartText::dateRange(const QDate& first, const QDate& last) const
 	const int year = format.lastIndexOf(QStringLiteral("yy"));
 	const int month = year < 0 ? -1 : format.lastIndexOf(QLatin1Char('M'), year);
 	const bool yearLast = year >= 0 && !unquoted(format.mid(year)).contains(QRegularExpression(QStringLiteral("[dM]")));
-	if (sameYear && dayFirst.match(plain).hasMatch() && month >= 0 && yearLast)
+	if (sameYear && format.startsWith(QLatin1Char('d')) && dayFirst.match(plain).hasMatch() && month >= 0 && yearLast)
 	{
 		if (sameMonth)
 		{
