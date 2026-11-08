@@ -1761,6 +1761,8 @@
     {
      "kind": "lunarEclipse",
      "jd": 2461102.981731411,
+     "body": "",
+     "detail": "total",
      "label": "Total lunar eclipse"
     }
    ]

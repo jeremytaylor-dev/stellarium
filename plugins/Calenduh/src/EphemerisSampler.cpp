@@ -719,7 +719,7 @@ void EphemerisSampler::findOppositions(const Body& p)
 {
 	// CAL-E-04: the apparent ecliptic longitudes of planet and Sun differ by 180 degrees.
 	for (double t : signChanges([&](double jd) { return wrap180(apparentLongitudeDifference(p, jd) - 180.); }))
-		eventsFound.append({ { EventKind::Opposition, t, QString("%1 opposition").arg(p.name) }, &p });
+		eventsFound.append({ { EventKind::Opposition, t, p.name, EventDetail::None }, &p });
 }
 
 void EphemerisSampler::findGreatestElongations(const Body& p)
@@ -736,8 +736,8 @@ void EphemerisSampler::findGreatestElongations(const Body& p)
 		if (!(v[i] > v[i - 1] && v[i] >= v[i + 1]))
 			continue;
 		const double t = goldenMin([&](double jd) { return -elongation(jd); }, eventDays[i - 1], eventDays[i + 1]);
-		const QString side = apparentLongitudeDifference(p, t) > 0. ? QStringLiteral("E") : QStringLiteral("W");
-		eventsFound.append({ { EventKind::GreatestElongation, t, QString("%1 greatest elongation %2").arg(p.name, side) }, &p });
+		const EventDetail side = apparentLongitudeDifference(p, t) > 0. ? EventDetail::East : EventDetail::West;
+		eventsFound.append({ { EventKind::GreatestElongation, t, p.name, side }, &p });
 	}
 }
 
@@ -763,21 +763,21 @@ void EphemerisSampler::findLunarEclipses()
 		const double penumbra = pi1 + piS + sS;
 		const double umbra = pi1 + piS - sS;
 		const double sep = shadowSeparation(tMax);
-		QString type;
+		EventDetail type = EventDetail::None;
 		double limit = 0.;
 		if (sep < umbra - moonRadius)
 		{
-			type = QStringLiteral("Total");
+			type = EventDetail::Total;
 			limit = umbra + moonRadius;
 		}
 		else if (sep < umbra + moonRadius)
 		{
-			type = QStringLiteral("Partial");
+			type = EventDetail::Partial;
 			limit = umbra + moonRadius;
 		}
 		else if (sep < penumbra + moonRadius)
 		{
-			type = QStringLiteral("Penumbral");
+			type = EventDetail::Penumbral;
 			limit = penumbra + moonRadius;
 		}
 		else
@@ -788,7 +788,7 @@ void EphemerisSampler::findLunarEclipses()
 		setEpoch(tMax);
 		const std::optional<double> t = visibleBest(c1, c4, tMax, shadowSeparation, moonBody, true, 0.);
 		if (t)
-			eventsFound.append({ { EventKind::LunarEclipse, *t, QString("%1 lunar eclipse").arg(type) }, nullptr });
+			eventsFound.append({ { EventKind::LunarEclipse, *t, QString(), type }, nullptr });
 	}
 }
 
@@ -834,10 +834,10 @@ void EphemerisSampler::findSolarEclipses()
 		if (!t)
 			continue;
 		const Disc d = discs(*t);
-		const QString type = (d.moonRadius > d.sunRadius && d.separation <= d.moonRadius - d.sunRadius) ? QStringLiteral("Total")
-			: (d.sunRadius > d.moonRadius && d.separation <= d.sunRadius - d.moonRadius) ? QStringLiteral("Annular")
-			: QStringLiteral("Partial");
-		eventsFound.append({ { EventKind::SolarEclipse, *t, QString("%1 solar eclipse").arg(type) }, nullptr });
+		const EventDetail type = (d.moonRadius > d.sunRadius && d.separation <= d.moonRadius - d.sunRadius) ? EventDetail::Total
+			: (d.sunRadius > d.moonRadius && d.separation <= d.sunRadius - d.moonRadius) ? EventDetail::Annular
+			: EventDetail::Partial;
+		eventsFound.append({ { EventKind::SolarEclipse, *t, QString(), type }, nullptr });
 	}
 }
 

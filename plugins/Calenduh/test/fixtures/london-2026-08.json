@@ -528,6 +528,8 @@
     {
      "kind": "greatestElongation",
      "jd": 2461254.8385250242,
+     "body": "Mercury",
+     "detail": "west",
      "label": "Mercury greatest elongation W"
     }
    ]
@@ -4507,6 +4509,8 @@
     {
      "kind": "solarEclipse",
      "jd": 2461265.2592744464,
+     "body": "",
+     "detail": "partial",
      "label": "Partial solar eclipse"
     }
    ]
@@ -4793,6 +4797,8 @@
     {
      "kind": "greatestElongation",
      "jd": 2461267.771919001,
+     "body": "Venus",
+     "detail": "east",
      "label": "Venus greatest elongation E"
     }
    ]
@@ -8749,6 +8755,8 @@
     {
      "kind": "lunarEclipse",
      "jd": 2461280.6756225666,
+     "body": "",
+     "detail": "partial",
      "label": "Partial lunar eclipse"
     }
    ]

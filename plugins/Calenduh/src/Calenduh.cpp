@@ -19,7 +19,11 @@
 
 #include "StelApp.hpp"
 #include "StelCore.hpp"
+#include "StelLocaleMgr.hpp"
 #include "StelLocation.hpp"
+#include "StelModuleMgr.hpp"
+#include "SolarSystem.hpp"
+#include "Planet.hpp"
 #include "StelTranslator.hpp"
 #include "StelUtils.hpp"
 #include "Calenduh.hpp"
@@ -161,6 +165,41 @@ bool Calenduh::stellariumLocation(calenduh::ChartLocation& location)
 	location.elevation = loc.altitude;
 	location.timeZone = tz;
 	return true;
+}
+
+calenduh::ChartText Calenduh::chartText()
+{
+	using calenduh::ChartText;
+	const ChartText english;
+	const QString language = StelApp::getInstance().getLocaleMgr().getAppLanguage();
+	const QLocale locale(language);
+	ChartText text = english.translated([](const QString& s) { return q_(s); }, locale);
+	if (locale.language() != QLocale::English)
+	{
+		// LANG-3: Stellarium's own translations, for Calenduh texts without a translation yet.
+		auto fallback = [&](ChartText::Id id, const QString& replacement) {
+			if (text[id] == english[id])
+				text.set(id, replacement);
+		};
+		auto typed = [](const QString& noun, const QString& type) { return QString("%1 (%2)").arg(noun, type); };
+		fallback(ChartText::TotalSolarEclipse, typed(q_("Solar Eclipse"), q_("Total")));
+		fallback(ChartText::AnnularSolarEclipse, typed(q_("Solar Eclipse"), q_("Annular")));
+		fallback(ChartText::PartialSolarEclipse, typed(q_("Solar Eclipse"), q_("Partial")));
+		fallback(ChartText::TotalLunarEclipse, q_("Total Lunar Eclipse"));
+		fallback(ChartText::PartialLunarEclipse, q_("Partial Lunar Eclipse"));
+		fallback(ChartText::PenumbralLunarEclipse, typed(q_("Eclipse"), q_("Penumbral")));
+		fallback(ChartText::Opposition, "%1: " + q_("Opposition"));
+		fallback(ChartText::GreatestElongationEast, "%1: " + q_("Greatest eastern elongation"));
+		fallback(ChartText::GreatestElongationWest, "%1: " + q_("Greatest western elongation"));
+	}
+	// LANG-1: planet names as Stellarium shows them.
+	QMap<QString, QString> names;
+	if (const SolarSystem* solarSystem = GETSTELMODULE(SolarSystem))
+		for (const QString& name : { "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" })
+			if (const PlanetP p = solarSystem->searchByEnglishName(name))
+				names.insert(name, p->getNameI18n());
+	text.setBodyNames(names);
+	return text;
 }
 
 bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* error)

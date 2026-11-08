@@ -2048,6 +2048,8 @@
     {
      "kind": "greatestElongation",
      "jd": 2461134.439985184,
+     "body": "Mercury",
+     "detail": "west",
      "label": "Mercury greatest elongation W"
     }
    ]

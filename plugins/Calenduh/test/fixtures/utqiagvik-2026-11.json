@@ -7250,6 +7250,8 @@
     {
      "kind": "greatestElongation",
      "jd": 2461365.4800696345,
+     "body": "Mercury",
+     "detail": "west",
      "label": "Mercury greatest elongation W"
     }
    ]
@@ -12928,6 +12930,8 @@
     {
      "kind": "opposition",
      "jd": 2461370.445369088,
+     "body": "Uranus",
+     "detail": "",
      "label": "Uranus opposition"
     }
    ]

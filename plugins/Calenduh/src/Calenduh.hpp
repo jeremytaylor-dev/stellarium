@@ -69,6 +69,10 @@ public:
 	//! @p error if no Earth location is available; the user must then select one.
 	bool resolveChartSettings(calenduh::ChartSettings& settings, QString* error = nullptr);
 
+	//! The chart text in the Stellarium language (CAL-I-10): Calenduh's texts translated,
+	//! Stellarium's planet names, and the dates and numbers of the language.
+	static calenduh::ChartText chartText();
+
 	//! Stellarium's current location as a chart location. Returns false if the
 	//! observer is not on Earth. LMST and LTST become Stellarium's present UTC
 	//! offset; a name that Qt does not know becomes the system time zone.

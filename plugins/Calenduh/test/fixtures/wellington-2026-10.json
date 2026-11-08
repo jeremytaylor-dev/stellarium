@@ -1166,6 +1166,8 @@
     {
      "kind": "opposition",
      "jd": 2461318.0201422647,
+     "body": "Saturn",
+     "detail": "",
      "label": "Saturn opposition"
     }
    ]
@@ -2380,6 +2382,8 @@
     {
      "kind": "greatestElongation",
      "jd": 2461325.9189669546,
+     "body": "Mercury",
+     "detail": "east",
      "label": "Mercury greatest elongation E"
     }
    ]

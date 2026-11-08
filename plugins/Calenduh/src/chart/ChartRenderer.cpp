@@ -72,16 +72,6 @@ int clockMinutes(const QDateTime& local)
 	return local.time().hour() * 60 + local.time().minute();
 }
 
-QString formatLatitude(double deg)
-{
-	return QString("%1° %2").arg(std::fabs(deg), 0, 'f', 2).arg(deg < 0. ? "S" : "N");
-}
-
-QString formatLongitude(double deg)
-{
-	return QString("%1° %2").arg(std::fabs(deg), 0, 'f', 2).arg(deg < 0. ? "W" : "E");
-}
-
 //! Height of the chart title and of the panel heading, in em. The first line has its baseline
 //! at 1.3 em and the second line at 2.6 em.
 constexpr double TITLE_HEIGHT = 3.0;
@@ -172,7 +162,7 @@ void ChartRenderer::layout(const QRectF& page, const QPainter& painter)
 		double textWidth = std::max(titleMetrics.horizontalAdvance(panel.title),
 					    summaryMetrics.horizontalAdvance(panel.summary));
 		if (std::any_of(model.rows.cbegin(), model.rows.cend(), [](const NightRow& r) { return !r.hasPeriod(); }))
-			textWidth = std::max(textWidth, summaryMetrics.horizontalAdvance(style.panelShadeNote));
+			textWidth = std::max(textWidth, summaryMetrics.horizontalAdvance(style.text[ChartText::ShadeNote]));
 		panelWidth = std::max(panel.targets.size() * columnWidth + em, std::min(textWidth + 0.2 * em, 0.35 * page.width()));
 	}
 	chart = QRectF(page.left() + margin + leftReserve,
@@ -611,7 +601,7 @@ void ChartRenderer::drawEvents(QPainter& painter)
 		for (const NotableEvent& e : r.notableEvents)
 		{
 			Mark m;
-			m.text = e.label;
+			m.text = style.text.eventLabel(e);
 			double x = 0.;
 			double y = rowCentre(row);
 			if (e.jd < r.windowStart || e.jd > r.windowEnd)
@@ -893,31 +883,23 @@ void ChartRenderer::drawPanel(QPainter& painter)
 
 	// CAL-G-16: the note goes right of target labels that extend below the panel (CAL-G-13).
 	if (anyShaded && noteLeft < panelArea.right())
-		drawFittedLine(painter, summaryFont, style.panelShadeNote, noteLeft, panelArea.right(),
+		drawFittedLine(painter, summaryFont, style.text[ChartText::ShadeNote], noteLeft, panelArea.right(),
 			       chart.bottom() + 0.45 * em + QFontMetricsF(summaryFont, painter.device()).ascent(), false);
 	painter.restore();
 }
 
 ChartRenderer::Title ChartRenderer::titleText() const
 {
-	// CAL-L-05: date range, location name, latitude and longitude.
-	const QLocale english(QLocale::English);
-	const QDate first = model.rows.first().eveningDate;
-	const QDate last = model.rows.last().eveningDate;
-	QString range;
-	if (first.year() == last.year() && first.month() == last.month())
-		range = QString("%1–%2 %3").arg(first.day()).arg(last.day()).arg(english.toString(last, "MMMM yyyy"));
-	else if (first.year() == last.year())
-		range = QString("%1 – %2").arg(english.toString(first, "d MMMM"), english.toString(last, "d MMMM yyyy"));
-	else
-		range = QString("%1 – %2").arg(english.toString(first, "d MMMM yyyy"), english.toString(last, "d MMMM yyyy"));
-
-	const QString coordinates = QString("%1, %2").arg(formatLatitude(model.location.latitude),
-							  formatLongitude(model.location.longitude));
+	// CAL-L-05: date range, location name, latitude and longitude, in the chart language (CAL-I-10).
+	const ChartText& text = style.text;
+	const QString range = text.dateRange(model.rows.first().eveningDate, model.rows.last().eveningDate);
+	const QString title = QString("%1, %2").arg(text[ChartText::Title], range);
+	const QString coordinates = QString("%1, %2").arg(text.latitude(model.location.latitude),
+							  text.longitude(model.location.longitude));
 	// A location without a name (for example a position from the network) shows the coordinates only.
 	if (model.location.name.trimmed().isEmpty())
-		return { QString("%1, %2").arg(style.title, range), coordinates };
-	return { QString("%1, %2").arg(style.title, range), QString("%1 (%2)").arg(model.location.name, coordinates) };
+		return { title, coordinates };
+	return { title, QString("%1 (%2)").arg(model.location.name, coordinates) };
 }
 
 } // namespace calenduh

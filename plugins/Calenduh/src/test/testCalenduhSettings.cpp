@@ -272,6 +272,105 @@ private slots:
 		e.orientation = QPageLayout::Portrait;
 		QCOMPARE(e.pagePoints().toSize(), QSize(595, 842));
 	}
+
+	// CAL-I-10, LANG-2: the title's date range in the chart language.
+	void dateRanges()
+	{
+		const QDate aug1(2026, 8, 1), aug31(2026, 8, 31), sep30(2026, 9, 30), jan2(2027, 1, 2), dec30(2026, 12, 30);
+		const ChartText english;
+		QCOMPARE(english.dateRange(aug1, aug31), QString::fromUtf8("1–31 August 2026"));
+		QCOMPARE(english.dateRange(aug1, sep30), QString::fromUtf8("1 August – 30 September 2026"));
+		QCOMPARE(english.dateRange(dec30, jan2), QString::fromUtf8("30 December 2026 – 2 January 2027"));
+		// Every English locale has the form of the requirements.
+		QCOMPARE(inLocale("en_US").dateRange(aug1, aug31), QString::fromUtf8("1–31 August 2026"));
+
+		const ChartText german = inLocale("de_DE");
+		QCOMPARE(german.dateRange(aug1, aug31), QString::fromUtf8("1.–31. August 2026"));
+		QCOMPARE(german.dateRange(aug1, sep30), QString::fromUtf8("1. August – 30. September 2026"));
+		QCOMPARE(german.dateRange(dec30, jan2), QString::fromUtf8("30. Dezember 2026 – 2. Januar 2027"));
+		QCOMPARE(inLocale("fr_FR").dateRange(aug1, aug31), QString::fromUtf8("1–31 août 2026"));
+		// A locale whose date does not start with the day: both dates complete, no weekday.
+		const QString japanese = inLocale("ja_JP").dateRange(aug1, aug31);
+		QVERIFY2(japanese.contains(QString::fromUtf8("2026年8月1日")) && japanese.contains(QString::fromUtf8("2026年8月31日")),
+			 qPrintable(japanese));
+		QVERIFY2(!japanese.contains(QString::fromUtf8("曜日")), qPrintable(japanese));
+	}
+
+	// CAL-I-10, LANG-2: coordinates with the locale's decimal separator and translated letters.
+	void coordinates()
+	{
+		const ChartText english;
+		QCOMPARE(english.latitude(51.514), QString::fromUtf8("51.51° N"));
+		QCOMPARE(english.longitude(-0.126), QString::fromUtf8("0.13° W"));
+		const ChartText german = ChartText().translated(
+			[](const QString& s) { return s == "E" ? QString("O") : s; }, QLocale("de_DE"));
+		QCOMPARE(german.latitude(-41.11), QString::fromUtf8("41,11° S"));
+		QCOMPARE(german.longitude(173.0), QString::fromUtf8("173,00° O"));
+	}
+
+	// CAL-E-08, CAL-I-10, LANG-1: event labels from kind, planet and detail.
+	void eventLabels()
+	{
+		ChartText text;
+		QCOMPARE(text.eventLabel({ EventKind::SolarEclipse, 0., QString(), EventDetail::Annular }), QString("Annular solar eclipse"));
+		QCOMPARE(text.eventLabel({ EventKind::SolarEclipse, 0., QString(), EventDetail::Partial }), QString("Partial solar eclipse"));
+		QCOMPARE(text.eventLabel({ EventKind::LunarEclipse, 0., QString(), EventDetail::Total }), QString("Total lunar eclipse"));
+		QCOMPARE(text.eventLabel({ EventKind::LunarEclipse, 0., QString(), EventDetail::Penumbral }), QString("Penumbral lunar eclipse"));
+		QCOMPARE(text.eventLabel({ EventKind::Opposition, 0., "Jupiter", EventDetail::None }), QString("Jupiter opposition"));
+		QCOMPARE(text.eventLabel({ EventKind::GreatestElongation, 0., "Venus", EventDetail::West }), QString("Venus greatest elongation W"));
+		text.setBodyNames({ { "Jupiter", QString::fromUtf8("Júpiter") } });
+		QCOMPARE(text.eventLabel({ EventKind::Opposition, 0., "Jupiter", EventDetail::None }), QString::fromUtf8("Júpiter opposition"));
+		QCOMPARE(text.eventLabel({ EventKind::Opposition, 0., "Mars", EventDetail::None }), QString("Mars opposition"));
+	}
+
+	// CAL-G-11, CAL-I-10: the panel summary in the chart language.
+	void translatedPanelSummary()
+	{
+		PanelSettings p = PanelSettings::visualPreset();
+		p.minAltitude = 22.5;
+		const ChartText text = ChartText().translated(
+			[](const QString& s) {
+				if (s == "nautical dusk")
+					return QString("nautische Dämmerung");
+				if (s == "%1 to %2, above %3° %4")
+					return QString("%1 bis %2, über %3° %4");
+				return s;
+			},
+			QLocale("de_DE"));
+		QCOMPARE(p.summary(text), QString::fromUtf8("nautische Dämmerung bis (start + 2:30), über 22,5° for minimum 1:00"));
+		QCOMPARE(p.summary(), QString::fromUtf8("nautical dusk to (start + 2:30), above 22.5° for minimum 1:00"));
+	}
+
+	// The model file keeps planet and detail; the label is English (fixture comparison).
+	void notableEventJson()
+	{
+		ChartModel m;
+		m.location.timeZone = "UTC";
+		NightRow row;
+		row.eveningDate = QDate(2026, 8, 1);
+		row.notableEvents.append({ EventKind::GreatestElongation, 2461254.25, "Mercury", EventDetail::West });
+		row.notableEvents.append({ EventKind::LunarEclipse, 2461280.75, QString(), EventDetail::Partial });
+		m.rows.append(row);
+		const QByteArray json = m.toJson();
+		QVERIFY(json.contains("\"label\": \"Mercury greatest elongation W\""));
+		ChartModel r;
+		QString error;
+		QVERIFY2(r.fromJson(json, &error), qPrintable(error));
+		QCOMPARE(r.rows.size(), 1);
+		const QVector<NotableEvent>& e = r.rows.first().notableEvents;
+		QCOMPARE(e.size(), 2);
+		QCOMPARE(e.at(0).body, QString("Mercury"));
+		QVERIFY(e.at(0).detail == EventDetail::West);
+		QVERIFY(e.at(1).kind == EventKind::LunarEclipse);
+		QVERIFY(e.at(1).detail == EventDetail::Partial);
+		QVERIFY(e.at(1).body.isEmpty());
+	}
+
+private:
+	static ChartText inLocale(const char* name)
+	{
+		return ChartText().translated([](const QString& s) { return s; }, QLocale(QString::fromLatin1(name)));
+	}
 };
 
 QTEST_GUILESS_MAIN(TestCalenduhSettings)

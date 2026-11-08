@@ -18,6 +18,7 @@
  */
 
 #include "SettingsEditor.hpp"
+#include "Calenduh.hpp"
 
 #include "StelApp.hpp"
 #include "StelCore.hpp"
@@ -109,6 +110,14 @@ template <class W> W* SettingsEditor::text(W* widget, const char* source)
 	texts.append([widget, source]() { widget->setText(q_(source)); });
 	widget->setText(q_(source));
 	return widget;
+}
+
+template <class W> void SettingsEditor::unit(W* box, const char* source)
+{
+	// CAL-I-10: the unit follows the Stellarium language.
+	auto set = [box, source]() { box->setSuffix(QStringLiteral(" ") + q_(source)); };
+	texts.append(set);
+	set();
 }
 
 QLabel* SettingsEditor::label(const char* source)
@@ -229,7 +238,8 @@ QWidget* SettingsEditor::buildLocationPage()
 	elevation = new QDoubleSpinBox();
 	elevation->setRange(-500., 9000.);
 	elevation->setDecimals(0);
-	elevation->setSuffix(" m");
+	// TRANSLATORS: Calenduh: unit after a value in the settings window, metres.
+	unit(elevation, N_("m"));
 	locationForm->addRow(label(N_("Elevation")), elevation);
 	timeZone = new QComboBox();
 	timeZone->setEditable(true);
@@ -382,7 +392,8 @@ void SettingsEditor::buildEdge(EdgeWidgets& edge, bool isEnd, QFormLayout* form,
 	edge.offset = new QSpinBox();
 	edge.offset->setRange(-720, 720);
 	edge.offset->setSingleStep(15);
-	edge.offset->setSuffix(" min");
+	// TRANSLATORS: Calenduh: unit after a value in the settings window, minutes.
+	unit(edge.offset, N_("min"));
 	layout->addWidget(edge.kind);
 	layout->addWidget(edge.clock);
 	layout->addWidget(edge.event);
@@ -492,7 +503,8 @@ QWidget* SettingsEditor::buildAppearancePage()
 	starWidth = new QDoubleSpinBox();
 	starWidth->setRange(0.1, 3.);
 	starWidth->setSingleStep(0.1);
-	starWidth->setSuffix(" pt");
+	// TRANSLATORS: Calenduh: unit after a value in the settings window, points (1/72 inch), a line width.
+	unit(starWidth, N_("pt"));
 	form->addRow(label(N_("Star line width")), starWidth);
 	// CAL-M-02, CAL-M-03, CAL-M-10
 	moonNightColor = colorButton();
@@ -502,7 +514,8 @@ QWidget* SettingsEditor::buildAppearancePage()
 	moonMinWidth = new QDoubleSpinBox();
 	moonMinWidth->setRange(0.1, 5.);
 	moonMinWidth->setSingleStep(0.1);
-	moonMinWidth->setSuffix(" pt");
+	// TRANSLATORS: Calenduh: unit after a value in the settings window, points (1/72 inch), a line width.
+	unit(moonMinWidth, N_("pt"));
 	form->addRow(label(N_("Moon curve width, thinnest crescent")), moonMinWidth);
 	moonMaxWidth = new QDoubleSpinBox();
 	moonMaxWidth->setRange(0.1, 1.);
@@ -561,7 +574,8 @@ QWidget* SettingsEditor::buildExportPage()
 	pngDpi = new QSpinBox();
 	pngDpi->setRange(36, ExportOptions::MaxPngDpi);
 	pngDpi->setSingleStep(50);
-	pngDpi->setSuffix(" dpi");
+	// TRANSLATORS: Calenduh: unit after a value in the settings window, dots per inch.
+	unit(pngDpi, N_("dpi"));
 	form->addRow(label(N_("PNG resolution")), pngDpi);
 	layout->addLayout(form);
 	layout->addWidget(label(N_("Use Export on the Chart page to write PDF, SVG or PNG. The file name suffix selects the format.")));
@@ -777,7 +791,8 @@ void SettingsEditor::refreshDerived()
 	const PanelSettings& p = c.panel;
 	panelPreset->setCurrentIndex(presetIndex());
 	// CAL-G-11: the heading as the chart shows it.
-	panelSummary->setText(p.title.isEmpty() ? p.summary() : QString("%1 — %2").arg(p.title, p.summary()));
+	const QString summary = p.summary(Calenduh::chartText());
+	panelSummary->setText(p.title.isEmpty() ? summary : QString("%1 — %2").arg(p.title, summary));
 
 	locationStatus->setText(!current.followStellariumLocation && !isValidTimeZone(c.location.timeZone)
 		? q_("Unknown time zone. Select one from the list.") : QString());

@@ -59,6 +59,22 @@ bool sameChartInputs(const calenduh::UserSettings& a, const calenduh::UserSettin
 	return true;
 }
 
+//! @p style with the chart text in the Stellarium language (CAL-I-10).
+calenduh::ChartStyle withChartText(calenduh::ChartStyle style, const calenduh::ChartText& text)
+{
+	style.text = text;
+	return style;
+}
+
+//! @p model with its panel summary in the language of @p text; @p panel made the model.
+calenduh::ChartModel withPanelSummary(calenduh::ChartModel model, const calenduh::PanelSettings& panel,
+				      const calenduh::ChartText& text)
+{
+	if (model.panel)
+		model.panel->summary = panel.summary(text);
+	return model;
+}
+
 } // namespace
 
 CalenduhDialog::CalenduhDialog()
@@ -87,6 +103,13 @@ void CalenduhDialog::retranslate()
 		for (int i = 0; i < pages.size(); ++i)
 			ui->listWidgetPages->item(i + 1)->setText(pages.at(i).first);
 		setStatus(statusText);
+		// CAL-I-10: the chart shown in the new language; no new calculation.
+		if (const calenduh::ChartModel* model = ui->preview->chartModel())
+		{
+			const calenduh::ChartText text = Calenduh::chartText();
+			ui->preview->setChart(withPanelSummary(*model, shownSettings.chart.panel, text),
+					      withChartText(ui->preview->chartStyle(), text), ui->preview->pagePoints());
+		}
 	}
 }
 
@@ -213,7 +236,9 @@ void CalenduhDialog::jobFinished(const calenduh::ChartModel& model, const QStrin
 {
 	// The style and the page need no calculation: use those in force now.
 	const calenduh::UserSettings& current = editor->settings();
-	ui->preview->setChart(model, current.style, current.exportOptions.pagePoints());
+	const calenduh::ChartText text = Calenduh::chartText();
+	ui->preview->setChart(withPanelSummary(model, jobSettings.chart.panel, text), withChartText(current.style, text),
+			      current.exportOptions.pagePoints());
 	shownSettings = jobSettings;
 	// CAL-S-07, CAL-G-12: names that Stellarium cannot find are left out and reported.
 	shownUnresolved = unresolvedNames;
@@ -248,7 +273,7 @@ void CalenduhDialog::jobCancelled()
 		return;
 	}
 	const calenduh::UserSettings& current = editor->settings();
-	ui->preview->setAppearance(current.style, current.exportOptions.pagePoints());
+	ui->preview->setAppearance(withChartText(current.style, Calenduh::chartText()), current.exportOptions.pagePoints());
 	showChartStatus(current, true);
 }
 
@@ -270,8 +295,9 @@ void CalenduhDialog::settingsChanged(const calenduh::UserSettings& settings)
 		return;
 	// Colours, line widths and the page need no new calculation.
 	const QSizeF page = settings.exportOptions.pagePoints();
-	if (settings.style != ui->preview->chartStyle() || page != ui->preview->pagePoints())
-		ui->preview->setAppearance(settings.style, page);
+	const calenduh::ChartStyle style = withChartText(settings.style, Calenduh::chartText());
+	if (style != ui->preview->chartStyle() || page != ui->preview->pagePoints())
+		ui->preview->setAppearance(style, page);
 	showChartStatus(settings, false);
 }
 

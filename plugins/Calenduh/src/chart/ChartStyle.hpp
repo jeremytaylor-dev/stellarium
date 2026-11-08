@@ -20,8 +20,9 @@
 #ifndef CALENDUH_CHARTSTYLE_HPP
 #define CALENDUH_CHARTSTYLE_HPP
 
+#include "ChartText.hpp"
+
 #include <QColor>
-#include <QString>
 
 namespace calenduh {
 
@@ -29,7 +30,7 @@ namespace calenduh {
 //! Defaults are the values accepted in requirements.html.
 struct ChartStyle
 {
-	QString title = QStringLiteral("Observation Planning Calendar");
+	ChartText text;                               //!< CAL-I-10; not saved, set from the Stellarium language
 
 	QColor daylight        { 0xFF, 0xFF, 0xFF };  //!< CAL-T-07
 	QColor bandColor[4] = {                       //!< CAL-T-06, below each threshold
@@ -55,7 +56,6 @@ struct ChartStyle
 	QColor panelRowColor   { 0xE0, 0xE0, 0xE0 };  //!< panel row separators
 	QColor panelShadeColor { 0xED, 0xED, 0xED };  //!< CAL-G-16, rows without a period
 	double panelColumnFactor = 2.3;               //!< CAL-G-14, column width in units of the base text size
-	QString panelShadeNote = QStringLiteral("Shaded rows: the period does not exist");
 
 	QColor eventColor      { 0xE0, 0x00, 0x00 };  //!< CAL-E-07, notable-event rings and labels
 	double eventLineWidth = 1.0;
@@ -69,14 +69,14 @@ struct ChartStyle
 		for (int i = 0; i < 4; ++i)
 			if (bandColor[i] != o.bandColor[i])
 				return false;
-		return title == o.title && daylight == o.daylight && gridColor == o.gridColor && gridWidth == o.gridWidth
+		return text == o.text && daylight == o.daylight && gridColor == o.gridColor && gridWidth == o.gridWidth
 		       && starLineColor == o.starLineColor && starLineWidth == o.starLineWidth
 		       && moonNightColor == o.moonNightColor && moonDayColor == o.moonDayColor
 		       && moonMinWidth == o.moonMinWidth && moonMaxWidthFactor == o.moonMaxWidthFactor
 		       && panelLineColor == o.panelLineColor && panelLineWidth == o.panelLineWidth
 		       && panelTextColor == o.panelTextColor && panelRowColor == o.panelRowColor
 		       && panelShadeColor == o.panelShadeColor && panelColumnFactor == o.panelColumnFactor
-		       && panelShadeNote == o.panelShadeNote && eventColor == o.eventColor
+		       && eventColor == o.eventColor
 		       && eventLineWidth == o.eventLineWidth && eventRingFactor == o.eventRingFactor && textColor == o.textColor && phaseOutline == o.phaseOutline;
 	}
 	bool operator!=(const ChartStyle& o) const { return !(*this == o); }
