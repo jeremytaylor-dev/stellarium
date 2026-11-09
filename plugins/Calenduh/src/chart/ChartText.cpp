@@ -27,7 +27,7 @@ namespace calenduh {
 
 namespace {
 
-// N_() marks the texts for translation; the plugin translates them (CAL-I-10, LANG-3).
+// N_() marks the texts for translation; the plugin translates them (CAL-I-11, LANG-3).
 #ifndef N_
 #define N_(str) str
 #endif

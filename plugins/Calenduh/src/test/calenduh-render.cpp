@@ -19,7 +19,7 @@
 
 // Stand-alone test program: renders a chart-model JSON file without Stellarium.
 // Usage: calenduh-render <model.json> <output.png|svg|pdf> [--dpi N] [--locale NAME]
-// --locale sets the date and number format (CAL-I-10); the texts stay English.
+// --locale sets the date and number format (CAL-I-11); the texts stay English.
 
 #include "ChartExporter.hpp"
 

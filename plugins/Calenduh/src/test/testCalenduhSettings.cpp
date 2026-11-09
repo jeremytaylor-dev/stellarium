@@ -273,7 +273,7 @@ private slots:
 		QCOMPARE(e.pagePoints().toSize(), QSize(595, 842));
 	}
 
-	// CAL-I-10, LANG-2: the title's date range in the chart language.
+	// CAL-I-11, LANG-2: the title's date range in the chart language.
 	void dateRanges()
 	{
 		const QDate aug1(2026, 8, 1), aug31(2026, 8, 31), sep30(2026, 9, 30), jan2(2027, 1, 2), dec30(2026, 12, 30);
@@ -318,7 +318,7 @@ private slots:
 		}
 	}
 
-	// CAL-I-10, LANG-2: coordinates with the locale's decimal separator and translated letters.
+	// CAL-I-11, LANG-2: coordinates with the locale's decimal separator and translated letters.
 	void coordinates()
 	{
 		const ChartText english;
@@ -330,7 +330,7 @@ private slots:
 		QCOMPARE(german.longitude(173.0), QString::fromUtf8("173,00° O"));
 	}
 
-	// CAL-E-08, CAL-I-10, LANG-1: event labels from kind, planet and detail.
+	// CAL-E-08, CAL-I-11, LANG-1: event labels from kind, planet and detail.
 	void eventLabels()
 	{
 		ChartText text;
@@ -345,7 +345,7 @@ private slots:
 		QCOMPARE(text.eventLabel({ EventKind::Opposition, 0., "Mars", EventDetail::None }), QString("Mars opposition"));
 	}
 
-	// CAL-G-11, CAL-I-10: the panel summary in the chart language.
+	// CAL-G-11, CAL-I-11: the panel summary in the chart language.
 	void translatedPanelSummary()
 	{
 		PanelSettings p = PanelSettings::visualPreset();

@@ -890,7 +890,7 @@ void ChartRenderer::drawPanel(QPainter& painter)
 
 ChartRenderer::Title ChartRenderer::titleText() const
 {
-	// CAL-L-05: date range, location name, latitude and longitude, in the chart language (CAL-I-10).
+	// CAL-L-05: date range, location name, latitude and longitude, in the chart language (CAL-I-11).
 	const ChartText& text = style.text;
 	const QString range = text.dateRange(model.rows.first().eveningDate, model.rows.last().eveningDate);
 	const QString title = QString("%1, %2").arg(text[ChartText::Title], range);
