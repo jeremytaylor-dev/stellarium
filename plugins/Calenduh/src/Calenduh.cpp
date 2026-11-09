@@ -202,8 +202,13 @@ calenduh::ChartText makeChartText(const QString& language)
 		fallback(ChartText::Opposition, "%1: " + q_("Opposition"));
 		fallback(ChartText::GreatestElongationEast, "%1: " + q_("Greatest eastern elongation"));
 		fallback(ChartText::GreatestElongationWest, "%1: " + q_("Greatest western elongation"));
+		fallback(ChartText::North, qc_("N", "latitude"));
+		fallback(ChartText::South, qc_("S", "latitude"));
+		fallback(ChartText::East, qc_("E", "longitude"));
+		fallback(ChartText::West, qc_("W", "longitude"));
 	}
-	// LANG-1: planet names as Stellarium's own catalogue translates them (Planet::translateName),
+	// LANG-1: planet names. The context "major planet" is in the sky domain only; Qt then
+	// uses the context-free planet names of the main domain. The names are
 	// in the app language as the rest of the chart.
 	QMap<QString, QString> names;
 	for (const char* name : { "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" })

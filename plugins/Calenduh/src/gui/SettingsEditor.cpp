@@ -394,8 +394,8 @@ void SettingsEditor::buildEdge(EdgeWidgets& edge, bool isEnd, QFormLayout* form,
 	edge.offset = new QSpinBox();
 	edge.offset->setRange(-720, 720);
 	edge.offset->setSingleStep(15);
-	// TRANSLATORS: Calenduh: unit after a value in the settings window, minutes.
-	unit(edge.offset, N_("min"));
+	// Stellarium's msgid for minutes; the context-free "min" means "minimum".
+	unit(edge.offset, NC_("min", "period"), "period");
 	layout->addWidget(edge.kind);
 	layout->addWidget(edge.clock);
 	layout->addWidget(edge.event);

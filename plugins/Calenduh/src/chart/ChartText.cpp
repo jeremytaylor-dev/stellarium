@@ -77,11 +77,15 @@ const char* const englishSummaryTexts[ChartText::Count - ChartText::AfterStart] 
 	N_("%1 to %2, above %3° %4"),
 };
 
-//! The long date format of @p locale without the weekday.
+//! The long date format of @p locale without the weekday, its separators (also the Arabic
+//! comma) and a word next to it: quoted (Danish "dddd 'den'") or non-ASCII after it (Thai
+//! "ddddที่"). A non-ASCII word before it stays (Japanese "d日dddd").
 QString dateFormatWithoutWeekday(const QLocale& locale)
 {
 	QString f = locale.dateFormat(QLocale::LongFormat);
-	static const QRegularExpression weekday(QStringLiteral("\\s*,?\\s*d{3,4}\\s*,?\\s*"));
+	static const QRegularExpression weekday(QStringLiteral(
+		"[\\s,\\x{060C}]*(?:'[^']*'\\s*)?d{3,4}"
+		"(?:\\s*'[^']*'|[^\\x00-\\x7F\\s,\\x{060C}]+)?[\\s,\\x{060C}]*"));
 	return f.replace(weekday, QStringLiteral(" ")).trimmed();
 }
 

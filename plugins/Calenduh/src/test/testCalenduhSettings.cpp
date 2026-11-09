@@ -294,6 +294,18 @@ private slots:
 		QVERIFY2(japanese.contains(QString::fromUtf8("2026年8月1日")) && japanese.contains(QString::fromUtf8("2026年8月31日")),
 			 qPrintable(japanese));
 		QVERIFY2(!japanese.contains(QString::fromUtf8("曜日")), qPrintable(japanese));
+		// The words and separators next to the weekday go with it.
+		QCOMPARE(inLocale("da_DK").dateRange(aug1, aug31), QString::fromUtf8("1.–31. august 2026"));
+		const QString arabic = inLocale("ar_EG").dateRange(aug1, aug31);
+		QVERIFY2(!arabic.contains(QChar(0x060C)), arabic.toUtf8().constData());
+		QCOMPARE(inLocale("th_TH").dateRange(aug1, aug31), QString::fromUtf8("1–31 สิงหาคม 2026"));
+		const QString thai = inLocale("th_TH").dateRange(aug1, sep30);
+		QVERIFY2(!thai.contains(QString::fromUtf8("ที่")) && !thai.contains(QString::fromUtf8("วัน")), thai.toUtf8().constData());
+		for (const char* name : { "es_ES", "ru_RU", "pl_PL", "nl_NL", "cs_CZ", "pt_BR", "bg_BG" })
+		{
+			const QString range = inLocale(name).dateRange(aug1, aug31);
+			QVERIFY2(range.startsWith(QLatin1Char('1')) && range.contains(QLatin1String("31")), qPrintable(range));
+		}
 	}
 
 	// CAL-I-10, LANG-2: coordinates with the locale's decimal separator and translated letters.
