@@ -152,20 +152,12 @@ QString ChartText::dateRange(const QDate& first, const QDate& last) const
 {
 	const bool sameYear = first.year() == last.year();
 	const bool sameMonth = sameYear && first.month() == last.month();
-	if (loc.language() == QLocale::English)
-	{
-		// The form of the requirements (CAL-L-05), for every English locale.
-		const QLocale english(QLocale::English, QLocale::UnitedKingdom);
-		if (sameMonth)
-			return QString("%1–%2 %3").arg(first.day()).arg(last.day()).arg(english.toString(last, "MMMM yyyy"));
-		if (sameYear)
-			return QString("%1 – %2").arg(english.toString(first, "d MMMM"), english.toString(last, "d MMMM yyyy"));
-		return QString("%1 – %2").arg(english.toString(first, "d MMMM yyyy"), english.toString(last, "d MMMM yyyy"));
-	}
 
-	// LANG-2: the locale's long date without the weekday. If it starts with the day and
-	// ends with the year after the month, the first date is shortened as in English:
-	// "1.–31. August 2026", "1. August – 30. September 2026". Otherwise both dates are complete.
+	// LANG-2, LANG-4: the locale's long date without the weekday. If it ends with the year,
+	// the first date is shortened:
+	// - day first: "1–31 August 2026", "1.–31. August 2026", "1. August – 30. September 2026";
+	// - month first: "August 1–31, 2026", "August 1 – September 30, 2026".
+	// Otherwise both dates are complete.
 	const QString format = dateFormatWithoutWeekday(loc);
 	const QString full = loc.toString(last, format);
 	const QString plain = unquoted(format);
@@ -183,6 +175,15 @@ QString ChartText::dateRange(const QDate& first, const QDate& last) const
 			return QString("%1–%2").arg(loc.toString(first, dayFormat), full);
 		}
 		return QString("%1 – %2").arg(loc.toString(first, format.left(month + 1)), full);
+	}
+	static const QRegularExpression monthFirst(QStringLiteral("^M{3,4}[^dMy']*(d{1,2})"));
+	const QRegularExpressionMatch m = monthFirst.match(format);
+	if (sameYear && m.hasMatch() && yearLast)
+	{
+		const QString firstPart = loc.toString(first, format.left(m.capturedEnd(1)));
+		if (sameMonth)
+			return QString("%1–%2").arg(firstPart, loc.toString(last, format.mid(m.capturedStart(1))));
+		return QString("%1 – %2").arg(firstPart, full);
 	}
 	return QString("%1 – %2").arg(loc.toString(first, format), full);
 }

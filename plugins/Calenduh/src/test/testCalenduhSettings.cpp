@@ -281,8 +281,11 @@ private slots:
 		QCOMPARE(english.dateRange(aug1, aug31), QString::fromUtf8("1–31 August 2026"));
 		QCOMPARE(english.dateRange(aug1, sep30), QString::fromUtf8("1 August – 30 September 2026"));
 		QCOMPARE(english.dateRange(dec30, jan2), QString::fromUtf8("30 December 2026 – 2 January 2027"));
-		// Every English locale has the form of the requirements.
-		QCOMPARE(inLocale("en_US").dateRange(aug1, aug31), QString::fromUtf8("1–31 August 2026"));
+		// LANG-4: US English has the month first.
+		const ChartText us = inLocale("en_US");
+		QCOMPARE(us.dateRange(aug1, aug31), QString::fromUtf8("August 1–31, 2026"));
+		QCOMPARE(us.dateRange(aug1, sep30), QString::fromUtf8("August 1 – September 30, 2026"));
+		QCOMPARE(us.dateRange(dec30, jan2), QString::fromUtf8("December 30, 2026 – January 2, 2027"));
 
 		const ChartText german = inLocale("de_DE");
 		QCOMPARE(german.dateRange(aug1, aug31), QString::fromUtf8("1.–31. August 2026"));
