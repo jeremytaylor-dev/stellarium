@@ -70,12 +70,22 @@ QString eventKindKey(EventKind kind);
 //! The event kind of a JSON key; empty if unknown.
 std::optional<EventKind> eventKindFromKey(const QString& key);
 
-//! One notable event, marked by a ring on its row (requirements section 8a).
+//! Eclipse type, or side of a greatest elongation (CAL-E-08).
+enum class EventDetail { None, Total, Annular, Partial, Penumbral, East, West };
+
+//! JSON key of an event detail, e.g. "total"; empty for None.
+QString eventDetailKey(EventDetail detail);
+//! The event detail of a JSON key; None if unknown.
+EventDetail eventDetailFromKey(const QString& key);
+
+//! One notable event, marked by a ring on its row (requirements section 8a). The label is
+//! made when the chart is drawn (ChartText::eventLabel), in the language of the chart.
 struct NotableEvent
 {
 	EventKind kind = EventKind::Opposition;
 	double jd = 0.;     //!< event time (CAL-E-04); can be outside the time window (CAL-E-06)
-	QString label;      //!< CAL-E-08, without the time
+	QString body;       //!< English planet name for an opposition or elongation; empty for an eclipse
+	EventDetail detail = EventDetail::None;
 };
 
 //! One night (one chart row).

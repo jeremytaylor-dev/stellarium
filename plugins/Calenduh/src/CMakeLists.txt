@@ -17,6 +17,8 @@ ADD_LIBRARY(CalenduhChart STATIC
      chart/ChartSettings.hpp
      chart/ChartSettings.cpp
      chart/ChartStyle.hpp
+     chart/ChartText.hpp
+     chart/ChartText.cpp
      chart/UserSettings.hpp
      chart/UserSettings.cpp
      chart/ChartRenderer.hpp

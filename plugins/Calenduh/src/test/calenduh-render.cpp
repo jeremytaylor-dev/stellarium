@@ -18,7 +18,8 @@
  */
 
 // Stand-alone test program: renders a chart-model JSON file without Stellarium.
-// Usage: calenduh-render <model.json> <output.png|svg|pdf> [--dpi N]
+// Usage: calenduh-render <model.json> <output.png|svg|pdf> [--dpi N] [--locale NAME]
+// --locale sets the date and number format (CAL-I-10); the texts stay English.
 
 #include "ChartExporter.hpp"
 
@@ -35,7 +36,7 @@ int main(int argc, char* argv[])
 	const QStringList args = app.arguments();
 	if (args.size() < 3)
 	{
-		err << "Usage: calenduh-render <model.json> <output.png|svg|pdf> [--dpi N]\n";
+		err << "Usage: calenduh-render <model.json> <output.png|svg|pdf> [--dpi N] [--locale NAME]\n";
 		return 2;
 	}
 	double dpi = 150.;
@@ -57,7 +58,10 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	const calenduh::ChartStyle style;
+	calenduh::ChartStyle style;
+	const int localeIndex = args.indexOf("--locale");
+	if (localeIndex > 0 && localeIndex + 1 < args.size())
+		style.text = style.text.translated([](const QString& s) { return s; }, QLocale(args.at(localeIndex + 1)));
 	const QString out = args.at(2);
 	const QString suffix = QFileInfo(out).suffix().toLower();
 	const QSizeF page = calenduh::ChartExporter::defaultPageSize();

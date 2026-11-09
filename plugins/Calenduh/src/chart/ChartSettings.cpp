@@ -31,8 +31,8 @@ const char* const eventKeys[SunEventCount] = {
 	"sunset", "civilDusk", "nauticalDusk", "astronomicalDusk",
 	"astronomicalDawn", "nauticalDawn", "civilDawn", "sunrise" };
 
-// N_() marks the names for translation; the plugin window translates them. The chart text
-// (summary, period descriptions) uses the English names.
+// N_() marks the names for translation; the plugin translates them for the window and,
+// through ChartText, for the chart.
 #ifndef N_
 #define N_(str) str
 #endif
@@ -130,19 +130,19 @@ PeriodEdge PeriodEdge::afterStart(double hours)
 	return p;
 }
 
-QString PeriodEdge::describe() const
+QString PeriodEdge::describe(const ChartText& text) const
 {
 	switch (kind)
 	{
 		case Kind::Clock:
 			return clockText(clockMinutes);
 		case Kind::Duration:
-			return QString("(start + %1)").arg(hoursAndMinutes(durationHours));
+			return text[ChartText::AfterStart].arg(hoursAndMinutes(durationHours));
 		case Kind::Event:
 			break;
 	}
 	// An edge with an offset is a sum, and is shown in brackets (CAL-G-11).
-	const QString name = sunEventName(event);
+	const QString name = text[static_cast<ChartText::Id>(ChartText::Sunset + static_cast<int>(event))];
 	if (std::lround(offsetHours * 60.) == 0)
 		return name;
 	return QString("(%1 %2 %3)").arg(name, offsetHours > 0. ? "+" : "-", hoursAndMinutes(offsetHours));
@@ -201,12 +201,12 @@ PanelSettings PanelSettings::astrophotographyPreset()
 	return p;
 }
 
-QString PanelSettings::summary() const
+QString PanelSettings::summary(const ChartText& text) const
 {
 	// A minimum duration of 0:00 means at any time (CAL-G-08, CAL-G-11).
 	const QString duration = std::lround(minDurationHours * 60.) > 0
-		? QString("for minimum %1").arg(hoursAndMinutes(minDurationHours)) : QString("at any time");
-	return QString("%1 to %2, above %3° %4").arg(start.describe(), end.describe()).arg(minAltitude, 0, 'g', 4).arg(duration);
+		? text[ChartText::ForMinimum].arg(hoursAndMinutes(minDurationHours)) : text[ChartText::AtAnyTime];
+	return text[ChartText::PanelSummary].arg(start.describe(text), end.describe(text), text.number(minAltitude, 'g', 4), duration);
 }
 
 std::optional<std::pair<double, double>> PanelSettings::period(const NightRow& row, const QTimeZone& timeZone) const

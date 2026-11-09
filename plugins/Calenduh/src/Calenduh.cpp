@@ -19,7 +19,9 @@
 
 #include "StelApp.hpp"
 #include "StelCore.hpp"
+#include "StelLocaleMgr.hpp"
 #include "StelLocation.hpp"
+#include "StelModuleMgr.hpp"
 #include "StelTranslator.hpp"
 #include "StelUtils.hpp"
 #include "Calenduh.hpp"
@@ -161,6 +163,74 @@ bool Calenduh::stellariumLocation(calenduh::ChartLocation& location)
 	location.elevation = loc.altitude;
 	location.timeZone = tz;
 	return true;
+}
+
+namespace {
+
+//! The Qt locale of a Stellarium language code, e.g. "de", "pt_BR", "sr@latin". English if
+//! Qt does not know the language (LANG-2).
+QLocale chartLocale(QString language)
+{
+	language.replace(QLatin1String("@latin"), QLatin1String("_Latn")).replace(QLatin1String("@cyrillic"), QLatin1String("_Cyrl"));
+	language = language.section('@', 0, 0);
+	const QLocale locale(language);
+	return locale.language() == QLocale::C ? QLocale(QLocale::English, QLocale::UnitedKingdom) : locale;
+}
+
+calenduh::ChartText makeChartText(const QString& language)
+{
+	using calenduh::ChartText;
+	const ChartText english;
+	const QLocale locale = chartLocale(language);
+	ChartText text = english.translated([](const QString& s) { return q_(s); }, locale);
+	if (locale.language() != QLocale::English)
+	{
+		// LANG-3: Stellarium's own translations, for Calenduh texts without a translation yet.
+		auto fallback = [&](ChartText::Id id, const QString& replacement) {
+			if (text[id] == english[id])
+				text.set(id, replacement);
+		};
+		auto typed = [](const QString& noun, const char* type) {
+			return QString("%1 (%2)").arg(noun, qc_(type, "eclipse type"));
+		};
+		fallback(ChartText::TotalSolarEclipse, typed(q_("Solar Eclipse"), "Total"));
+		fallback(ChartText::AnnularSolarEclipse, typed(q_("Solar Eclipse"), "Annular"));
+		fallback(ChartText::PartialSolarEclipse, typed(q_("Solar Eclipse"), "Partial"));
+		fallback(ChartText::TotalLunarEclipse, q_("Total Lunar Eclipse"));
+		fallback(ChartText::PartialLunarEclipse, q_("Partial Lunar Eclipse"));
+		fallback(ChartText::PenumbralLunarEclipse, typed(q_("Eclipse"), "Penumbral"));
+		fallback(ChartText::Opposition, "%1: " + q_("Opposition"));
+		fallback(ChartText::GreatestElongationEast, "%1: " + q_("Greatest eastern elongation"));
+		fallback(ChartText::GreatestElongationWest, "%1: " + q_("Greatest western elongation"));
+		fallback(ChartText::North, qc_("N", "latitude"));
+		fallback(ChartText::South, qc_("S", "latitude"));
+		fallback(ChartText::East, qc_("E", "longitude"));
+		fallback(ChartText::West, qc_("W", "longitude"));
+	}
+	// LANG-1: planet names. The context "major planet" is in the sky domain only; Qt then
+	// uses the context-free planet names of the main domain. The names are
+	// in the app language as the rest of the chart.
+	QMap<QString, QString> names;
+	for (const char* name : { "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" })
+		names.insert(name, qc_(name, "major planet"));
+	text.setBodyNames(names);
+	return text;
+}
+
+} // namespace
+
+calenduh::ChartText Calenduh::chartText()
+{
+	// Made again only after a change of the language (the window asks for it at every edit).
+	static QString cachedLanguage;
+	static calenduh::ChartText cached;
+	const QString language = StelApp::getInstance().getLocaleMgr().getAppLanguage();
+	if (language != cachedLanguage)
+	{
+		cached = makeChartText(language);
+		cachedLanguage = language;
+	}
+	return cached;
 }
 
 bool Calenduh::resolveChartSettings(calenduh::ChartSettings& settings, QString* error)

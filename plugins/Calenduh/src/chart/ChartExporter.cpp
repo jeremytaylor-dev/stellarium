@@ -76,7 +76,7 @@ bool ChartExporter::writeSvg(const ChartModel& model, const ChartStyle& style, c
 	generator.setResolution(72);
 	generator.setSize(pagePoints.toSize());
 	generator.setViewBox(QRectF(QPointF(0., 0.), pagePoints));
-	generator.setTitle(style.title);
+	generator.setTitle(style.text[ChartText::Title]);
 	generator.setDescription(QStringLiteral("Calenduh observation planning calendar"));
 
 	QPainter painter;
@@ -92,7 +92,7 @@ bool ChartExporter::writePdf(const ChartModel& model, const ChartStyle& style, c
 	QPdfWriter writer(path);
 	writer.setResolution(72);
 	writer.setPageLayout(QPageLayout(pageSize, orientation, QMarginsF(0., 0., 0., 0.), QPageLayout::Point));
-	writer.setTitle(style.title);
+	writer.setTitle(style.text[ChartText::Title]);
 	writer.setCreator(QStringLiteral("Calenduh plug-in for Stellarium"));
 
 	QPainter painter;

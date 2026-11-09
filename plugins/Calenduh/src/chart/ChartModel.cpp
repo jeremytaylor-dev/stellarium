@@ -18,6 +18,7 @@
  */
 
 #include "ChartModel.hpp"
+#include "ChartText.hpp"
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -25,6 +26,7 @@
 #include <QRegularExpression>
 #include <QTimeZone>
 #include <cmath>
+#include <iterator>
 
 namespace calenduh {
 
@@ -36,6 +38,7 @@ constexpr double MS_PER_DAY = 86400000.;
 const char* const duskKeys[ThresholdCount] = { "sunset", "civilDusk", "nauticalDusk", "astronomicalDusk" };
 const char* const dawnKeys[ThresholdCount] = { "sunrise", "civilDawn", "nauticalDawn", "astronomicalDawn" };
 const char* const eventKindKeys[EventKindCount] = { "solarEclipse", "lunarEclipse", "opposition", "greatestElongation" };
+const char* const eventDetailKeys[] = { "", "total", "annular", "partial", "penumbral", "east", "west" };
 
 std::optional<double> optionalJd(const QJsonValue& v)
 {
@@ -57,6 +60,21 @@ SunExtreme readExtreme(const QJsonObject& o)
 	return e;
 }
 
+//! Planet and detail of an event from its English label (CAL-E-08), for model files written
+//! before the label was made at drawing time.
+void fromEnglishLabel(NotableEvent& event, const QString& label)
+{
+	const QStringList words = label.split(QLatin1Char(' '), Qt::SkipEmptyParts);
+	if (words.isEmpty())
+		return;
+	if (event.kind == EventKind::SolarEclipse || event.kind == EventKind::LunarEclipse)
+		event.detail = eventDetailFromKey(words.first().toLower());
+	else
+		event.body = words.first();
+	if (event.kind == EventKind::GreatestElongation)
+		event.detail = words.last() == QLatin1String("W") ? EventDetail::West : EventDetail::East;
+}
+
 QJsonObject writeExtreme(const SunExtreme& e)
 {
 	return QJsonObject{ { "jd", e.jd }, { "alt", e.altitude } };
@@ -75,6 +93,19 @@ std::optional<EventKind> eventKindFromKey(const QString& key)
 		if (key == QLatin1String(eventKindKeys[i]))
 			return static_cast<EventKind>(i);
 	return std::nullopt;
+}
+
+QString eventDetailKey(EventDetail detail)
+{
+	return QString::fromLatin1(eventDetailKeys[static_cast<int>(detail)]);
+}
+
+EventDetail eventDetailFromKey(const QString& key)
+{
+	for (int i = 1; i < static_cast<int>(std::size(eventDetailKeys)); ++i)
+		if (key == QLatin1String(eventDetailKeys[i]))
+			return static_cast<EventDetail>(i);
+	return EventDetail::None;
 }
 
 QVector<double> eventRowBoundaries(const QVector<NightRow>& rows)
@@ -239,8 +270,13 @@ bool ChartModel::fromJson(const QByteArray& json, QString* errorMessage)
 		{
 			const QJsonObject e = ev.toObject();
 			const std::optional<EventKind> kind = eventKindFromKey(e.value("kind").toString());
-			if (kind && e.value("jd").isDouble())
-				row.notableEvents.append(NotableEvent{ *kind, e.value("jd").toDouble(), e.value("label").toString() });
+			if (!kind || !e.value("jd").isDouble())
+				continue;
+			NotableEvent event{ *kind, e.value("jd").toDouble(), e.value("body").toString(),
+					    eventDetailFromKey(e.value("detail").toString()) };
+			if (!e.contains("body") && !e.contains("detail"))
+				fromEnglishLabel(event, e.value("label").toString());
+			row.notableEvents.append(event);
 		}
 
 		rows.append(row);
@@ -274,6 +310,7 @@ QByteArray ChartModel::toJson() const
 			{ "targets", QJsonArray::fromStringList(panel->targets) } });
 
 	QJsonArray rowArray;
+	const ChartText english;
 	for (const NightRow& row : rows)
 	{
 		QJsonObject events;
@@ -303,9 +340,11 @@ QByteArray ChartModel::toJson() const
 		for (bool q : row.targetQualifies)
 			qualifies.append(q);
 
+		// The English label is for readers of the file and for fixture comparison; fromJson() ignores it.
 		QJsonArray notable;
 		for (const NotableEvent& e : row.notableEvents)
-			notable.append(QJsonObject{ { "kind", eventKindKey(e.kind) }, { "jd", e.jd }, { "label", e.label } });
+			notable.append(QJsonObject{ { "kind", eventKindKey(e.kind) }, { "jd", e.jd }, { "body", e.body },
+						    { "detail", eventDetailKey(e.detail) }, { "label", english.eventLabel(e) } });
 
 		rowArray.append(QJsonObject{
 			{ "eveningDate", row.eveningDate.toString(Qt::ISODate) },

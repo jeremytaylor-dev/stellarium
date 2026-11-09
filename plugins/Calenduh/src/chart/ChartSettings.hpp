@@ -23,6 +23,7 @@
 // Inputs of chart generation. No Stellarium dependency.
 
 #include "ChartModel.hpp"
+#include "ChartText.hpp"
 
 #include <QDate>
 #include <QJsonObject>
@@ -43,7 +44,7 @@ constexpr int SunEventCount = 8;
 //! JSON key of an event, e.g. "nauticalDusk" (same keys as the chart-model JSON).
 QString sunEventKey(SunEvent e);
 std::optional<SunEvent> sunEventFromKey(const QString& key);
-//! Display name of an event, e.g. "nautical dusk".
+//! English display name of an event, e.g. "nautical dusk".
 QString sunEventName(SunEvent e);
 //! Time of an event on a night, if it occurs.
 std::optional<double> sunEventTime(const NightRow& row, SunEvent e);
@@ -62,7 +63,8 @@ struct PeriodEdge
 	static PeriodEdge atEvent(SunEvent e, double offsetHours = 0.);
 	static PeriodEdge afterStart(double hours);
 
-	QString describe() const;
+	//! The edge in the panel summary (CAL-G-11), in the language of @p text.
+	QString describe(const ChartText& text = ChartText()) const;
 	QJsonObject toJson() const;
 	static std::optional<PeriodEdge> fromJson(const QJsonObject& o);
 };
@@ -81,8 +83,8 @@ struct PanelSettings
 	static PanelSettings visualPreset();            //!< CAL-G-10
 	static PanelSettings astrophotographyPreset();  //!< CAL-G-10
 
-	//! One-line summary for the heading (CAL-G-11).
-	QString summary() const;
+	//! One-line summary for the heading (CAL-G-11), in the language of @p text.
+	QString summary(const ChartText& text = ChartText()) const;
 
 	//! The observing period on a night, or empty if it does not exist (CAL-G-09).
 	//! @p timeZone is used for clock times; a clock time before noon is on the next morning.

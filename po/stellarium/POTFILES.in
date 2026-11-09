@@ -278,6 +278,7 @@ plugins/Calenduh/src/Calenduh.cpp
 plugins/Calenduh/src/ChartJob.cpp
 plugins/Calenduh/src/EphemerisSampler.cpp
 plugins/Calenduh/src/chart/ChartSettings.cpp
+plugins/Calenduh/src/chart/ChartText.cpp
 plugins/Calenduh/src/gui/CalenduhDialog.cpp
 plugins/Calenduh/src/gui/SettingsEditor.cpp
 plugins/Calenduh/src/ui_calenduhDialog.h
