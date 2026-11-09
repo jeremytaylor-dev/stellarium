@@ -170,17 +170,19 @@ QString ChartText::dateRange(const QDate& first, const QDate& last) const
 		if (sameMonth)
 		{
 			// The day and the characters after it up to the first space, e.g. "1." in German.
-			static const QRegularExpression dayPart(QStringLiteral("^d{1,2}[^\\sdMy']*"));
+			// A comma or hyphen stays with the last date only (Telugu "d, MMMM", Uzbek "d-MMMM").
+			static const QRegularExpression dayPart(QStringLiteral("^d{1,2}[^\\sdMy',\\-]*"));
 			const QString dayFormat = dayPart.match(format).captured(0);
 			return QString("%1–%2").arg(loc.toString(first, dayFormat), full);
 		}
 		return QString("%1 – %2").arg(loc.toString(first, format.left(month + 1)), full);
 	}
-	static const QRegularExpression monthFirst(QStringLiteral("^M{3,4}[^dMy']*(d{1,2})"));
+	// The first date ends after the day and its mark, e.g. "MMMM d." in Inari Sami, but not a comma.
+	static const QRegularExpression monthFirst(QStringLiteral("^M{3,4}[^dMy']*(d{1,2})[^\\sdMy',\\-]*"));
 	const QRegularExpressionMatch m = monthFirst.match(format);
 	if (sameYear && m.hasMatch() && yearLast)
 	{
-		const QString firstPart = loc.toString(first, format.left(m.capturedEnd(1)));
+		const QString firstPart = loc.toString(first, format.left(m.capturedEnd(0)));
 		if (sameMonth)
 			return QString("%1–%2").arg(firstPart, loc.toString(last, format.mid(m.capturedStart(1))));
 		return QString("%1 – %2").arg(firstPart, full);
