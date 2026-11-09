@@ -30,7 +30,7 @@ namespace calenduh {
 //! Defaults are the values accepted in requirements.html.
 struct ChartStyle
 {
-	ChartText text;                               //!< CAL-I-10; not saved, set from the Stellarium language
+	ChartText text;                               //!< CAL-I-11; not saved, set from the Stellarium language
 
 	QColor daylight        { 0xFF, 0xFF, 0xFF };  //!< CAL-T-07
 	QColor bandColor[4] = {                       //!< CAL-T-06, below each threshold

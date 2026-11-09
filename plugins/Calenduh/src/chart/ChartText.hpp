@@ -29,7 +29,7 @@
 
 namespace calenduh {
 
-//! The language-dependent text of the chart (CAL-I-10). The defaults are English, as the
+//! The language-dependent text of the chart (CAL-I-11). The defaults are English, as the
 //! requirements give them. The plugin makes a translated copy with translated(). Star,
 //! target and panel names are not here: they stay as the user typed them (LANG-1).
 class ChartText

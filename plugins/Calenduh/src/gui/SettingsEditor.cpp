@@ -114,7 +114,7 @@ template <class W> W* SettingsEditor::text(W* widget, const char* source)
 
 template <class W> void SettingsEditor::unit(W* box, const char* source, const char* context)
 {
-	// CAL-I-10: the unit follows the Stellarium language.
+	// CAL-I-11: the unit follows the Stellarium language.
 	auto set = [box, source, context]() {
 		box->setSuffix(QStringLiteral(" ") + (context ? qc_(source, context) : q_(source)));
 	};

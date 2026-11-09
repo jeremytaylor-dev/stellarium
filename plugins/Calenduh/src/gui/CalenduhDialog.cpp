@@ -59,7 +59,7 @@ bool sameChartInputs(const calenduh::UserSettings& a, const calenduh::UserSettin
 	return true;
 }
 
-//! @p style with the chart text in the Stellarium language (CAL-I-10).
+//! @p style with the chart text in the Stellarium language (CAL-I-11).
 calenduh::ChartStyle withChartText(calenduh::ChartStyle style, const calenduh::ChartText& text)
 {
 	style.text = text;
@@ -103,7 +103,7 @@ void CalenduhDialog::retranslate()
 		for (int i = 0; i < pages.size(); ++i)
 			ui->listWidgetPages->item(i + 1)->setText(pages.at(i).first);
 		setStatus(statusText);
-		// CAL-I-10: the chart shown in the new language; no new calculation.
+		// CAL-I-11: the chart shown in the new language; no new calculation.
 		if (const calenduh::ChartModel* model = ui->preview->chartModel())
 		{
 			const calenduh::ChartText text = Calenduh::chartText();
