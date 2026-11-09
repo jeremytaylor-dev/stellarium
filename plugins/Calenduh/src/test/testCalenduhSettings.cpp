@@ -281,8 +281,18 @@ private slots:
 		QCOMPARE(english.dateRange(aug1, aug31), QString::fromUtf8("1–31 August 2026"));
 		QCOMPARE(english.dateRange(aug1, sep30), QString::fromUtf8("1 August – 30 September 2026"));
 		QCOMPARE(english.dateRange(dec30, jan2), QString::fromUtf8("30 December 2026 – 2 January 2027"));
-		// Every English locale has the form of the requirements.
-		QCOMPARE(inLocale("en_US").dateRange(aug1, aug31), QString::fromUtf8("1–31 August 2026"));
+		// LANG-4: US English has the month first.
+		const ChartText us = inLocale("en_US");
+		QCOMPARE(us.dateRange(aug1, aug31), QString::fromUtf8("August 1–31, 2026"));
+		QCOMPARE(us.dateRange(aug1, sep30), QString::fromUtf8("August 1 – September 30, 2026"));
+		QCOMPARE(us.dateRange(dec30, jan2), QString::fromUtf8("December 30, 2026 – January 2, 2027"));
+		QCOMPARE(inLocale("en_NZ").dateRange(aug1, aug31), QString::fromUtf8("1–31 August 2026"));
+		// The locale's day format: two digits in South African English.
+		QCOMPARE(inLocale("en_ZA").dateRange(aug1, aug31), QString::fromUtf8("01–31 August 2026"));
+		QCOMPARE(inLocale("fil_PH").dateRange(aug1, aug31), QString::fromUtf8("Agosto 1–31, 2026"));
+		// A mark after the day stays with both days; a comma or hyphen with the last only.
+		QCOMPARE(inLocale("smn_FI").dateRange(aug1, sep30).count(QLatin1Char('.')), 2);
+		QVERIFY(!inLocale("uz_Latn_UZ").dateRange(aug1, aug31).contains(QString::fromUtf8("-–")));
 
 		const ChartText german = inLocale("de_DE");
 		QCOMPARE(german.dateRange(aug1, aug31), QString::fromUtf8("1.–31. August 2026"));
